@@ -13,12 +13,12 @@ import org.firstinspires.ftc.teamcode.commands.DriveCommand;
 import org.firstinspires.ftc.teamcode.simulator.SimulatorConstants;
 import org.firstinspires.ftc.teamcode.simulator.commnands.DriveSimCommand;
 import org.firstinspires.ftc.teamcode.simulator.drivetrains.MecanumDriveSubsystemSimulation;
+import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.MecanumDriveSubsystem;
 import org.firstinspires.ftc.teamcode.utils.Configurables;
 import org.firstinspires.ftc.teamcode.utils.Constants;
 import org.firstinspires.ftc.teamcode.utils.GlobalData;
 
-//@Autonomous(name = "Blank")
 @TeleOp(name = "Teleop")
 //@Disabled
 
@@ -27,8 +27,10 @@ public class TeleopOpmode extends CommandOpMode {
     TelemetryManager telemetryM;
     GamepadEx driverGamepad;
     MecanumDriveSubsystem drive;
+
+    IntakeSubsystem intake;
     private MecanumDriveSubsystemSimulation driveSim;
-   // private IntakeSubsystem intake;
+    // private IntakeSubsystem intake;
     private Follower follower;
 
 
@@ -46,7 +48,7 @@ public class TeleopOpmode extends CommandOpMode {
                     () -> driverGamepad.getLeftY(),
                     () -> -driverGamepad.getLeftX(),
                     () -> driverGamepad.getRightX()));
-     //       intake = new IntakeSubsystem(this.hardwareMap);
+            intake = new IntakeSubsystem(this.hardwareMap);
         } else {
             driveSim = new MecanumDriveSubsystemSimulation(this);
             driveSim.setDefaultCommand(new DriveSimCommand(
@@ -82,13 +84,11 @@ public class TeleopOpmode extends CommandOpMode {
 
         }
 
-//        if (!Configurables.doSimulation) {
-//            driverGamepad.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
-//                    .whenHeld(intake.runIntakeCommand())
-//                    .whenReleased(intake.stopIntakeCommand());
-//        }
-
-
+        if (!Configurables.doSimulation) {
+            driverGamepad.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
+                    .whenHeld(intake.runIntakeCommand())
+                    .whenReleased(intake.stopIntakeCommand());
+        }
 
 
     }
@@ -113,7 +113,7 @@ public class TeleopOpmode extends CommandOpMode {
                 driveSim.showTelemetry(telemetryM);
             }
 
-            if(Configurables.doSimulation)follower.update();
+            if (Configurables.doSimulation) follower.update();
 
             //intake.showTelemetry(telemetryM);
             telemetryM.addData("IsBusy", follower.isBusy());
