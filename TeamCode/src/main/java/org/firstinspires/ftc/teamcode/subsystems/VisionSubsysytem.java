@@ -234,7 +234,7 @@ public class VisionSubsysytem extends SubsystemBase {
             default:
                 return new Pose3D(new Position(DistanceUnit.INCH, audienceX, ppBlueHiveCenterY, shootHeight, 0),
                         new YawPitchRollAngles(AngleUnit.DEGREES, 0, 0, 0, 0));
-);
+
         }
     }
 
