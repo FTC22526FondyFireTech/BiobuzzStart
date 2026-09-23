@@ -13,7 +13,7 @@ public class Configurables {
     public static boolean showIntakeTelemetry = false;
 
     //Simulation
-    public static boolean doSimulation = true; // was true
+    public static boolean doSimulation = false; // was true
 
 
 }

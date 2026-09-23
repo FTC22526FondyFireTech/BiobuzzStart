@@ -152,6 +152,25 @@ public class VisionSubsysytem extends SubsystemBase {
         }
         return ids;
     }
+    public List<Double> getTagYDegrees(List<LLResultTypes.FiducialResult> llresults) {
+        List<Double> yDeg = new ArrayList<>();
+        int i = 0;
+        for (LLResultTypes.FiducialResult fiducial : llresults) {
+            yDeg.add(fiducial.getTargetYDegrees());
+            i++;
+        }
+        return yDeg;
+    }
+
+    public List<Double> getTagXDegrees(List<LLResultTypes.FiducialResult> llresults) {
+        List<Double> yDeg = new ArrayList<>();
+        int i = 0;
+        for (LLResultTypes.FiducialResult fiducial : llresults) {
+            yDeg.add(fiducial.getTargetXDegrees());
+            i++;
+        }
+        return yDeg;
+    }
 
     public int findZoneFromTags(List<Integer> tagsSeen) {
         int[][] zoneTagSets = new int[][]{redScoringTags, redAudienceTags, blueAudienceTags, blueScoringTags};

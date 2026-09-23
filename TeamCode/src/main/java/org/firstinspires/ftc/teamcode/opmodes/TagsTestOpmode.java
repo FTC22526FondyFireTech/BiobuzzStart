@@ -11,6 +11,7 @@ import com.seattlesolvers.solverslib.geometry.Pose2d;
 import com.seattlesolvers.solverslib.util.Timing;
 
 import org.firstinspires.ftc.teamcode.subsystems.VisionSubsysytem;
+import org.firstinspires.ftc.teamcode.utils.Configurables;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -47,7 +48,6 @@ public class TagsTestOpmode extends CommandOpMode {
         while (!isStopRequested() && opModeIsActive()) {
             run();
             showTelemetry();
-            //     telemetry.addData("Array",testPose);
             telemetryM.update(telemetry);
         }
         reset();
@@ -66,6 +66,7 @@ public class TagsTestOpmode extends CommandOpMode {
     }
 
     public void showTelemetry() {
+
         if (readCamera.done()) {
 
 
@@ -82,6 +83,8 @@ public class TagsTestOpmode extends CommandOpMode {
             if (result.isValid()) {
                 telemetryM.addData("AvgDistance", vss.getAvgDistance(result));
                 telemetryM.addData("AvgArea", vss.getAvgArea(result));
+                telemetryM.addData("YTagDegrees", vss.getTagYDegrees(fr));
+                telemetryM.addData("XTagDegrees", vss.getTagXDegrees(fr));
 
                 telemetryM.addData("Yaw", vss.getYaw(result));
                 telemetryM.addData("Roll", vss.getRoll(result));
