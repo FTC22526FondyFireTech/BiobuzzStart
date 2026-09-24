@@ -23,6 +23,7 @@ public class Shooter2Subsystem extends SubsystemBase {
                 Configurables.shooterKp,
                 Configurables.shooterKi,
                 Configurables.shooterKd);
+
         shooter2Motor.setFeedforwardCoefficients(
                 Configurables.shooterKs,
                 Configurables.shooterKv,
