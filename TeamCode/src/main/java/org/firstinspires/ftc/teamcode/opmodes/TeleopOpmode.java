@@ -30,7 +30,6 @@ public class TeleopOpmode extends CommandOpMode {
 
     IntakeSubsystem intake;
     private MecanumDriveSubsystemSimulation driveSim;
-    // private IntakeSubsystem intake;
     private Follower follower;
 
 
@@ -88,6 +87,11 @@ public class TeleopOpmode extends CommandOpMode {
             driverGamepad.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
                     .whenHeld(intake.runIntakeCommand())
                     .whenReleased(intake.stopIntakeCommand());
+        }
+
+        if (!Configurables.doSimulation) {
+            driverGamepad.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
+                    .whenPressed(intake.invertIntakeCommand());
         }
 
 

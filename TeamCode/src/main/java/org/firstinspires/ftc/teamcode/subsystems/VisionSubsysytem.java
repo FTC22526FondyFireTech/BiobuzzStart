@@ -68,7 +68,7 @@ public class VisionSubsysytem extends SubsystemBase {
 
     public VisionSubsysytem(CommandOpMode opMode) {
         limelight = opMode.hardwareMap.get(Limelight3A.class, "limelight");
-        setCurrentZoneTags(0);
+        setCurrentZoneTags(3);
         opMode.telemetry.setMsTransmissionInterval(11);
 
         limelight.pipelineSwitch(fiducialPipeline);

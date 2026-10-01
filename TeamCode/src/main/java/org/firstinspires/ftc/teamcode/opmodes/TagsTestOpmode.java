@@ -29,7 +29,7 @@ public class TagsTestOpmode extends CommandOpMode {
 
     @Override
     public void initialize() {
-        vss = new VisionSubsysytem(this);
+        vss = new VisionSubsysytem(this);vss.setPipeline(0);
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
         telemetryM.update(telemetry);
@@ -67,7 +67,7 @@ public class TagsTestOpmode extends CommandOpMode {
 
     public void showTelemetry() {
 
-        if (readCamera.done()) {
+        if (true) {
 
 
             List<LLResultTypes.FiducialResult> fr = vss.getFiducialResults();

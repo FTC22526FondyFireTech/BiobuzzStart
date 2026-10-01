@@ -13,13 +13,17 @@ public class ShooterPIDSubsystem extends SubsystemBase {
 
     public Motor shooter2Motor;
     PIDFController shooterController;
-    private double targetRPM = 500;
-    private final double maxShootRPM = getMotorRPM() * .8;
+    private double targetRPM = 200;
+    private final double maxShootRPM = 400;
 
     public ShooterPIDSubsystem(HardwareMap hardwareMap) {
-        //specifying motor allows top rpm tp be read from motor
-        shooter2Motor = new Motor(hardwareMap, "shooter2", Motor.GoBILDA.RPM_1150);
-        shooterController = new PIDFController(Configurables.shooterKp, Configurables.shooterKi, Configurables.shooterKd, Configurables.shooterKf);
+        // specifying motor allows top rpm tp be read from motor
+        shooter2Motor = new Motor(hardwareMap, "shooter2");
+        shooterController = new PIDFController(
+                Configurables.shooterKp,
+                Configurables.shooterKi,
+                Configurables.shooterKd,
+                Configurables.shooterKf);
         shooterController.setSetPoint(targetRPM);
     }
 
@@ -54,7 +58,7 @@ public class ShooterPIDSubsystem extends SubsystemBase {
      * The motor defaults to the raw power mode
      */
     public void runShooter2AtVelocity() {
-        double pidout = shooterController.calculate(getMotorRPM());
+        double pidout = shooterController.calculate(getMotorRPM(),targetRPM);
         shooter2Motor.set(pidout);
     }
 
@@ -67,7 +71,9 @@ public class ShooterPIDSubsystem extends SubsystemBase {
     }
 
     public double getMotorRPM() {
-        return shooter2Motor.getRate();
+        if (shooter2Motor != null)
+            return shooter2Motor.encoder.getRate() / 13.7;
+        else return 0;
     }
 
     public double getTargetRPM() {
@@ -77,12 +83,13 @@ public class ShooterPIDSubsystem extends SubsystemBase {
     /**
      * Allows driver to adjust shoot speed
      * Needs 2 buttons +val increases speed -val decreases speed
+     *
      * @param RPM
      */
     public void setTargetRPM(double RPM) {
-        double temp = Math.signum(RPM);
-        if (RPM > maxShootRPM)
-            RPM = maxShootRPM;
+//        double temp = Math.signum(RPM);
+//        if (RPM > maxShootRPM)
+//            RPM = maxShootRPM;
         this.targetRPM = RPM;
         shooterController.setSetPoint(targetRPM);
     }
@@ -90,5 +97,9 @@ public class ShooterPIDSubsystem extends SubsystemBase {
     public void changeTargetRPM(double val) {
         double tempRPM = getTargetRPM() + val;
         setTargetRPM(tempRPM);
+    }
+
+    public Command changeTargetRPMCommand(double val) {
+        return Commands.runOnce(() -> changeTargetRPM(val));
     }
 }

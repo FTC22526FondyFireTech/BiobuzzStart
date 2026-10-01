@@ -36,7 +36,7 @@ public class Constants {
     //public static final String PINPOINT_NAME = "pinpoint";
 
     public static FollowerConstants followerConstants = new FollowerConstants()
-            .mass(5.48) // 12.1 lbs
+            .mass(7.17) // 15.8 lbs
             .forwardZeroPowerAcceleration(-42.91888710774814) // done!
             .lateralZeroPowerAcceleration(-52.68121433269847) // done!
             .translationalPIDFCoefficients(new PIDFCoefficients( // done!
@@ -92,15 +92,15 @@ public class Constants {
             .forwardTicksToInches(0.0020072738917149015) // done!
             .strafeTicksToInches(0.002006926335114678) // done!
             .turnTicksToInches(0.0020082287028496) // done!
-            .leftPodY(6.25) // done!
-            .rightPodY(-6.25) // done!
-            .strafePodX(-6.75) // done!
+            .leftPodY(6.25)
+            .rightPodY(-6.25)
+            .strafePodX(-6.75)
             .leftEncoder_HardwareMapName("frontLeft")
             .rightEncoder_HardwareMapName("backRight")
             .strafeEncoder_HardwareMapName("backLeft")
-            .leftEncoderDirection(Encoder.REVERSE)
-            .rightEncoderDirection(Encoder.REVERSE)
-            .strafeEncoderDirection(Encoder.FORWARD);
+            .leftEncoderDirection(Encoder.FORWARD)
+            .rightEncoderDirection(Encoder.FORWARD)
+            .strafeEncoderDirection(Encoder.REVERSE);
 
     /*public static ThreeWheelIMUConstants threeWheelIMUConstants = new ThreeWheelIMUConstants()
             .forwardTicksToInches(.001989436789)
@@ -118,18 +118,6 @@ public class Constants {
             .IMU_HardwareMapName("imu")
             .IMU_Orientation(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.LEFT));
     */
-
-    /*public static DriveEncoderConstants driveEncoderConstants = new DriveEncoderConstants()
-            .leftFrontMotorName(FRONT_LEFT_MOTOR_NAME)
-            .leftRearMotorName(BACK_LEFT_MOTOR_NAME)
-            .rightFrontMotorName(FRONT_RIGHT_MOTOR_NAME)
-            .rightRearMotorName(BACK_RIGHT_MOTOR_NAME)
-            .leftFrontEncoderDirection(Encoder.FORWARD)
-            .leftRearEncoderDirection(Encoder.FORWARD)
-            .rightFrontEncoderDirection(Encoder.FORWARD)
-            .rightRearEncoderDirection(Encoder.FORWARD);
-
-     */
 
     /*
      * PathConstraints, in order: tValueConstraint, velocityConstraint, translationalConstraint,

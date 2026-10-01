@@ -9,6 +9,7 @@ import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter2Subsystem;
+import org.firstinspires.ftc.teamcode.subsystems.ShooterPIDSubsystem;
 import org.firstinspires.ftc.teamcode.utils.Configurables;
 
 //@Autonomous(name = "Blank")
@@ -19,7 +20,7 @@ public class TestOpMode extends CommandOpMode {
     TelemetryManager telemetryM;
     GamepadEx driverGamepad;
     IntakeSubsystem intake;
-    Shooter2Subsystem shooter2;
+    ShooterPIDSubsystem shooter2;
 
     @Override
     public void initialize() {
@@ -30,23 +31,28 @@ public class TestOpMode extends CommandOpMode {
 
         driverGamepad = new GamepadEx(gamepad1);
         intake = new IntakeSubsystem(this.hardwareMap);
-        shooter2 = new Shooter2Subsystem(this.hardwareMap);
+        shooter2 = new ShooterPIDSubsystem(this.hardwareMap);
 
-        driverGamepad.getGamepadButton(GamepadKeys.Button.DPAD_UP)
-                .whenPressed(shooter2.setMotorVelocityModeCommand())
-                .whenPressed(shooter2.runShooter2Command(0.5));
-
-        driverGamepad.getGamepadButton(GamepadKeys.Button.DPAD_DOWN)
-                .whenPressed(shooter2.stopShooter2Command());
-
-        driverGamepad.getGamepadButton(GamepadKeys.Button.B)
-                .whenPressed(shooter2.setMotorJogModeCommand())
-                .whenPressed(shooter2.jogShooter2Command(0.5))
+        driverGamepad.getGamepadButton(GamepadKeys.Button.A)
+                //.whenPressed(shooter2.setMotorVelocityModeCommand())
+                .whenHeld(shooter2.jogShooter2Command(0.5))
                 .whenReleased(shooter2.stopShooter2Command());
+
+        driverGamepad.getGamepadButton(GamepadKeys.Button.X)
+                .whenPressed(shooter2.stopShooter2Command());
 
         driverGamepad.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
                     .whenHeld(intake.runIntakeCommand())
                     .whenReleased(intake.stopIntakeCommand());
+
+        driverGamepad.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
+                .whenPressed(shooter2.runShooter2AtVelocityCommand());
+
+        driverGamepad.getGamepadButton(GamepadKeys.Button.DPAD_UP)
+                .whenPressed(shooter2.changeTargetRPMCommand(25));
+
+        driverGamepad.getGamepadButton(GamepadKeys.Button.DPAD_DOWN)
+                .whenPressed(shooter2.changeTargetRPMCommand(-25));
 
 
     }
@@ -67,12 +73,13 @@ public class TestOpMode extends CommandOpMode {
             }
 
             if(Configurables.changeFeedForwardCoefficents) {
-                shooter2.setFeedForwardCoefficients();
+                //shooter2.setFeedForwardCoefficients();
                 Configurables.changeFeedForwardCoefficents = false;
             }
 
 
-            telemetryM.addData("shooter2RPM", shooter2.shooter2Motor.encoder.getCorrectedVelocity());
+            telemetryM.addData("shooter2RPM", shooter2.getMotorRPM());
+            telemetryM.addData("targetRPM", shooter2.getTargetRPM());
             telemetryM.update(telemetry);
         }
         reset();

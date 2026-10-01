@@ -102,7 +102,7 @@ public class MecanumDriveSubsystem extends SubsystemBase {
     }
 
     public void stop() {
-        driveRobotCentric(0, 0, 0);
+        driveFieldCentric(0, 0, 0);
     }
 
     /**

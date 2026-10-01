@@ -22,7 +22,6 @@ public class Configurables {
     public static double shooterKd = 0;
 
     public static double shooterKf = .95;
-
     public static double shooterKs = 0;
     public static double shooterKv = 0.2;
     public static double shooterKa = 0;

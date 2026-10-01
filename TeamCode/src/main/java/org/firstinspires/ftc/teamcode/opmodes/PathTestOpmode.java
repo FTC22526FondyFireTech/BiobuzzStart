@@ -34,9 +34,8 @@ public class PathTestOpmode extends CommandOpMode {
     GamepadEx driverGamepad;
     MecanumDriveSubsystem drive;
     private MecanumDriveSubsystemSimulation driveSim;
-  //  IntakeSubsystem intake;
 
-    // BLUE POSES
+    // Pose Factory
     private final Pose blueStartPose1 = new Pose(12, 12, Math.PI / 2);
     private final Pose blueStartPose2 = new Pose(59, 12, Math.PI / 2);
     private final Pose blueTestPose1 = new Pose(12, 36, Math.PI / 2);
