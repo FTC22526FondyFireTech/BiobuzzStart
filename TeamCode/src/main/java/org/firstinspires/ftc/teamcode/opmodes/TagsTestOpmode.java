@@ -29,7 +29,7 @@ public class TagsTestOpmode extends CommandOpMode {
 
     @Override
     public void initialize() {
-        vss = new VisionSubsysytem(this);vss.setPipeline(0);
+        vss = new VisionSubsysytem(this);
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
         telemetryM.update(telemetry);
@@ -67,40 +67,40 @@ public class TagsTestOpmode extends CommandOpMode {
 
     public void showTelemetry() {
 
-        if (true) {
+        //  if (readCamera.done()) {
 
 
-            List<LLResultTypes.FiducialResult> fr = vss.getFiducialResults();
+        List<LLResultTypes.FiducialResult> fr = vss.getFiducialResults();
 
-            List<Integer> tagsSeen = vss.getTagsSeen(fr);
-            telemetryM.addData("TagsSeen", tagsSeen);
+        List<Integer> tagsSeen = vss.getTagsSeen(fr);
+        telemetryM.addData("TagsSeen", tagsSeen);
 
-            telemetryM.addData("ZoneFromTags", vss.findZoneFromTags(tagsSeen));
-            telemetryM.addData("Current Zone", vss.getCurrentTagZone());
-            telemetryM.addData("Is In Current Zone", vss.isInCurrentZone(fr));
+        telemetryM.addData("ZoneFromTags", vss.findZoneFromTags(tagsSeen));
+        telemetryM.addData("Current Zone", vss.getCurrentTagZone());
+        telemetryM.addData("Is In Current Zone", vss.isInCurrentZone(fr));
 
-            LLResult result = vss.getLatestResult();
-            if (result.isValid()) {
-                telemetryM.addData("AvgDistance", vss.getAvgDistance(result));
-                telemetryM.addData("AvgArea", vss.getAvgArea(result));
-                telemetryM.addData("YTagDegrees", vss.getTagYDegrees(fr));
-                telemetryM.addData("XTagDegrees", vss.getTagXDegrees(fr));
+        LLResult result = vss.getLLResults();
+        if (result.isValid()) {
+            telemetryM.addData("AvgDistance", vss.getAvgDistance(result));
+            telemetryM.addData("AvgArea", vss.getAvgArea(result));
+            telemetryM.addData("YTagDegrees", vss.getTagYDegrees(fr));
+            telemetryM.addData("XTagDegrees", vss.getTagXDegrees(fr));
 
-                telemetryM.addData("Yaw", vss.getYaw(result));
-                telemetryM.addData("Roll", vss.getRoll(result));
+            telemetryM.addData("Yaw", vss.getYaw(result));
+            telemetryM.addData("Roll", vss.getRoll(result));
 
-                telemetryM.addData("tx", result.getTx());
-                telemetryM.addData("ty", result.getTy());
-                telemetryM.addData("ta", result.getTa());
-                telemetryM.addData("Tag Count", result.getBotposeTagCount());
-                telemetryM.addData("Pitch", vss.getPitch(result));
-                telemetryM.addData("Yaw", vss.getYaw(result));
-                telemetryM.addData("Roll", vss.getRoll(result));
-
-            }
+            telemetryM.addData("tx", result.getTx());
+            telemetryM.addData("ty", result.getTy());
+            telemetryM.addData("ta", result.getTa());
+            telemetryM.addData("Tag Count", result.getBotposeTagCount());
+            telemetryM.addData("Pitch", vss.getPitch(result));
+            telemetryM.addData("Yaw", vss.getYaw(result));
+            telemetryM.addData("Roll", vss.getRoll(result));
 
         }
 
     }
+
+    //}
 
 }

@@ -24,6 +24,7 @@ public class VisionSubsysytem extends SubsystemBase {
 
     private final int fiducialPipeline = 0;
 
+    private final int pythonColorPipeline = 2;
     public int[] redScoringTags = new int[]{30, 31, 32, 33};//zone 0
     public int[] redAudienceTags = new int[]{34, 35, 36, 37};//zone 1
     public int[] blueAudienceTags = new int[]{38, 39, 40, 41};//zone 2
@@ -68,7 +69,7 @@ public class VisionSubsysytem extends SubsystemBase {
 
     public VisionSubsysytem(CommandOpMode opMode) {
         limelight = opMode.hardwareMap.get(Limelight3A.class, "limelight");
-        setCurrentZoneTags(3);
+        setCurrentZoneTags(0);
         opMode.telemetry.setMsTransmissionInterval(11);
 
         limelight.pipelineSwitch(fiducialPipeline);
@@ -115,9 +116,6 @@ public class VisionSubsysytem extends SubsystemBase {
         return limelight.getLatestResult();
     }
 
-    public LLResult getLatestResult() {
-        return limelight.getLatestResult();
-    }
 
     public double getPitch(LLResult result) {
         return result.getBotpose().getOrientation().getPitch();
@@ -152,6 +150,7 @@ public class VisionSubsysytem extends SubsystemBase {
         }
         return ids;
     }
+
     public List<Double> getTagYDegrees(List<LLResultTypes.FiducialResult> llresults) {
         List<Double> yDeg = new ArrayList<>();
         int i = 0;
@@ -218,6 +217,26 @@ public class VisionSubsysytem extends SubsystemBase {
 
     public void setPipeline(int n) {
         limelight.pipelineSwitch(n);
+    }
+
+    public void updatePythonInputs(double[] inputs) {
+        limelight.updatePythonInputs(inputs);
+    }
+
+    /**
+     * Snapscript output, always {@code length} long; zeros when there is no result yet.
+     */
+    public double[] getPythonOutput(int length) {
+        double[] out = new double[length];
+        LLResult result = getLLResults();
+        if (result == null) {
+            return out;
+        }
+        double[] raw = result.getPythonOutput();
+        if (raw != null) {
+            System.arraycopy(raw, 0, out, 0, Math.min(raw.length, length));
+        }
+        return out;
     }
 
     public void setCurrentZoneTags(int zone) {
