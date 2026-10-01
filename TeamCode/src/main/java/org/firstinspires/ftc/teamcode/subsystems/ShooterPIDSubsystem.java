@@ -16,6 +16,8 @@ public class ShooterPIDSubsystem extends SubsystemBase {
     private double targetRPM = 200;
     private final double maxShootRPM = 400;
 
+    private final double gearRatio = 13.7;
+
     public ShooterPIDSubsystem(HardwareMap hardwareMap) {
         // specifying motor allows top rpm tp be read from motor
         shooter2Motor = new Motor(hardwareMap, "shooter2");
@@ -58,7 +60,7 @@ public class ShooterPIDSubsystem extends SubsystemBase {
      * The motor defaults to the raw power mode
      */
     public void runShooter2AtVelocity() {
-        double pidout = shooterController.calculate(getMotorRPM(),targetRPM);
+        double pidout = shooterController.calculate(getMotorRPM(), targetRPM);
         shooter2Motor.set(pidout);
     }
 
@@ -72,7 +74,7 @@ public class ShooterPIDSubsystem extends SubsystemBase {
 
     public double getMotorRPM() {
         if (shooter2Motor != null)
-            return shooter2Motor.encoder.getRate() / 13.7;
+            return shooter2Motor.encoder.getRate() / gearRatio;
         else return 0;
     }
 

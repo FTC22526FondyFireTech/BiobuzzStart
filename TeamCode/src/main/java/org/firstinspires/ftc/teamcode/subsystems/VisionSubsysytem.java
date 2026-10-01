@@ -40,22 +40,6 @@ public class VisionSubsysytem extends SubsystemBase {
     public static final double scoringX = 90;
     public static final double audienceX = 64;
 
-    public static final double shootHeight = 66;
-    public Pose3D blueScoringShootTargetPose = new Pose3D(
-            new Position(DistanceUnit.INCH, scoringX, ppBlueHiveCenterY, shootHeight, 0),
-            new YawPitchRollAngles(AngleUnit.DEGREES, 0, 0, 0, 0));
-    public Pose3D blueAudienceShootTargetPose = new Pose3D(
-            new Position(DistanceUnit.INCH, audienceX, ppBlueHiveCenterY, shootHeight, 0),
-            new YawPitchRollAngles(AngleUnit.DEGREES, 0, 0, 0, 0));
-
-    public Pose3D redScoringShootTargetPose = new Pose3D(
-            new Position(DistanceUnit.INCH, scoringX, ppRedHiveCenterY, shootHeight, 0),
-            new YawPitchRollAngles(AngleUnit.DEGREES, 0, 0, 0, 0));
-    public Pose3D redAudienceShootTargetPose = new Pose3D(
-            new Position(DistanceUnit.INCH, audienceX, ppRedHiveCenterY, shootHeight, 0),
-            new YawPitchRollAngles(AngleUnit.DEGREES, 0, 0, 0, 0));
-
-
     public int getCurrentTagZone() {
         return currentTagZone;
     }
@@ -256,23 +240,6 @@ public class VisionSubsysytem extends SubsystemBase {
                 break;
             default:
                 break;
-        }
-    }
-
-    public Pose3D getCurrentZoneShootTarget(int zone) {
-        switch (zone) {
-            case 0:
-                return redScoringShootTargetPose;
-            case 1:
-                return redAudienceShootTargetPose;
-            case 2:
-                return blueAudienceShootTargetPose;
-            case 3:
-                return blueScoringShootTargetPose;
-            default:
-                return new Pose3D(new Position(DistanceUnit.INCH, audienceX, ppBlueHiveCenterY, shootHeight, 0),
-                        new YawPitchRollAngles(AngleUnit.DEGREES, 0, 0, 0, 0));
-
         }
     }
 

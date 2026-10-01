@@ -8,7 +8,6 @@ import com.seattlesolvers.solverslib.gamepad.GamepadEx;
 import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.Shooter2Subsystem;
 import org.firstinspires.ftc.teamcode.subsystems.ShooterPIDSubsystem;
 import org.firstinspires.ftc.teamcode.utils.Configurables;
 
