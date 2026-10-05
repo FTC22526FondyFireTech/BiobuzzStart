@@ -1,8 +1,6 @@
 repositories {
     mavenCentral()
     google() // Needed for androidx
-    maven { url = "https://mymaven.bylazar.com/releases" }
-    maven { url = "https://repo.dairy.foundation/releases" }
 }
 
 dependencies {
@@ -17,15 +15,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.2.0'
 //
 
-    implementation 'com.pedropathing:ftc:2.1.2'
-    implementation 'com.pedropathing:telemetry:1.0.0'
 
-    // Core SolversLib
-    implementation "org.solverslib:core:0.3.5"
-
-    // Pedro Pathing 2.1.2
-    implementation "org.solverslib:pedroPathing:0.3.5"
-    implementation 'com.bylazar:fullpanels:1.0.12'
 
 
 }
