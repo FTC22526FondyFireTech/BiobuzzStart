@@ -15,6 +15,11 @@ public class FieldConstants {
     public final static double allianceGardenZoneYStart = 0;
 
     public final static double redHiveXCenter = 60;
+
+    public final static double redHiveYCenter = 60;
+    public final static double redScoringHiveYCenter = 50;
+
+    public final static double redAudienceHiveYCenter = 50;
     public final static double blueHiveXCenter = 84;
 
 
@@ -23,6 +28,9 @@ public class FieldConstants {
     public static Pose redScoringStartPose = new Pose(redHiveXCenter, fieldLength - robotLength / 2);
     public static Pose redAllianceWallFlowerPose = new Pose(0, 48);
     public static Pose redScoringWallFlowerPose = new Pose(48, fieldLength);
+
+    public static Pose redAudienceHiveTargetPose= new Pose(redHiveXCenter, redHiveYCenter);
+    public static Pose redScoringHiveTargetPose= new Pose(redHiveXCenter, redScoringHiveYCenter);
 
 
 }

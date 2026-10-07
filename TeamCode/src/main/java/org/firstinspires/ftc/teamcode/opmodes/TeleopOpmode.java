@@ -9,8 +9,10 @@ import com.seattlesolvers.solverslib.command.CommandOpMode;
 import com.seattlesolvers.solverslib.gamepad.GamepadEx;
 import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 
+import org.firstinspires.ftc.teamcode.commands.AimAtPoseCommand;
 import org.firstinspires.ftc.teamcode.commands.DriveCommand;
 import org.firstinspires.ftc.teamcode.simulator.SimulatorConstants;
+import org.firstinspires.ftc.teamcode.simulator.commnands.AimAtPoseCommandSim;
 import org.firstinspires.ftc.teamcode.simulator.commnands.DriveSimCommand;
 import org.firstinspires.ftc.teamcode.simulator.drivetrains.MecanumDriveSubsystemSimulation;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
@@ -79,8 +81,18 @@ public class TeleopOpmode extends CommandOpMode {
                     .whileActiveOnce(drive.setPoseCommand(new Pose(12, 12, Math.PI / 2)));
         } else {
             driverGamepad.getGamepadButton(GamepadKeys.Button.A)
-                    .whileActiveOnce(driveSim.getOdometry().setPoseCommand(new Pose(12, 12, Math.PI / 2)));
+                    .whileActiveOnce(driveSim.getOdometry().setPoseCommand(new Pose(12, 12, Math.PI / 3)));
 
+        }
+
+        if (!Configurables.doSimulation) {
+            driverGamepad.getGamepadButton(GamepadKeys.Button.B)
+                    .whenHeld(new AimAtPoseCommand(drive,new Pose(60,60) ,() -> driverGamepad.getLeftY(),
+                    () -> driverGamepad.getLeftX()));
+        } else {
+            driverGamepad.getGamepadButton(GamepadKeys.Button.B)
+                    .whenHeld(new AimAtPoseCommandSim(driveSim,new Pose(60,60) ,() -> driverGamepad.getLeftY(),
+                            () -> driverGamepad.getLeftX()));
         }
 
         if (!Configurables.doSimulation) {

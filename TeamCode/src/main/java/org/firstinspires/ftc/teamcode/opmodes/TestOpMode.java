@@ -66,14 +66,9 @@ public class TestOpMode extends CommandOpMode {
         while (!isStopRequested() && opModeIsActive()) {
             run();
 
-            if(Configurables.changeVelocityCoefficents) {
+            if(ShooterPIDSubsystem.changeVelocityCoefficents) {
                 shooter2.setVelocityCoefficients();
-                Configurables.changeVelocityCoefficents = false;
-            }
-
-            if(Configurables.changeFeedForwardCoefficents) {
-                //shooter2.setFeedForwardCoefficients();
-                Configurables.changeFeedForwardCoefficents = false;
+                ShooterPIDSubsystem.changeVelocityCoefficents = false;
             }
 
 

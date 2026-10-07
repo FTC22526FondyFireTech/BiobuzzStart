@@ -128,7 +128,7 @@ public class MecanumDriveSubsystemSimulation extends SubsystemBase {
             // Pose telemetry
             telemetryM.addData("SimX (in)", odometry.getRobotPose().getX());
             telemetryM.addData("SimY (in)", odometry.getRobotPose().getY());
-            telemetryM.addData("SimHeading (deg)", odometry.getRobotPose().getHeading());
+            telemetryM.addData("SimHeading (deg)", Math.toDegrees(odometry.getRobotPose().getHeading()));
 
         }
 

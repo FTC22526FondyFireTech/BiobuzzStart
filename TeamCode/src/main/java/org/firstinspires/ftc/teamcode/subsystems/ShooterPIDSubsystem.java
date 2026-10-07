@@ -1,4 +1,5 @@
 package org.firstinspires.ftc.teamcode.subsystems;
+
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.seattlesolvers.solverslib.command.Command;
 import com.seattlesolvers.solverslib.command.Commands;
@@ -9,13 +10,21 @@ import com.seattlesolvers.solverslib.gamepad.SlewRateLimiter;
 import com.seattlesolvers.solverslib.hardware.motors.Motor;
 import com.seattlesolvers.solverslib.hardware.motors.MotorEx;
 
+import org.firstinspires.ftc.teamcode.simulator.simulators.MotorSimulator;
 import org.firstinspires.ftc.teamcode.utils.Configurables;
 
 public class ShooterPIDSubsystem extends SubsystemBase {
 
-    public final double cpr;
-    public MotorEx shooter2Motor;
+    public static double shooterKp = 0.01;
+    public static double shooterKi = 0;
+    public static double shooterKd = 0;
 
+    public static boolean changeVelocityCoefficents = false;
+    public double cpr;
+    public MotorEx shooter2Motor;
+    private MotorSimulator shooterMotorSim;
+
+    private boolean direction;
     public SimpleMotorFeedforward sff;
 
     public SlewRateLimiter slf;
@@ -38,28 +47,36 @@ public class ShooterPIDSubsystem extends SubsystemBase {
 
     public ShooterPIDSubsystem(HardwareMap hardwareMap) {
         // specifying motor allows top rpm tp be read from motor
-        shooter2Motor = new MotorEx(hardwareMap, "shooter2", Motor.GoBILDA.RPM_435);
+        if (!Configurables.doSimulation) {
+            shooter2Motor = new MotorEx(hardwareMap, "shooter2", Motor.GoBILDA.RPM_435);
 
-        maxMotorRPM = shooter2Motor.getMaxRPM();
+            maxMotorRPM = shooter2Motor.getMaxRPM();
 
-        slf = new SlewRateLimiter(1000);
-        maxShootRPM = maxMotorRPM * .9;
-        minShootRPM = maxShootRPM / 2;
-        cpr = shooter2Motor.getCPR();
+            slf = new SlewRateLimiter(1000);
+            maxShootRPM = maxMotorRPM * .9;
+            minShootRPM = maxShootRPM / 2;
+            cpr = shooter2Motor.getCPR();
+        } else {
+            shooterMotorSim = new MotorSimulator(true, 1150);
+            shooterMotorSim.setInverted(true);
+            direction = shooterMotorSim.isInverted();
+        }
 
         sff = new SimpleMotorFeedforward(.0, .9 / maxMotorRPM, 0);
 
-        pidController = new PIDController(Configurables.shooterKp, Configurables.shooterKi, Configurables.shooterKd);
+        pidController = new PIDController(shooterKp, shooterKi, shooterKd);
 
 
     }
 
     public void setVelocityCoefficients() {
-        pidController.setPID(Configurables.shooterKp, Configurables.shooterKi, Configurables.shooterKd);
+        pidController.setPID(shooterKp, shooterKi, shooterKd);
     }
 
     public void runShooter2(double pct) {
-        shooter2Motor.set(pct);
+        if (!Configurables.doSimulation)
+            shooter2Motor.set(pct);
+        else shooterMotorSim.setPower(pct);
     }
 
     public Command jogShooter2Command(double pct) {
@@ -67,8 +84,12 @@ public class ShooterPIDSubsystem extends SubsystemBase {
     }
 
     public void stopShooter2() {
-        shooter2Motor.stopMotor();
-        shooter2Motor.set(0);
+        if (!Configurables.doSimulation) {
+            shooter2Motor.stopMotor();
+            shooter2Motor.set(0);
+        } else {
+            shooterMotorSim.setPower(0);
+        }
     }
 
     public Command stopShooter2Command() {
@@ -85,7 +106,9 @@ public class ShooterPIDSubsystem extends SubsystemBase {
         tst++;
         pidout = pidController.calculate(getMotorRPM());
         ff = sff.calculate(targetRPM);
-        shooter2Motor.set(ff + pidout);
+        if (!Configurables.doSimulation)
+            shooter2Motor.set(ff + pidout);
+        else shooterMotorSim.setPower(ff + pidout);
     }
 
     public double getVelocityError() {
@@ -97,9 +120,9 @@ public class ShooterPIDSubsystem extends SubsystemBase {
     }
 
     public double getMotorRPM() {
-        if (shooter2Motor != null)
+        if (!Configurables.doSimulation) {
             return shooter2Motor.getVelocity() * 60. / cpr;
-        else return 0;
+        } else return shooterMotorSim.getVelocityRPM();
     }
 
     public double getTargetRPM() {
