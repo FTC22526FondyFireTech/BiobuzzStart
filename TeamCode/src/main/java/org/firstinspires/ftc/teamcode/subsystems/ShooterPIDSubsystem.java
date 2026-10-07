@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.seattlesolvers.solverslib.command.Command;
 import com.seattlesolvers.solverslib.command.Commands;
@@ -13,13 +14,15 @@ import com.seattlesolvers.solverslib.hardware.motors.MotorEx;
 import org.firstinspires.ftc.teamcode.simulator.simulators.MotorSimulator;
 import org.firstinspires.ftc.teamcode.utils.Configurables;
 
+@Configurable
 public class ShooterPIDSubsystem extends SubsystemBase {
 
     public static double shooterKp = 0.01;
     public static double shooterKi = 0;
     public static double shooterKd = 0;
-
     public static boolean changeVelocityCoefficents = false;
+
+
     public double cpr;
     public MotorEx shooter2Motor;
     private MotorSimulator shooterMotorSim;
