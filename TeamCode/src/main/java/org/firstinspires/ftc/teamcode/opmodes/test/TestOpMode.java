@@ -18,7 +18,7 @@ public class TestOpMode extends CommandOpMode {
     TelemetryManager telemetryM;
     GamepadEx driverGamepad;
     IntakeSubsystem intake;
-    PollenShooterSubsystem shooter2;
+    PollenShooterSubsystem pollenShooter;
 
     @Override
     public void initialize() {
@@ -29,28 +29,28 @@ public class TestOpMode extends CommandOpMode {
 
         driverGamepad = new GamepadEx(gamepad1);
         intake = new IntakeSubsystem(this.hardwareMap);
-        shooter2 = new PollenShooterSubsystem(this.hardwareMap);
+        pollenShooter = new PollenShooterSubsystem(this.hardwareMap);
 
         driverGamepad.getGamepadButton(GamepadKeys.Button.A)
                 //.whenPressed(shooter2.setMotorVelocityModeCommand())
-                .whenHeld(shooter2.jogShooter2Command(0.5))
-                .whenReleased(shooter2.stopShooter2Command());
+                .whenHeld(pollenShooter.jogPollenShooterCommand(0.5))
+                .whenReleased(pollenShooter.stopShooter2Command());
 
         driverGamepad.getGamepadButton(GamepadKeys.Button.X)
-                .whenPressed(shooter2.stopShooter2Command());
+                .whenPressed(pollenShooter.stopShooter2Command());
 
         driverGamepad.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
                     .whenHeld(intake.runIntakeCommand())
                     .whenReleased(intake.stopIntakeCommand());
 
         driverGamepad.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
-                .whenPressed(shooter2.runShooter2AtVelocityCommand());
+                .whenPressed(pollenShooter.runShooter2AtVelocityCommand());
 
         driverGamepad.getGamepadButton(GamepadKeys.Button.DPAD_UP)
-                .whenPressed(shooter2.changeTargetRPMCommand(25));
+                .whenPressed(pollenShooter.changeTargetRPMCommand(25));
 
         driverGamepad.getGamepadButton(GamepadKeys.Button.DPAD_DOWN)
-                .whenPressed(shooter2.changeTargetRPMCommand(-25));
+                .whenPressed(pollenShooter.changeTargetRPMCommand(-25));
 
 
     }
@@ -65,14 +65,14 @@ public class TestOpMode extends CommandOpMode {
         while (!isStopRequested() && opModeIsActive()) {
             run();
 
-            if(PollenShooterSubsystem.changeVelocityCoefficents) {
-                shooter2.setVelocityCoefficients();
-                PollenShooterSubsystem.changeVelocityCoefficents = false;
+            if(PollenShooterSubsystem.changePollenVelocityCoefficents) {
+                pollenShooter.setVelocityCoefficients();
+                PollenShooterSubsystem.changePollenVelocityCoefficents = false;
             }
 
 
-            telemetryM.addData("shooter2RPM", shooter2.getMotorRPM());
-            telemetryM.addData("targetRPM", shooter2.getTargetRPM());
+            telemetryM.addData("shooter2RPM", pollenShooter.getMotorRPM());
+            telemetryM.addData("targetRPM", pollenShooter.getTargetRPM());
             telemetryM.update(telemetry);
         }
         reset();

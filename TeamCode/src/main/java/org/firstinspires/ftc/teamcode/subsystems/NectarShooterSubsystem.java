@@ -17,14 +17,14 @@ import org.firstinspires.ftc.teamcode.utils.Configurables;
 @Configurable
 public class NectarShooterSubsystem extends SubsystemBase {
 
-    public static double shooterKp = 0.01;
-    public static double shooterKi = 0;
-    public static double shooterKd = 0;
-    public static boolean changeVelocityCoefficents = false;
+    public static double nectarShooterKp = 0.01;
+    public static double nectarShooterKi = 0;
+    public static double nectarShooterKd = 0;
+    public static boolean changeNectarVelocityCoefficents = false;
 
 
     public double cpr;
-    public MotorEx shooter2Motor;
+    public MotorEx nectarShooterMotor;
     private MotorSimulator shooterMotorSim;
 
     private boolean direction;
@@ -51,14 +51,14 @@ public class NectarShooterSubsystem extends SubsystemBase {
     public NectarShooterSubsystem(HardwareMap hardwareMap) {
         // specifying motor allows top rpm tp be read from motor
         if (!Configurables.doSimulation) {
-            shooter2Motor = new MotorEx(hardwareMap, "nectar", Motor.GoBILDA.RPM_435);
+            nectarShooterMotor = new MotorEx(hardwareMap, "nectar", Motor.GoBILDA.RPM_1150);
 
-            maxMotorRPM = shooter2Motor.getMaxRPM();
+            maxMotorRPM = nectarShooterMotor.getMaxRPM();
 
             slf = new SlewRateLimiter(1000);
             maxShootRPM = maxMotorRPM * .9;
             minShootRPM = maxShootRPM / 2;
-            cpr = shooter2Motor.getCPR();
+            cpr = nectarShooterMotor.getCPR();
         } else {
             shooterMotorSim = new MotorSimulator(true, 1150);
             shooterMotorSim.setInverted(true);
@@ -67,36 +67,36 @@ public class NectarShooterSubsystem extends SubsystemBase {
 
         sff = new SimpleMotorFeedforward(.0, .9 / maxMotorRPM, 0);
 
-        pidController = new PIDController(shooterKp, shooterKi, shooterKd);
+        pidController = new PIDController(nectarShooterKp, nectarShooterKi, nectarShooterKd);
 
 
     }
 
     public void setVelocityCoefficients() {
-        pidController.setPID(shooterKp, shooterKi, shooterKd);
+        pidController.setPID(nectarShooterKp, nectarShooterKi, nectarShooterKd);
     }
 
-    public void runShooter2(double pct) {
+    public void runNectarShooter(double pct) {
         if (!Configurables.doSimulation)
-            shooter2Motor.set(pct);
+            nectarShooterMotor.set(pct);
         else shooterMotorSim.setPower(pct);
     }
 
-    public Command jogShooter2Command(double pct) {
-        return Commands.runOnce(() -> runShooter2(pct), this);
+    public Command jogNectarShooterCommand(double pct) {
+        return Commands.runOnce(() -> runNectarShooter(pct), this);
     }
 
-    public void stopShooter2() {
+    public void stopNetarShooter() {
         if (!Configurables.doSimulation) {
-            shooter2Motor.stopMotor();
-            shooter2Motor.set(0);
+            nectarShooterMotor.stopMotor();
+            nectarShooterMotor.set(0);
         } else {
             shooterMotorSim.setPower(0);
         }
     }
 
-    public Command stopShooter2Command() {
-        return Commands.runOnce(this::stopShooter2, this);
+    public Command stopNectarShooterCommand() {
+        return Commands.runOnce(this::stopNetarShooter, this);
     }
 
     /**
@@ -105,12 +105,12 @@ public class NectarShooterSubsystem extends SubsystemBase {
      * The controller setpoint is set by setTargetRPM()
      * The motor defaults to the raw power mode
      */
-    public void runShooter2AtVelocity() {
+    public void runNectarShooterAtVelocity() {
         tst++;
-        pidout = pidController.calculate(getMotorRPM());
+        pidout = pidController.calculate(getNectarMotorRPM());
         ff = sff.calculate(targetRPM);
         if (!Configurables.doSimulation)
-            shooter2Motor.set(ff + pidout);
+            nectarShooterMotor.set(ff + pidout);
         else shooterMotorSim.setPower(ff + pidout);
     }
 
@@ -118,13 +118,13 @@ public class NectarShooterSubsystem extends SubsystemBase {
         return pidController.getVelocityError();
     }
 
-    public Command runShooter2AtVelocityCommand() {
-        return Commands.run(this::runShooter2AtVelocity, this);
+    public Command runNectarShooterAtVelocityCommand() {
+        return Commands.run(this::runNectarShooterAtVelocity, this);
     }
 
-    public double getMotorRPM() {
+    public double getNectarMotorRPM() {
         if (!Configurables.doSimulation) {
-            return shooter2Motor.getVelocity() * 60. / cpr;
+            return nectarShooterMotor.getVelocity() * 60. / cpr;
         } else return shooterMotorSim.getVelocityRPM();
     }
 
@@ -152,7 +152,7 @@ public class NectarShooterSubsystem extends SubsystemBase {
         setTargetRPM(tempRPM);
     }
 
-    public Command changeTargetRPMCommand(double val) {
+    public Command changeNectarTargetRPMCommand(double val) {
         return Commands.runOnce(() -> changeTargetRPM(val));
 
     }

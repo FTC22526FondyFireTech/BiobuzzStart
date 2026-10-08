@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opmodes;
+package org.firstinspires.ftc.teamcode.opmodes.teleop;
 
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
@@ -40,7 +40,7 @@ public class TeleopOpmode extends CommandOpMode {
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
         telemetryM.update(telemetry);
-        GlobalData.setBlueAlliance();
+        GlobalData.setRedAlliance();
         driverGamepad = new GamepadEx(gamepad1);
 
         if (!Configurables.doSimulation) {
@@ -55,7 +55,7 @@ public class TeleopOpmode extends CommandOpMode {
             driveSim.setDefaultCommand(new DriveSimCommand(
                     driveSim,
                     () -> driverGamepad.getLeftY(),
-                    () -> -driverGamepad.getLeftX(),
+                    () -> driverGamepad.getLeftX(),
                     () -> driverGamepad.getRightX(), () -> true));
         }
 
@@ -91,7 +91,7 @@ public class TeleopOpmode extends CommandOpMode {
                             () -> driverGamepad.getLeftX()));
         } else {
             driverGamepad.getGamepadButton(GamepadKeys.Button.B)
-                    .whenHeld(new AimAtPoseCommandSim(driveSim, new Pose(60, 60), () -> driverGamepad.getLeftY(),
+                    .whenHeld(new AimAtPoseCommandSim(driveSim, () -> driverGamepad.getLeftY(),
                             () -> driverGamepad.getLeftX()));
         }
 

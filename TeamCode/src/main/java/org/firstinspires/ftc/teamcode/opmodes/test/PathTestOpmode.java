@@ -45,8 +45,8 @@ public class PathTestOpmode extends CommandOpMode {
 
     // POSES
     private Pose startPose1 = new Pose();
-    private Pose startPose2 = new Pose();
-    private Pose testPose1 = new Pose();
+    private Pose startPose2 = new Pose(24,48);
+    private Pose testPose1 = new Pose(36,80);
     private Pose testPose2 = new Pose();
     private Pose intakePose = new Pose();
     private Pose shootPose = new Pose();
@@ -76,7 +76,7 @@ public class PathTestOpmode extends CommandOpMode {
             driveSim.setDefaultCommand(new DriveSimCommand(
                     driveSim,
                     () -> driverGamepad.getLeftY(),
-                    () -> -driverGamepad.getLeftX(),
+                    () -> driverGamepad.getLeftX(),
                     () -> driverGamepad.getRightX(), () -> true));
            // intake = null; // doesn't run intake in simulation
         }

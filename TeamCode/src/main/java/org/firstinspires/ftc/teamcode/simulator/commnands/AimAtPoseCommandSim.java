@@ -51,17 +51,17 @@ public class AimAtPoseCommandSim extends CommandBase {
     public static double headingOffsetRad = 0.0;
 
     private final MecanumDriveSubsystemSimulation drive;
-    private final Pose target;
+    private  Pose target;
     private final DoubleSupplier forward;
     private final DoubleSupplier strafe;
     private final PIDController headingController = new PIDController(kP, kI, kD);
 
     TelemetryManager telemetryM;
 
-    public AimAtPoseCommandSim(MecanumDriveSubsystemSimulation drive, Pose target,
+    public AimAtPoseCommandSim(MecanumDriveSubsystemSimulation drive,
                                DoubleSupplier forward, DoubleSupplier strafe) {
         this.drive = drive;
-        this.target = target;
+
         this.forward = forward;
         this.strafe = strafe;
         addRequirements(drive);
@@ -73,10 +73,14 @@ public class AimAtPoseCommandSim extends CommandBase {
         headingController.reset();
         headingController.setPID(kP, kI, kD);
         drive.startTeleopDrive();
+        telemetryM.addData("INIT", "AimAtPoseCommand");
+        telemetryM.update();
     }
 
     @Override
     public void execute() {
+        target=drive.activeHiveTargetPoseSim;
+
 
         Pose pose = drive.getOdometry().getRobotPose();
 

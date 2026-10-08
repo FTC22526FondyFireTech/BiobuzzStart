@@ -33,13 +33,10 @@ public class MecanumDriveSubsystem extends SubsystemBase {
     private final Follower follower;
     private boolean teleopDriveActive = false;
     public boolean isRobotCentric = false;
-    public Pose activeHiveTargetPose = new Pose();
 
     public boolean isRobotCentric() {
         return isRobotCentric;
     }
-
-    public int currentFieldZone = 0;
 
     private ElapsedTime et;
 
@@ -70,7 +67,7 @@ public class MecanumDriveSubsystem extends SubsystemBase {
             setActiveHiveTargetPose();
             et.reset();
         }
-        //Drawing.drawDebug(follower);
+
         Drawing.drawRobot(getPose(), GlobalData.robotLook);
     }
 
@@ -79,18 +76,18 @@ public class MecanumDriveSubsystem extends SubsystemBase {
         double x = follower.getPose().getX();
         double y = follower.getPose().getY();
 
-        if (x >= 72 && y < 72) {
-            currentFieldZone = 0;
-            activeHiveTargetPose = FieldConstants.redScoringHiveTargetPose;
+        if (x < 72 && y >= 72) {
+            GlobalData.setCurrentOdometryZone(0);
+            GlobalData.setActiveHiveTargetPose(FieldConstants.redScoringHiveTargetPose);
         } else if (x < 72 && y < 72) {
-            currentFieldZone = 1;
-            activeHiveTargetPose = FieldConstants.redAudienceHiveTargetPose;
-        } else if (x < 72 && y >= 72) {
-            currentFieldZone = 2;
-            activeHiveTargetPose = FieldConstants.blueAudienceHiveTargetPose;
+            GlobalData.setCurrentOdometryZone(1);
+            GlobalData.setActiveHiveTargetPose(FieldConstants.redAudienceHiveTargetPose);
+        } else if (x >= 72 && y < 72) {
+            GlobalData.setCurrentOdometryZone(2);
+            GlobalData.setActiveHiveTargetPose(FieldConstants.blueAudienceHiveTargetPose);
         } else if (x >= 72 && y > 72) {
-            currentFieldZone = 3;
-            activeHiveTargetPose = FieldConstants.blueScoringHiveTargetPose;
+            GlobalData.setCurrentOdometryZone(3);
+            GlobalData.setActiveHiveTargetPose(FieldConstants.blueScoringHiveTargetPose);
         }
 
     }

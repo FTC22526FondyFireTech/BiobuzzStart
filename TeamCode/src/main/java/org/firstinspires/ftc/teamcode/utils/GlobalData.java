@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.utils;
 
 
 import com.bylazar.field.Style;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.seattlesolvers.solverslib.command.Command;
 import com.seattlesolvers.solverslib.command.ConditionalCommand;
@@ -55,9 +56,31 @@ public class GlobalData {
     private static final Style redLook = new Style("", "#FF0000", 1.0);
     private static final Style blueLook = new Style("", "#0000FF", 1.0);
 
+    public static Pose getActiveHiveTargetPose() {
+        return activeHiveTargetPose;
+    }
+
+    public static void setActiveHiveTargetPose(Pose activeTargetPose) {
+        activeHiveTargetPose = activeTargetPose;
+    }
+
+    public static int getCurrentOdometryZone() {
+        return currentOdometryZone;
+    }
+
+    public static void setCurrentOdometryZone(int currentZone) {
+        currentOdometryZone = currentZone;
+    }
+
+    private static Pose activeHiveTargetPose = new Pose();
+    private static int currentOdometryZone = 0;
+
+
     public static boolean allianceSelected;
     public static boolean allianceIsConfirmed;
     public static boolean choicesComplete;
+
+
 
 
     //Method to select starting position and number of artifact group using gamepad

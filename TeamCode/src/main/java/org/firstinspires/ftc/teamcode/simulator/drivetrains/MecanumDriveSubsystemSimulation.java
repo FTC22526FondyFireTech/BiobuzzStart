@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.simulator.drivetrains;
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.seattlesolvers.solverslib.command.SubsystemBase;
@@ -13,6 +14,7 @@ import org.firstinspires.ftc.teamcode.simulator.simulators.OdometrySimulator;
 import org.firstinspires.ftc.teamcode.simulator.simulators.SimulatedLocalizer;
 import org.firstinspires.ftc.teamcode.utils.Configurables;
 import org.firstinspires.ftc.teamcode.utils.Drawing;
+import org.firstinspires.ftc.teamcode.utils.FieldConstants;
 import org.firstinspires.ftc.teamcode.utils.GlobalData;
 
 @Configurable
@@ -32,6 +34,8 @@ public class MecanumDriveSubsystemSimulation extends SubsystemBase {
     private static final double MAX_CATCHUP_SECONDS = 0.5; // cap backlog after a genuine pause
     private boolean teleopDriveActive = false;
     public boolean isRobotCentric = false;
+    private int currentFieldZoneSim;
+    public Pose activeHiveTargetPoseSim;
 
     public boolean isRobotCentric() {
         return isRobotCentric;
@@ -43,6 +47,8 @@ public class MecanumDriveSubsystemSimulation extends SubsystemBase {
 
     private int tstcnt;
     OpMode opMode;
+
+    ElapsedTime et;
 //
 //    private static final Style robotLook = new Style(
 //            "", "#3F51B5", 2.0
@@ -67,7 +73,9 @@ public class MecanumDriveSubsystemSimulation extends SubsystemBase {
         lastUpdateTime = 0;
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
+        et = new ElapsedTime();
         Drawing.init();
+
     }
 
 
@@ -116,8 +124,36 @@ public class MecanumDriveSubsystemSimulation extends SubsystemBase {
 
             accumulatedTime -= simDt;
         }
+        if (et.seconds() > .5) {
+            setActiveHiveTargetPose();
+            et.reset();
+        }
+
 
         Drawing.drawRobot(odometry.getRobotPose(), GlobalData.robotLook);
+
+    }
+
+    public void setActiveHiveTargetPose() {
+
+        double x = odometry.getRobotPose().getX();
+        double y = odometry.getRobotPose().getY();
+
+        if (x < 72 && y >= 72) {
+            currentFieldZoneSim = 0;
+            activeHiveTargetPoseSim = FieldConstants.redScoringHiveTargetPose;
+        } else if (x < 72 && y < 72) {
+            currentFieldZoneSim = 1;
+            activeHiveTargetPoseSim = FieldConstants.redAudienceHiveTargetPose;
+        } else if (x >= 72 && y < 72) {
+            currentFieldZoneSim = 2;
+            activeHiveTargetPoseSim = FieldConstants.blueAudienceHiveTargetPose;
+        } else if (x >= 72 && y > 72) {
+            currentFieldZoneSim = 3;
+            activeHiveTargetPoseSim = FieldConstants.blueScoringHiveTargetPose;
+        }
+
+      //  Drawing.drawPose(activeHiveTargetPoseSim);
 
     }
 
@@ -129,7 +165,8 @@ public class MecanumDriveSubsystemSimulation extends SubsystemBase {
             telemetryM.addData("SimX (in)", odometry.getRobotPose().getX());
             telemetryM.addData("SimY (in)", odometry.getRobotPose().getY());
             telemetryM.addData("SimHeading (deg)", Math.toDegrees(odometry.getRobotPose().getHeading()));
-
+            telemetryM.addData("Current Zone", currentFieldZoneSim);
+            telemetryM.update();
         }
 
         // Motor telemetry

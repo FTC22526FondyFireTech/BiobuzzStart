@@ -17,14 +17,14 @@ import org.firstinspires.ftc.teamcode.utils.Configurables;
 @Configurable
 public class PollenShooterSubsystem extends SubsystemBase {
 
-    public static double shooterKp = 0.01;
-    public static double shooterKi = 0;
-    public static double shooterKd = 0;
-    public static boolean changeVelocityCoefficents = false;
+    public static double pollenShooterKp = 0.01;
+    public static double pollenShooterKi = 0;
+    public static double pollenShooterKd = 0;
+    public static boolean changePollenVelocityCoefficents = false;
 
 
     public double cpr;
-    public MotorEx shooter2Motor;
+    public MotorEx pollenShooterMotor;
     private MotorSimulator shooterMotorSim;
 
     private boolean direction;
@@ -51,14 +51,14 @@ public class PollenShooterSubsystem extends SubsystemBase {
     public PollenShooterSubsystem(HardwareMap hardwareMap) {
         // specifying motor allows top rpm tp be read from motor
         if (!Configurables.doSimulation) {
-            shooter2Motor = new MotorEx(hardwareMap, "pollen", Motor.GoBILDA.RPM_435);
+            pollenShooterMotor = new MotorEx(hardwareMap, "pollen", Motor.GoBILDA.RPM_1150);
 
-            maxMotorRPM = shooter2Motor.getMaxRPM();
+            maxMotorRPM = pollenShooterMotor.getMaxRPM();
 
             slf = new SlewRateLimiter(1000);
             maxShootRPM = maxMotorRPM * .9;
             minShootRPM = maxShootRPM / 2;
-            cpr = shooter2Motor.getCPR();
+            cpr = pollenShooterMotor.getCPR();
         } else {
             shooterMotorSim = new MotorSimulator(true, 1150);
             shooterMotorSim.setInverted(true);
@@ -67,36 +67,36 @@ public class PollenShooterSubsystem extends SubsystemBase {
 
         sff = new SimpleMotorFeedforward(.0, .9 / maxMotorRPM, 0);
 
-        pidController = new PIDController(shooterKp, shooterKi, shooterKd);
+        pidController = new PIDController(pollenShooterKp, pollenShooterKi, pollenShooterKd);
 
 
     }
 
     public void setVelocityCoefficients() {
-        pidController.setPID(shooterKp, shooterKi, shooterKd);
+        pidController.setPID(pollenShooterKp, pollenShooterKi, pollenShooterKd);
     }
 
-    public void runShooter2(double pct) {
+    public void runPollenShooter(double pct) {
         if (!Configurables.doSimulation)
-            shooter2Motor.set(pct);
+            pollenShooterMotor.set(pct);
         else shooterMotorSim.setPower(pct);
     }
 
-    public Command jogShooter2Command(double pct) {
-        return Commands.runOnce(() -> runShooter2(pct), this);
+    public Command jogPollenShooterCommand(double pct) {
+        return Commands.runOnce(() -> runPollenShooter(pct), this);
     }
 
-    public void stopShooter2() {
+    public void stopPollenShooter() {
         if (!Configurables.doSimulation) {
-            shooter2Motor.stopMotor();
-            shooter2Motor.set(0);
+            pollenShooterMotor.stopMotor();
+            pollenShooterMotor.set(0);
         } else {
             shooterMotorSim.setPower(0);
         }
     }
 
     public Command stopShooter2Command() {
-        return Commands.runOnce(this::stopShooter2, this);
+        return Commands.runOnce(this::stopPollenShooter, this);
     }
 
     /**
@@ -110,7 +110,7 @@ public class PollenShooterSubsystem extends SubsystemBase {
         pidout = pidController.calculate(getMotorRPM());
         ff = sff.calculate(targetRPM);
         if (!Configurables.doSimulation)
-            shooter2Motor.set(ff + pidout);
+            pollenShooterMotor.set(ff + pidout);
         else shooterMotorSim.setPower(ff + pidout);
     }
 
@@ -124,7 +124,7 @@ public class PollenShooterSubsystem extends SubsystemBase {
 
     public double getMotorRPM() {
         if (!Configurables.doSimulation) {
-            return shooter2Motor.getVelocity() * 60. / cpr;
+            return pollenShooterMotor.getVelocity() * 60. / cpr;
         } else return shooterMotorSim.getVelocityRPM();
     }
 

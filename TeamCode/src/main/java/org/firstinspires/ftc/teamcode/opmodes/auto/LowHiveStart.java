@@ -28,6 +28,17 @@ import org.firstinspires.ftc.teamcode.utils.GlobalData;
  * everything else (PathChains, FollowPathCommand, follower.update()/getPose()) works unchanged,
  * since both factories hand back a real {@code Follower}.
  */
+
+/**
+ * Used only when partner can score in the initial raised hive.
+ * Robot starts at the red or blue low hive and waits until it raises before shooting.
+ * Then moves to pick up from adjacent flower and shoots those before parking.
+ * If hive doesn't raise before 20 seconds robot goes straight to park.
+ *
+ *
+ *
+ *
+ */
 @Autonomous(name = "Low Hive Start", group = "Auto")
 public class LowHiveStart extends CommandOpMode {
 
@@ -35,7 +46,7 @@ public class LowHiveStart extends CommandOpMode {
     private MecanumDriveSubsystemSimulation driveSim;
     private Follower follower;
     TelemetryManager telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
-    private Pose startPose, scorePose, flowerPickupPose, parkPose;
+    private Pose startPose, secondShootPose,flowerApproachPose, flowerPickupPose, parkPose;
     private PathChain scorePreload, grabPickup1, scorePickup1, park;
 
 
@@ -59,13 +70,15 @@ public class LowHiveStart extends CommandOpMode {
 
         if (GlobalData.isRedAlliance()) {
             startPose = FieldConstants.redScoringStartPose;
-            flowerPickupPose = FieldConstants.redScoringWallFlowerPose;
+            flowerApproachPose= FieldConstants.scoringWallFlowerApproachPose
+            flowerPickupPose = FieldConstants.scoringWallFlowerPickupPose;
+            secondShootPose = FieldConstants.scoringSecondShootPose;
             parkPose = FieldConstants.redScoringParkPose;
         } else {
-            startPose = FieldConstants.blueScoringStartPose;
-            flowerPickupPose = FieldConstants.blueAllianceWallFlowerPose;
+            flowerApproachPose= FieldConstants.blueAudienceStartPose;
+                    flowerPickupPose = FieldConstants.scoringWallFlowerPose;
+            secondShootPose = FieldConstants.audienceSecondShootPose;
             parkPose = FieldConstants.blueAudienceParkPose;
-
         }
 
         // Only this line differs from PedroAutoSample.initialize() - everything below is
@@ -123,29 +136,29 @@ public class LowHiveStart extends CommandOpMode {
     }
 
     public void buildPaths() {
-        scorePreload = follower.pathBuilder()
-                .addPath(new BezierLine(startPose, scorePose))
-                .setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading())
-                .build();
-
-        grabPickup1 = follower.pathBuilder()
-                .addPath(new BezierLine(scorePose, flowerPickupPose))
-                .setLinearHeadingInterpolation(scorePose.getHeading(), flowerPickupPose.getHeading())
-                .build();
-
-        scorePickup1 = follower.pathBuilder()
-                .addPath(new BezierLine(flowerPickupPose, scorePose))
-                .setLinearHeadingInterpolation(flowerPickupPose.getHeading(), scorePose.getHeading())
-                .build();
-
-        park = follower.pathBuilder()
-                .addPath(new BezierCurve(
-                        scorePose,
-                        new Pose(68, 110), // Control point
-                        parkPose)
-                )
-                .setLinearHeadingInterpolation(scorePose.getHeading(), parkPose.getHeading())
-                .build();
+//        scorePreload = follower.pathBuilder()
+//                .addPath(new BezierLine(startPose, scorePose))
+//                .setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading())
+//                .build();
+//
+//        grabPickup1 = follower.pathBuilder()
+//                .addPath(new BezierLine(scorePose, flowerPickupPose))
+//                .setLinearHeadingInterpolation(scorePose.getHeading(), flowerPickupPose.getHeading())
+//                .build();
+//
+//        scorePickup1 = follower.pathBuilder()
+//                .addPath(new BezierLine(flowerPickupPose, scorePose))
+//                .setLinearHeadingInterpolation(flowerPickupPose.getHeading(), scorePose.getHeading())
+//                .build();
+//
+//        park = follower.pathBuilder()
+//                .addPath(new BezierCurve(
+//                        scorePose,
+//                        new Pose(68, 110), // Control point
+//                        parkPose)
+//                )
+//                .setLinearHeadingInterpolation(scorePose.getHeading(), parkPose.getHeading())
+//                .build();
     }
 
 
