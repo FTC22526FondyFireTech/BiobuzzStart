@@ -70,7 +70,7 @@ public class LowHiveStart extends CommandOpMode {
 
         if (GlobalData.isRedAlliance()) {
             startPose = FieldConstants.redScoringStartPose;
-            flowerApproachPose= FieldConstants.scoringWallFlowerApproachPose
+            flowerApproachPose= FieldConstants.scoringWallFlowerApproachPose;
             flowerPickupPose = FieldConstants.scoringWallFlowerPickupPose;
             secondShootPose = FieldConstants.scoringSecondShootPose;
             parkPose = FieldConstants.redScoringParkPose;
