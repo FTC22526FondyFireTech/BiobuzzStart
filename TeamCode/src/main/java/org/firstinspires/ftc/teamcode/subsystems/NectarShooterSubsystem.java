@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.simulator.simulators.MotorSimulator;
 import org.firstinspires.ftc.teamcode.utils.Configurables;
 
 @Configurable
-public class ShooterPIDSubsystem extends SubsystemBase {
+public class NectarShooterSubsystem extends SubsystemBase {
 
     public static double shooterKp = 0.01;
     public static double shooterKi = 0;
@@ -48,10 +48,10 @@ public class ShooterPIDSubsystem extends SubsystemBase {
 
     public double maxMotorRPM;
 
-    public ShooterPIDSubsystem(HardwareMap hardwareMap) {
+    public NectarShooterSubsystem(HardwareMap hardwareMap) {
         // specifying motor allows top rpm tp be read from motor
         if (!Configurables.doSimulation) {
-            shooter2Motor = new MotorEx(hardwareMap, "shooter2", Motor.GoBILDA.RPM_435);
+            shooter2Motor = new MotorEx(hardwareMap, "nectar", Motor.GoBILDA.RPM_435);
 
             maxMotorRPM = shooter2Motor.getMaxRPM();
 

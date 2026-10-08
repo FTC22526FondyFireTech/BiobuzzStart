@@ -31,7 +31,6 @@ import java.util.function.DoubleSupplier;
  * Requires the drive subsystem, so it interrupts the default DriveCommand while active and
  * the default command resumes when this command ends.
  */
-@Configurable
 public class AimAtPoseCommandSim extends CommandBase {
 
     // Live-tunable from the Panels Configurables tab.

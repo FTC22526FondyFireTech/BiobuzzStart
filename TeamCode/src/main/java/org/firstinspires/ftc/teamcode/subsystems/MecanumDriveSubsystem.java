@@ -35,6 +35,8 @@ public class MecanumDriveSubsystem extends SubsystemBase {
         return isRobotCentric;
     }
 
+    public int currentFieldZone = 0;
+
     public void setRobotCentric(boolean robotCentric) {
         isRobotCentric = robotCentric;
     }
@@ -57,6 +59,21 @@ public class MecanumDriveSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         follower.update();
+
+        double x = follower.getPose().getX();
+        double y = follower.getPose().getY();
+
+        if(x > 72 && y < 72) {
+            currentFieldZone = 0;
+        } else if (x < 72 && y < 72) {
+            currentFieldZone = 1;
+        } else if(x < 72 && y > 72) {
+            currentFieldZone = 2;
+        } else if(x > 72 && y > 72) {
+            currentFieldZone = 3;
+        }
+
+
         //Drawing.drawDebug(follower);
         Drawing.drawRobot(getPose(), GlobalData.robotLook);
 

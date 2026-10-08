@@ -110,8 +110,10 @@ public class VisionSubsysytem extends SubsystemBase {
     }
 
     public double getYaw(LLResult result) {
-        return result.getBotpose().getOrientation().getYaw();
+        return result.getBotpose().getPosition().x;
     }
+
+
 
     public List<LLResultTypes.FiducialResult> getFiducialResults() {
         LLResult result = getLLResults();

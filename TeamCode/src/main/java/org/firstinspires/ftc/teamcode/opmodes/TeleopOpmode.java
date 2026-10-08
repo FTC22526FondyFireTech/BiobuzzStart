@@ -87,7 +87,7 @@ public class TeleopOpmode extends CommandOpMode {
 
         if (!Configurables.doSimulation) {
             driverGamepad.getGamepadButton(GamepadKeys.Button.B)
-                    .whenHeld(new AimAtPoseCommand(drive,new Pose(60,60) ,() -> driverGamepad.getLeftY(),
+                    .whenHeld(new AimAtPoseCommand(drive,new Pose(48,60) ,() -> driverGamepad.getLeftY(),
                     () -> driverGamepad.getLeftX()));
         } else {
             driverGamepad.getGamepadButton(GamepadKeys.Button.B)

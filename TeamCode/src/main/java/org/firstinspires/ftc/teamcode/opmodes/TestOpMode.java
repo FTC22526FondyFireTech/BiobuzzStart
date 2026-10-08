@@ -8,8 +8,7 @@ import com.seattlesolvers.solverslib.gamepad.GamepadEx;
 import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.ShooterPIDSubsystem;
-import org.firstinspires.ftc.teamcode.utils.Configurables;
+import org.firstinspires.ftc.teamcode.subsystems.PollenShooterSubsystem;
 
 //@Autonomous(name = "Blank")
 @TeleOp(name = "TestOpMode")
@@ -19,7 +18,7 @@ public class TestOpMode extends CommandOpMode {
     TelemetryManager telemetryM;
     GamepadEx driverGamepad;
     IntakeSubsystem intake;
-    ShooterPIDSubsystem shooter2;
+    PollenShooterSubsystem shooter2;
 
     @Override
     public void initialize() {
@@ -30,7 +29,7 @@ public class TestOpMode extends CommandOpMode {
 
         driverGamepad = new GamepadEx(gamepad1);
         intake = new IntakeSubsystem(this.hardwareMap);
-        shooter2 = new ShooterPIDSubsystem(this.hardwareMap);
+        shooter2 = new PollenShooterSubsystem(this.hardwareMap);
 
         driverGamepad.getGamepadButton(GamepadKeys.Button.A)
                 //.whenPressed(shooter2.setMotorVelocityModeCommand())
@@ -66,9 +65,9 @@ public class TestOpMode extends CommandOpMode {
         while (!isStopRequested() && opModeIsActive()) {
             run();
 
-            if(ShooterPIDSubsystem.changeVelocityCoefficents) {
+            if(PollenShooterSubsystem.changeVelocityCoefficents) {
                 shooter2.setVelocityCoefficients();
-                ShooterPIDSubsystem.changeVelocityCoefficents = false;
+                PollenShooterSubsystem.changeVelocityCoefficents = false;
             }
 
 

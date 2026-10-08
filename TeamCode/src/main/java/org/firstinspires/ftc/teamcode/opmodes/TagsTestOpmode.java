@@ -88,14 +88,14 @@ public class TagsTestOpmode extends CommandOpMode {
 
             telemetryM.addData("Yaw", vss.getYaw(result));
             telemetryM.addData("Roll", vss.getRoll(result));
+            telemetryM.addData("Pitch", vss.getPitch(result));
 
             telemetryM.addData("tx", result.getTx());
             telemetryM.addData("ty", result.getTy());
             telemetryM.addData("ta", result.getTa());
             telemetryM.addData("Tag Count", result.getBotposeTagCount());
-            telemetryM.addData("Pitch", vss.getPitch(result));
-            telemetryM.addData("Yaw", vss.getYaw(result));
-            telemetryM.addData("Roll", vss.getRoll(result));
+
+
 
         }
 

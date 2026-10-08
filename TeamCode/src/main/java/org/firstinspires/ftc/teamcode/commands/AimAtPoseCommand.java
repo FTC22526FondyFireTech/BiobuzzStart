@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.commands;
 
 import com.bylazar.configurables.annotations.Configurable;
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.geometry.Pose;
 import com.seattlesolvers.solverslib.command.CommandBase;
 import com.seattlesolvers.solverslib.controller.PIDController;
@@ -47,7 +49,7 @@ public class AimAtPoseCommand extends CommandBase {
     private final DoubleSupplier forward;
     private final DoubleSupplier strafe;
     private final PIDController headingController = new PIDController(kP, kI, kD);
-
+    TelemetryManager telemetryM;
     public AimAtPoseCommand(MecanumDriveSubsystem drive, Pose target,
                             DoubleSupplier forward, DoubleSupplier strafe) {
         this.drive = drive;
@@ -55,6 +57,7 @@ public class AimAtPoseCommand extends CommandBase {
         this.forward = forward;
         this.strafe = strafe;
         addRequirements(drive);
+        telemetryM= PanelsTelemetry.INSTANCE.getTelemetry();
     }
 
     @Override
@@ -82,6 +85,12 @@ public class AimAtPoseCommand extends CommandBase {
 
         // Pedro: positive turn = counterclockwise, matching positive heading error here.
         drive.drive(forward.getAsDouble(), strafe.getAsDouble(), turn);
+
+
+        telemetryM.addData("AIPTurn", turn);
+        telemetryM.addData("AIPTgfX", target.getX());
+        telemetryM.addData("AIPTurnErr", error);
+        telemetryM.addData("AIPDESHDG", Math.toDegrees(desiredHeading));
     }
 
     @Override
