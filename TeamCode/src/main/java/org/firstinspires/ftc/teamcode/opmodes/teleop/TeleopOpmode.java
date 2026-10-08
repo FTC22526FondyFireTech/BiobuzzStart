@@ -55,7 +55,7 @@ public class TeleopOpmode extends CommandOpMode {
             driveSim.setDefaultCommand(new DriveSimCommand(
                     driveSim,
                     () -> driverGamepad.getLeftY(),
-                    () -> driverGamepad.getLeftX(),
+                    () -> -driverGamepad.getLeftX(),
                     () -> driverGamepad.getRightX(), () -> true));
         }
 
@@ -87,11 +87,11 @@ public class TeleopOpmode extends CommandOpMode {
 
         if (!Configurables.doSimulation) {
             driverGamepad.getGamepadButton(GamepadKeys.Button.B)
-                    .whenHeld(new AimAtPoseCommand(drive,new Pose(48,60) ,() -> driverGamepad.getLeftY(),
-                    () -> driverGamepad.getLeftX()));
+                    .whenHeld(new AimAtPoseCommand(drive, () -> driverGamepad.getLeftY(),
+                            () -> driverGamepad.getLeftX()));
         } else {
             driverGamepad.getGamepadButton(GamepadKeys.Button.B)
-                    .whenHeld(new AimAtPoseCommandSim(driveSim,new Pose(60,60) ,() -> driverGamepad.getLeftY(),
+                    .whenHeld(new AimAtPoseCommandSim(driveSim, new Pose(60, 60), () -> driverGamepad.getLeftY(),
                             () -> driverGamepad.getLeftX()));
         }
 
