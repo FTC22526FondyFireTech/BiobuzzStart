@@ -13,9 +13,9 @@ public class Configurables {
     public static boolean showIntakeTelemetry = false;
 
 
-    public static boolean doSimulation = false; // was true
+    public static boolean doSimulation = true;
 
-    // shooter values
+
 
 
 

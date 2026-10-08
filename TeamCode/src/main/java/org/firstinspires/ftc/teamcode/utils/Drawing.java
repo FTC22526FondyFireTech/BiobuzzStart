@@ -61,6 +61,27 @@ public class Drawing {
         panelsField.update();
     }
 
+    public static void drawPose(Pose pose) {
+        if (pose == null || Double.isNaN(pose.getX()) || Double.isNaN(pose.getY()) || Double.isNaN(pose.getHeading())) {
+            return;
+        }
+        Style poseLook = new Style("", "#4CBB17", 1.0);
+        panelsField.setStyle(poseLook);
+        panelsField.moveCursor(pose.getX(), pose.getY());
+        panelsField.circle(5);
+
+        Vector v = pose.getHeadingAsUnitVector();
+        v.setMagnitude(v.getMagnitude() * 5);
+        double x1 = pose.getX() + v.getXComponent() / 2, y1 = pose.getY() + v.getYComponent() / 2;
+        double x2 = pose.getX() + v.getXComponent(), y2 = pose.getY() + v.getYComponent();
+
+      //  panelsField.setStyle(poseLook);
+        panelsField.moveCursor(x1, y1);
+        panelsField.line(x2, y2);
+        panelsField.update();
+    }
+
+
     public static void drawPath(Path path, Style style) {
         double[][] points = path.getPanelsDrawingPoints();
         for (int i = 0; i < points[0].length; i++) {

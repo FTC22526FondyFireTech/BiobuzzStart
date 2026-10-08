@@ -45,15 +45,14 @@ public class AimAtPoseCommand extends CommandBase {
     public static double headingOffsetRad = 0.0;
 
     private final MecanumDriveSubsystem drive;
-    private final Pose target;
     private final DoubleSupplier forward;
     private final DoubleSupplier strafe;
     private final PIDController headingController = new PIDController(kP, kI, kD);
     TelemetryManager telemetryM;
-    public AimAtPoseCommand(MecanumDriveSubsystem drive, Pose target,
+    public AimAtPoseCommand(MecanumDriveSubsystem drive,
                             DoubleSupplier forward, DoubleSupplier strafe) {
         this.drive = drive;
-        this.target = target;
+
         this.forward = forward;
         this.strafe = strafe;
         addRequirements(drive);
@@ -69,6 +68,8 @@ public class AimAtPoseCommand extends CommandBase {
 
     @Override
     public void execute() {
+
+        Pose target = drive.activeHiveTargetPose;
 
 
         Pose pose = drive.getPose();

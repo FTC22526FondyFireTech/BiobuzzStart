@@ -5,12 +5,14 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.seattlesolvers.solverslib.command.Command;
 import com.seattlesolvers.solverslib.command.InstantCommand;
 import com.seattlesolvers.solverslib.command.SubsystemBase;
 
 import org.firstinspires.ftc.teamcode.utils.Constants;
 import org.firstinspires.ftc.teamcode.utils.Drawing;
+import org.firstinspires.ftc.teamcode.utils.FieldConstants;
 import org.firstinspires.ftc.teamcode.utils.GlobalData;
 
 /**
@@ -31,11 +33,15 @@ public class MecanumDriveSubsystem extends SubsystemBase {
     private final Follower follower;
     private boolean teleopDriveActive = false;
     public boolean isRobotCentric = false;
+    public Pose activeHiveTargetPose = new Pose();
+
     public boolean isRobotCentric() {
         return isRobotCentric;
     }
 
     public int currentFieldZone = 0;
+
+    private ElapsedTime et;
 
     public void setRobotCentric(boolean robotCentric) {
         isRobotCentric = robotCentric;
@@ -44,6 +50,7 @@ public class MecanumDriveSubsystem extends SubsystemBase {
     public MecanumDriveSubsystem(HardwareMap hardwareMap) {
         follower = Constants.createFollower(hardwareMap);
         Drawing.init();
+        et = new ElapsedTime();
     }
 
     public MecanumDriveSubsystem(HardwareMap hardwareMap, Pose startingPose) {
@@ -59,27 +66,36 @@ public class MecanumDriveSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         follower.update();
+        if (et.seconds() > .5) {
+            setActiveHiveTargetPose();
+            et.reset();
+        }
+        //Drawing.drawDebug(follower);
+        Drawing.drawRobot(getPose(), GlobalData.robotLook);
+    }
+
+    public void setActiveHiveTargetPose() {
 
         double x = follower.getPose().getX();
         double y = follower.getPose().getY();
 
-        if(x > 72 && y < 72) {
+        if (x >= 72 && y < 72) {
             currentFieldZone = 0;
+            activeHiveTargetPose = FieldConstants.redScoringHiveTargetPose;
         } else if (x < 72 && y < 72) {
             currentFieldZone = 1;
-        } else if(x < 72 && y > 72) {
+            activeHiveTargetPose = FieldConstants.redAudienceHiveTargetPose;
+        } else if (x < 72 && y >= 72) {
             currentFieldZone = 2;
-        } else if(x > 72 && y > 72) {
+            activeHiveTargetPose = FieldConstants.blueAudienceHiveTargetPose;
+        } else if (x >= 72 && y > 72) {
             currentFieldZone = 3;
+            activeHiveTargetPose = FieldConstants.blueScoringHiveTargetPose;
         }
-
-
-        //Drawing.drawDebug(follower);
-        Drawing.drawRobot(getPose(), GlobalData.robotLook);
 
     }
 
-    public void showTelemetry(TelemetryManager telemetryM){
+    public void showTelemetry(TelemetryManager telemetryM) {
         telemetryM.debug("Drive X (in)", follower.getPose().getX());
         telemetryM.debug("Drive Y (in)", follower.getPose().getY());
         telemetryM.debug("Drive Heading (deg)", Math.toDegrees(follower.getPose().getHeading()));
@@ -158,7 +174,7 @@ public class MecanumDriveSubsystem extends SubsystemBase {
     }
 
     public Command resetPoseCommand() {
-        return new InstantCommand(() -> setPose(new Pose(0,0,0)));
+        return new InstantCommand(() -> setPose(new Pose(0, 0, 0)));
     }
 
     /**

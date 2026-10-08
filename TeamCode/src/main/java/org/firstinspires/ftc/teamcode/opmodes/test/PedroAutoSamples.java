@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opmodes;
+package org.firstinspires.ftc.teamcode.opmodes.test;
 
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
@@ -27,7 +27,7 @@ import org.firstinspires.ftc.teamcode.utils.GlobalData;
  * everything else (PathChains, FollowPathCommand, follower.update()/getPose()) works unchanged,
  * since both factories hand back a real {@code Follower}.
  */
-@Autonomous(name = "Pedro Auto Samples", group = "Auto")
+@Autonomous(name = "Pedro Auto Samples", group = "Test")
 public class PedroAutoSamples extends CommandOpMode {
 
     private MecanumDriveSubsystem drive;

@@ -1,7 +1,12 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.ServoController;
+import com.seattlesolvers.solverslib.command.Command;
+import com.seattlesolvers.solverslib.command.Commands;
 import com.seattlesolvers.solverslib.command.InstantCommand;
 import com.seattlesolvers.solverslib.command.RunCommand;
 import com.seattlesolvers.solverslib.command.SubsystemBase;
@@ -10,16 +15,18 @@ import com.seattlesolvers.solverslib.hardware.motors.Motor;
 import org.firstinspires.ftc.teamcode.simulator.simulators.MotorSimulator;
 import org.firstinspires.ftc.teamcode.utils.Configurables;
 
+@Configurable
 public class IntakeSubsystem extends SubsystemBase {
 
+    public static double upPosition=0;
+    public static double downPosition=.5;
     public Motor intakeMotor;
-
     private MotorSimulator intakeMotorSim;
-
     private boolean direction;
-    public static final double intakeSpeed = 0.77; // 1150 RPM * 0.77 (or / 77%) = 885.5
-    protected double simDt = 0.01; // 10ms fixed physics step (100Hz)
 
+    private Servo armServo;
+    public static double intakeSpeed = 0.77; // 1150 RPM * 0.77 (or / 77%) = 885.5
+    protected double simDt = 0.01; // 10ms fixed physics step (100Hz)
     public IntakeSubsystem(HardwareMap hardwareMap) {
         if (!Configurables.doSimulation) {
             intakeMotor = new Motor(hardwareMap, "intake", Motor.GoBILDA.RPM_1150);
@@ -30,8 +37,10 @@ public class IntakeSubsystem extends SubsystemBase {
             intakeMotorSim.setInverted(true);
             direction = intakeMotorSim.isInverted();
         }
+        armServo= hardwareMap.get(Servo.class, "armServo");
 
-
+        armServo.setDirection(Servo.Direction.FORWARD);
+        armServo.setPosition(upPosition);
     }
 
     public void runIntake() {
@@ -87,6 +96,20 @@ public class IntakeSubsystem extends SubsystemBase {
     public InstantCommand invertIntakeCommand() {
         return new InstantCommand(this::invertIntake);
     }
+
+
+    public void possitionArm(double position){
+        armServo.setPosition(position);
+    }
+
+    public Command armDownCommand(){
+        return Commands.runOnce(()->possitionArm(downPosition));
+    }
+
+    public Command armUpCommand(){
+        return Commands.runOnce(()->possitionArm(upPosition));
+    }
+
 
     public void showTelemetry(TelemetryManager telemetryM) {
         if (Configurables.showIntakeTelemetry) {

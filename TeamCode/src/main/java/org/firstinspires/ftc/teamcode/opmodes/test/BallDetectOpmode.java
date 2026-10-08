@@ -1,7 +1,8 @@
-package org.firstinspires.ftc.teamcode.opmodes;
+package org.firstinspires.ftc.teamcode.opmodes.test;
 
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.seattlesolvers.solverslib.command.CommandOpMode;
 
@@ -13,7 +14,8 @@ import org.firstinspires.ftc.teamcode.utils.PipelineConfigurables;
  * HSV ranges are edited live in the Panels Configurables tab (PipelineConfigurables)
  * and sent to the Limelight every loop.
  */
-@TeleOp(name = "Ball Detect")
+@TeleOp(name = "Ball Detect", group = "Test")
+
 public class BallDetectOpmode extends CommandOpMode {
 
     private TelemetryManager telemetryM;
@@ -32,7 +34,7 @@ public class BallDetectOpmode extends CommandOpMode {
 
         vss.updatePythonInputs(PipelineConfigurables.toPythonInputs());
         double[] out = vss.getPythonOutput(PipelineConfigurables.OUT_LENGTH);
-        telemetryM.addData("OUTLENGTH",out.length);
+        telemetryM.addData("OUTLENGTH", out.length);
 
         addColor("Red nectar", out, PipelineConfigurables.OUT_RED);
         addColor("Blue nectar", out, PipelineConfigurables.OUT_BLUE);
