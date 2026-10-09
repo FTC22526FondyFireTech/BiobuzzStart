@@ -10,6 +10,7 @@ import com.seattlesolvers.solverslib.controller.wpilibcontroller.SimpleMotorFeed
 import com.seattlesolvers.solverslib.gamepad.SlewRateLimiter;
 import com.seattlesolvers.solverslib.hardware.motors.Motor;
 import com.seattlesolvers.solverslib.hardware.motors.MotorEx;
+import com.seattlesolvers.solverslib.util.InterpLUT;
 import com.seattlesolvers.solverslib.util.LUT;
 
 import org.firstinspires.ftc.teamcode.simulator.simulators.MotorSimulator;
@@ -49,7 +50,7 @@ public class PollenShooterSubsystem extends SubsystemBase {
 
     public double maxMotorRPM;
 
-    LUT<Double, Double> pollenSpeeds;
+    InterpLUT pollenSpeeds;
 
     public PollenShooterSubsystem(HardwareMap hardwareMap) {
         // specifying motor allows top rpm tp be read from motor
@@ -72,13 +73,14 @@ public class PollenShooterSubsystem extends SubsystemBase {
 
         pidController = new PIDController(pollenShooterKp, pollenShooterKi, pollenShooterKd);
 
-        pollenSpeeds = new LUT<Double, Double>()
+        //distance in inches, speeds in RPM
+        pollenSpeeds = new InterpLUT()
         {{
-            add(5.0, 1.0);
-            add(4.0, 0.9);
-            add(3.0, 0.75);
-            add(2.0, 0.5);
-            add(1.0, 0.2);
+            add(45.0, 3000.);
+            add(40.0, 2800);
+            add(35.0, 2500);
+            add(30.0, 2000);
+            add(25.0, 1800);
         }};
     }
 
@@ -164,6 +166,9 @@ public class PollenShooterSubsystem extends SubsystemBase {
 
     public Command changeTargetRPMCommand(double val) {
         return Commands.runOnce(() -> changeTargetRPM(val));
+    }
 
+    public double getTargetSpeed(double inches){
+        return pollenSpeeds.get(inches);
     }
 }
