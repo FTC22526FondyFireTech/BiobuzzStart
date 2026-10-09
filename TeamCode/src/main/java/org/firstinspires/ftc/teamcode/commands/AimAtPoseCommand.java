@@ -69,45 +69,45 @@ public class AimAtPoseCommand extends CommandBase {
     @Override
     public void execute() {
 
-        Pose target = drive.activeHiveTargetPose;
+      //  Pose target = drive.activeHiveTargetPose;
 
 
         Pose pose = drive.getPose();
-        double desiredHeading = Math.atan2(target.getY() - pose.getY(), target.getX() - pose.getX())
-                + headingOffsetRad;
-        double error = wrapAngle(desiredHeading - pose.getHeading());
+//        double desiredHeading = Math.atan2(target.getY() - pose.getY(), target.getX() - pose.getX())
+//                + headingOffsetRad;
+//        double error = wrapAngle(desiredHeading - pose.getHeading());
 
         double turn = 0;
-        if (Math.abs(error) > deadbandRad) {
-            // Setpoint = error, measurement = 0, so the PID sees exactly the wrapped error.
-            turn = headingController.calculate( error,0);
-            turn = Math.max(-maxTurn, Math.min(maxTurn, turn));
-        }
+//        if (Math.abs(error) > deadbandRad) {
+//            // Setpoint = error, measurement = 0, so the PID sees exactly the wrapped error.
+//            turn = headingController.calculate( error,0);
+//            turn = Math.max(-maxTurn, Math.min(maxTurn, turn));
+//        }
+//
+//        // Pedro: positive turn = counterclockwise, matching positive heading error here.
+//        drive.drive(forward.getAsDouble(), strafe.getAsDouble(), turn);
+//
+//
+//        telemetryM.addData("AIPTurn", turn);
+//        telemetryM.addData("AIPTgfX", target.getX());
+//        telemetryM.addData("AIPTurnErr", error);
+//        telemetryM.addData("AIPDESHDG", Math.toDegrees(desiredHeading));
+//    }
 
-        // Pedro: positive turn = counterclockwise, matching positive heading error here.
-        drive.drive(forward.getAsDouble(), strafe.getAsDouble(), turn);
-
-
-        telemetryM.addData("AIPTurn", turn);
-        telemetryM.addData("AIPTgfX", target.getX());
-        telemetryM.addData("AIPTurnErr", error);
-        telemetryM.addData("AIPDESHDG", Math.toDegrees(desiredHeading));
-    }
-
-    @Override
-    public void end(boolean interrupted) {
-        drive.stop();
-    }
-
-    @Override
-    public boolean isFinished() {
-        return false; // runs while held / until interrupted
-    }
-
-    /** Wraps an angle to (-PI, PI] so the robot always turns the short way. */
-    private static double wrapAngle(double angle) {
-        while (angle > Math.PI) angle -= 2 * Math.PI;
-        while (angle <= -Math.PI) angle += 2 * Math.PI;
-        return angle;
-    }
-}
+//    @Override
+//    public void end(boolean interrupted) {
+//        drive.stop();
+//    }
+//
+//    @Override
+//    public boolean isFinished() {
+//        return false; // runs while held / until interrupted
+//    }
+//
+//    /** Wraps an angle to (-PI, PI] so the robot always turns the short way. */
+//    private static double wrapAngle(double angle) {
+//        while (angle > Math.PI) angle -= 2 * Math.PI;
+//        while (angle <= -Math.PI) angle += 2 * Math.PI;
+//        return angle;
+//    }
+}}

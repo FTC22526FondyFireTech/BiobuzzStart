@@ -50,6 +50,16 @@ public class VisionSubsysytem extends SubsystemBase {
 
     private int currentTagZone;
 
+    public boolean isInOdometryZone() {
+        return inOdometryZone;
+    }
+
+    public void setInOdometryZone(boolean inZone) {
+        inOdometryZone = inZone;
+    }
+
+    private boolean inOdometryZone;
+
 
     public VisionSubsysytem(CommandOpMode opMode) {
         limelight = opMode.hardwareMap.get(Limelight3A.class, "limelight");

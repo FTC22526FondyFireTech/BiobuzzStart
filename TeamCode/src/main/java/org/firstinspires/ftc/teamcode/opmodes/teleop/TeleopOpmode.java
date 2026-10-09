@@ -135,9 +135,39 @@ public class TeleopOpmode extends CommandOpMode {
             telemetryM.addData("IsBusy", follower.isBusy());
             //telemetryM.addData("RobotCentric", driveSim.isRobotCentric());
 
+            double dist = getDistanceToTarget(GlobalData.getActiveHiveTargetPose(), driveSim.getOdometry().getRobotPose());
+            double angle = getAngleToTarget(GlobalData.getActiveHiveTargetPose(),driveSim.getOdometry().getRobotPose());
+
+            telemetryM.addData("DISTFROMODOM", dist);
+            telemetryM.addData("ANGLEFROMODOM", angle);
+            telemetryM.addData("X", driveSim.getOdometry().getRobotPose().getX());
+            telemetryM.addData("Y", driveSim.getOdometry().getRobotPose().getY());
+            telemetryM.addData("TX", GlobalData.getActiveHiveTargetPose().getX());
+            telemetryM.addData("TY", GlobalData.getActiveHiveTargetPose().getY());
+
+
+
             telemetryM.update(telemetry);
         }
         reset();
     }
+
+
+    public double getAngleToTarget(Pose targetPose, Pose robotPose) {
+        double XDiff = targetPose.getX() - robotPose.getX();
+        double YDiff = targetPose.getY() - robotPose.getY();
+        return Math.toDegrees(Math.atan2(YDiff, XDiff));
+    }
+
+    public double getDistanceToTarget(Pose targetPose, Pose robotPose) {
+        double XDiff = targetPose.getX() - robotPose.getX();
+        double YDiff = targetPose.getY() - robotPose.getY();
+        telemetryM.addData("XDIFF", XDiff);
+        telemetryM.addData("YDIFF", YDiff);
+
+        // return Math.sqrt(Math.pow(XDiff, 2) + Math.pow(YDiff, 2));
+        return Math.hypot(XDiff, YDiff);
+    }
+
 
 }

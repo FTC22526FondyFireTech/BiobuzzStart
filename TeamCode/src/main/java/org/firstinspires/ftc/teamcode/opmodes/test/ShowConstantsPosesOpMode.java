@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.test;
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.field.Style;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
@@ -16,12 +17,12 @@ import org.firstinspires.ftc.teamcode.utils.FieldConstants;
 //@Autonomous(name = "Blank")
 @TeleOp(name = "ShowPoses")
 //@Disabled
-
+@Configurable
 public class ShowConstantsPosesOpMode extends CommandOpMode {
 
     TelemetryManager telemetryM;
 
-    private int selectPoses;
+    public static int selectPoses;
 
 
     GamepadEx driverGamepad;
@@ -90,10 +91,16 @@ public class ShowConstantsPosesOpMode extends CommandOpMode {
                 return FieldConstants.audienceWallFlowerApproachPose;
 
             case 6:
-                return FieldConstants.blueallianceWallFlowerPickupPose;
+                return FieldConstants.audienceWallFlowerPickupPose;
 
             case 7:
                 return FieldConstants.blueAudienceParkPose;
+
+
+
+
+            case 100:
+                return FieldConstants.tag30;
 
             default:
                 selectPoses = 0;

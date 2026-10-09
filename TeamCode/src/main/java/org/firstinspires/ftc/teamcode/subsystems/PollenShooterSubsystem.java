@@ -10,6 +10,7 @@ import com.seattlesolvers.solverslib.controller.wpilibcontroller.SimpleMotorFeed
 import com.seattlesolvers.solverslib.gamepad.SlewRateLimiter;
 import com.seattlesolvers.solverslib.hardware.motors.Motor;
 import com.seattlesolvers.solverslib.hardware.motors.MotorEx;
+import com.seattlesolvers.solverslib.util.LUT;
 
 import org.firstinspires.ftc.teamcode.simulator.simulators.MotorSimulator;
 import org.firstinspires.ftc.teamcode.utils.Configurables;
@@ -48,6 +49,8 @@ public class PollenShooterSubsystem extends SubsystemBase {
 
     public double maxMotorRPM;
 
+    LUT<Double, Double> pollenSpeeds;
+
     public PollenShooterSubsystem(HardwareMap hardwareMap) {
         // specifying motor allows top rpm tp be read from motor
         if (!Configurables.doSimulation) {
@@ -69,7 +72,14 @@ public class PollenShooterSubsystem extends SubsystemBase {
 
         pidController = new PIDController(pollenShooterKp, pollenShooterKi, pollenShooterKd);
 
-
+        pollenSpeeds = new LUT<Double, Double>()
+        {{
+            add(5.0, 1.0);
+            add(4.0, 0.9);
+            add(3.0, 0.75);
+            add(2.0, 0.5);
+            add(1.0, 0.2);
+        }};
     }
 
     public void setVelocityCoefficients() {

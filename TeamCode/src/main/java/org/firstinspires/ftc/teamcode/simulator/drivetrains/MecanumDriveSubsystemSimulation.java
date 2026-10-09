@@ -35,7 +35,7 @@ public class MecanumDriveSubsystemSimulation extends SubsystemBase {
     private boolean teleopDriveActive = false;
     public boolean isRobotCentric = false;
     private int currentFieldZoneSim;
-    public Pose activeHiveTargetPoseSim;
+
 
     public boolean isRobotCentric() {
         return isRobotCentric;
@@ -139,23 +139,24 @@ public class MecanumDriveSubsystemSimulation extends SubsystemBase {
         double x = odometry.getRobotPose().getX();
         double y = odometry.getRobotPose().getY();
 
-        if (x < 72 && y >= 72) {
-            currentFieldZoneSim = 0;
-            activeHiveTargetPoseSim = FieldConstants.redScoringHiveTargetPose;
-        } else if (x < 72 && y < 72) {
-            currentFieldZoneSim = 1;
-            activeHiveTargetPoseSim = FieldConstants.redAudienceHiveTargetPose;
-        } else if (x >= 72 && y < 72) {
-            currentFieldZoneSim = 2;
-            activeHiveTargetPoseSim = FieldConstants.blueAudienceHiveTargetPose;
-        } else if (x >= 72 && y > 72) {
-            currentFieldZoneSim = 3;
-            activeHiveTargetPoseSim = FieldConstants.blueScoringHiveTargetPose;
-        }
 
-      //  Drawing.drawPose(activeHiveTargetPoseSim);
+        if (x < 72 && y >= 72) {
+            GlobalData.setCurrentOdometryZone(0);
+            GlobalData.setActiveHiveTargetPose(FieldConstants.redScoringHiveTargetPose);
+        } else if (x < 72 && y < 72) {
+            GlobalData.setCurrentOdometryZone(1);
+            GlobalData.setActiveHiveTargetPose(FieldConstants.redAudienceHiveTargetPose);
+        } else if (x >= 72 && y < 72) {
+            GlobalData.setCurrentOdometryZone(2);
+            GlobalData.setActiveHiveTargetPose(FieldConstants.blueAudienceHiveTargetPose);
+        } else if (x >= 72 && y > 72) {
+            GlobalData.setCurrentOdometryZone(3);
+            GlobalData.setActiveHiveTargetPose(FieldConstants.blueScoringHiveTargetPose);
+        }
+          //Drawing.drawPose(GlobalData.getActiveHiveTargetPose());
 
     }
+
 
 
     public void showTelemetry(TelemetryManager telemetryM) {

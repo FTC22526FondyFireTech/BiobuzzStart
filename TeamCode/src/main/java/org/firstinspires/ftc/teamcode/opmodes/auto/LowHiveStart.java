@@ -8,14 +8,18 @@ import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.seattlesolvers.solverslib.command.Command;
 import com.seattlesolvers.solverslib.command.CommandOpMode;
 import com.seattlesolvers.solverslib.command.Commands;
+import com.seattlesolvers.solverslib.command.ConditionalCommand;
 import com.seattlesolvers.solverslib.command.WaitCommand;
 import com.seattlesolvers.solverslib.pedroCommand.FollowPathCommand;
 
+import org.firstinspires.ftc.teamcode.commands.CheckForOdometryZoneTags;
 import org.firstinspires.ftc.teamcode.simulator.SimulatorConstants;
 import org.firstinspires.ftc.teamcode.simulator.drivetrains.MecanumDriveSubsystemSimulation;
 import org.firstinspires.ftc.teamcode.subsystems.MecanumDriveSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.VisionSubsysytem;
 import org.firstinspires.ftc.teamcode.utils.Configurables;
 import org.firstinspires.ftc.teamcode.utils.Constants;
 import org.firstinspires.ftc.teamcode.utils.FieldConstants;
@@ -44,10 +48,12 @@ public class LowHiveStart extends CommandOpMode {
 
     private MecanumDriveSubsystem drive;
     private MecanumDriveSubsystemSimulation driveSim;
+
+    private VisionSubsysytem vss;
     private Follower follower;
     TelemetryManager telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
-    private Pose startPose, secondShootPose,flowerApproachPose, flowerPickupPose, parkPose;
-    private PathChain scorePreload, grabPickup1, scorePickup1, park;
+    private Pose startPose, secondShootPose, flowerApproachPose, flowerPickupPose, parkPose;
+    private PathChain approachFlower, pickupFlower, score, park;
 
 
     boolean allianceSelected;
@@ -63,20 +69,21 @@ public class LowHiveStart extends CommandOpMode {
             drive = new MecanumDriveSubsystem(this.hardwareMap);
         else
             driveSim = new MecanumDriveSubsystemSimulation(this);
-
+        vss = new VisionSubsysytem(this);
 
         GlobalData.selectAlliance(this);
 
 
         if (GlobalData.isRedAlliance()) {
             startPose = FieldConstants.redScoringStartPose;
-            flowerApproachPose= FieldConstants.scoringWallFlowerApproachPose;
+            flowerApproachPose = FieldConstants.scoringWallFlowerApproachPose;
             flowerPickupPose = FieldConstants.scoringWallFlowerPickupPose;
             secondShootPose = FieldConstants.scoringSecondShootPose;
             parkPose = FieldConstants.redScoringParkPose;
         } else {
-            flowerApproachPose= FieldConstants.blueAudienceStartPose;
-                    flowerPickupPose = FieldConstants.scoringWallFlowerPose;
+            startPose = FieldConstants.blueAudienceStartPose;
+            flowerApproachPose = FieldConstants.audienceWallFlowerApproachPose;
+            flowerPickupPose = FieldConstants.audienceWallFlowerPickupPose;
             secondShootPose = FieldConstants.audienceSecondShootPose;
             parkPose = FieldConstants.blueAudienceParkPose;
         }
@@ -95,16 +102,30 @@ public class LowHiveStart extends CommandOpMode {
 
         schedule(
 
-                Commands.sequence(
-                        new FollowPathCommand(follower, scorePreload),
-                        new WaitCommand(500),
-
-                        new FollowPathCommand(follower, grabPickup1).setGlobalMaxPower(0.5),
-                        new FollowPathCommand(follower, scorePickup1),
-
-                        new FollowPathCommand(follower, park, false))
+                ShootPickupPark()
         );
+
+
     }
+
+    private Command ShootPickupPark() {
+        return Commands.sequence(
+                new CheckForOdometryZoneTags(vss).withTimeout(20000),
+
+                new ConditionalCommand(
+                        Commands.sequence(
+                                new WaitCommand(500),
+                                new FollowPathCommand(follower, pickupFlower).setGlobalMaxPower(0.5),
+                                new FollowPathCommand(follower, score),
+                                new FollowPathCommand(follower, park, false)),
+
+                        new FollowPathCommand(follower, park, false),
+
+                        () -> vss.isInOdometryZone()));
+
+
+    }
+
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -112,7 +133,7 @@ public class LowHiveStart extends CommandOpMode {
         initialize();
         waitForStart();
 
-        while (!isStopRequested() && opModeIsActive() &&GlobalData.allianceIsConfirmed) {
+        while (!isStopRequested() && opModeIsActive() && GlobalData.allianceIsConfirmed) {
             run();
 
             follower.update();
@@ -136,29 +157,23 @@ public class LowHiveStart extends CommandOpMode {
     }
 
     public void buildPaths() {
-//        scorePreload = follower.pathBuilder()
-//                .addPath(new BezierLine(startPose, scorePose))
-//                .setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading())
-//                .build();
-//
-//        grabPickup1 = follower.pathBuilder()
-//                .addPath(new BezierLine(scorePose, flowerPickupPose))
-//                .setLinearHeadingInterpolation(scorePose.getHeading(), flowerPickupPose.getHeading())
-//                .build();
-//
-//        scorePickup1 = follower.pathBuilder()
-//                .addPath(new BezierLine(flowerPickupPose, scorePose))
-//                .setLinearHeadingInterpolation(flowerPickupPose.getHeading(), scorePose.getHeading())
-//                .build();
-//
-//        park = follower.pathBuilder()
-//                .addPath(new BezierCurve(
-//                        scorePose,
-//                        new Pose(68, 110), // Control point
-//                        parkPose)
-//                )
-//                .setLinearHeadingInterpolation(scorePose.getHeading(), parkPose.getHeading())
-//                .build();
+        approachFlower = buildBezierLine(startPose, flowerApproachPose);
+
+        pickupFlower = buildBezierLine(flowerApproachPose, flowerPickupPose);
+    }
+
+    PathChain buildBezierLine(Pose start, Pose end) {
+        return follower.pathBuilder()
+                .addPath(new BezierLine(start, end))
+                .setLinearHeadingInterpolation(start.getHeading(), end.getHeading())
+                .build();
+    }
+
+    PathChain buildBezierCurve(Pose start, Pose control, Pose end) {
+        return follower.pathBuilder()
+                .addPath(new BezierCurve(start, control, end))
+                .setLinearHeadingInterpolation(start.getHeading(), end.getHeading())
+                .build();
     }
 
 

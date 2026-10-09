@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.test;
 
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -9,7 +10,9 @@ import com.seattlesolvers.solverslib.command.CommandOpMode;
 import com.seattlesolvers.solverslib.geometry.Pose2d;
 import com.seattlesolvers.solverslib.util.Timing;
 
+import org.firstinspires.ftc.teamcode.simulator.drivetrains.MecanumDriveSubsystemSimulation;
 import org.firstinspires.ftc.teamcode.subsystems.VisionSubsysytem;
+import org.firstinspires.ftc.teamcode.utils.GlobalData;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -24,10 +27,14 @@ public class TagsTestOpmode extends CommandOpMode {
     Timing.Timer readCamera;
     long readMilliSecs = 250;
 
+    MecanumDriveSubsystemSimulation driveSim;
+
 
     @Override
     public void initialize() {
         vss = new VisionSubsysytem(this);
+
+        driveSim = new MecanumDriveSubsystemSimulation(this);
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
         telemetryM.update(telemetry);
@@ -51,13 +58,13 @@ public class TagsTestOpmode extends CommandOpMode {
         reset();
     }
 
-    public double getAngleDegreesToTarget(Pose2d targetPose, Pose2d robotPose) {
+    public double getAngleDegreesToTarget(Pose targetPose, Pose robotPose) {
         double XDiff = targetPose.getX() - robotPose.getX();
         double YDiff = targetPose.getY() - robotPose.getY();
         return Math.toDegrees(Math.atan2(YDiff, XDiff));
     }
 
-    public double getDistanceToTarget(Pose2d targetPose, Pose2d robotPose) {
+    public double getDistanceToTarget(Pose targetPose, Pose robotPose) {
         double XDiff = targetPose.getX() - robotPose.getX();
         double YDiff = targetPose.getY() - robotPose.getY();
         return Math.sqrt(Math.pow(XDiff, 2) - Math.pow(YDiff, 2));
@@ -67,11 +74,14 @@ public class TagsTestOpmode extends CommandOpMode {
 
         //  if (readCamera.done()) {
 
+        double dist = getDistanceToTarget(GlobalData.getActiveHiveTargetPose(), driveSim.getOdometry().getRobotPose());
 
+        telemetryM.addData("DISTFROMODOM", dist);
         List<LLResultTypes.FiducialResult> fr = vss.getFiducialResults();
 
         List<Integer> tagsSeen = vss.getTagsSeen(fr);
         telemetryM.addData("TagsSeen", tagsSeen);
+
 
         telemetryM.addData("ZoneFromTags", vss.findZoneFromTags(tagsSeen));
         telemetryM.addData("Current Zone", vss.getCurrentTagZone());
@@ -92,7 +102,6 @@ public class TagsTestOpmode extends CommandOpMode {
             telemetryM.addData("ty", result.getTy());
             telemetryM.addData("ta", result.getTa());
             telemetryM.addData("Tag Count", result.getBotposeTagCount());
-
 
 
         }

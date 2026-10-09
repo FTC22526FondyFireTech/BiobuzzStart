@@ -9,6 +9,7 @@ import com.seattlesolvers.solverslib.controller.PIDController;
 
 import org.firstinspires.ftc.teamcode.simulator.drivetrains.MecanumDriveSubsystemSimulation;
 import org.firstinspires.ftc.teamcode.subsystems.MecanumDriveSubsystem;
+import org.firstinspires.ftc.teamcode.utils.GlobalData;
 
 import java.util.function.DoubleSupplier;
 
@@ -79,7 +80,7 @@ public class AimAtPoseCommandSim extends CommandBase {
 
     @Override
     public void execute() {
-        target=drive.activeHiveTargetPoseSim;
+        target= GlobalData.getActiveHiveTargetPose();
 
 
         Pose pose = drive.getOdometry().getRobotPose();
