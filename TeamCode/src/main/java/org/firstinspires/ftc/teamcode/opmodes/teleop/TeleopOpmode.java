@@ -78,10 +78,10 @@ public class TeleopOpmode extends CommandOpMode {
 
         if (!Configurables.doSimulation) {
             driverGamepad.getGamepadButton(GamepadKeys.Button.A)
-                    .whileActiveOnce(drive.setPoseCommand(new Pose(12, 12, Math.PI / 2)));
+                    .whileActiveOnce(drive.setPoseCommand(new Pose(12, 12, 0)));
         } else {
             driverGamepad.getGamepadButton(GamepadKeys.Button.A)
-                    .whileActiveOnce(driveSim.getOdometry().setPoseCommand(new Pose(12, 12, Math.PI / 3)));
+                    .whileActiveOnce(driveSim.getOdometry().setPoseCommand(new Pose(12, 12, 0)));
 
         }
 
@@ -135,16 +135,22 @@ public class TeleopOpmode extends CommandOpMode {
             telemetryM.addData("IsBusy", follower.isBusy());
             //telemetryM.addData("RobotCentric", driveSim.isRobotCentric());
 
-            double dist = getDistanceToTarget(GlobalData.getActiveHiveTargetPose(), driveSim.getOdometry().getRobotPose());
-            double angle = getAngleToTarget(GlobalData.getActiveHiveTargetPose(),driveSim.getOdometry().getRobotPose());
+            double dist = 0;
+            double angle = 0;
+            if (!Configurables.doSimulation) {
+                dist = getDistanceToTarget(GlobalData.getActiveHiveTargetPose(), drive.getPose());
+                angle = getAngleToTarget(GlobalData.getActiveHiveTargetPose(), drive.getPose());
+            } else {
+//    dist = getDistanceToTarget(GlobalData.getActiveHiveTargetPose(), driveSim.getOdometry().getRobotPose());
+//     angle = getAngleToTarget(GlobalData.getActiveHiveTargetPose(), driveSim.getOdometry().getRobotPose());
+            }
 
             telemetryM.addData("DISTFROMODOM", dist);
             telemetryM.addData("ANGLEFROMODOM", angle);
-            telemetryM.addData("X", driveSim.getOdometry().getRobotPose().getX());
-            telemetryM.addData("Y", driveSim.getOdometry().getRobotPose().getY());
+//            telemetryM.addData("X", driveSim.getOdometry().getRobotPose().getX());
+//            telemetryM.addData("Y", driveSim.getOdometry().getRobotPose().getY());
             telemetryM.addData("TX", GlobalData.getActiveHiveTargetPose().getX());
             telemetryM.addData("TY", GlobalData.getActiveHiveTargetPose().getY());
-
 
 
             telemetryM.update(telemetry);

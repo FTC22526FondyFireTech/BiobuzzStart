@@ -69,19 +69,20 @@ public class LowHiveStart extends CommandOpMode {
             drive = new MecanumDriveSubsystem(this.hardwareMap);
         else
             driveSim = new MecanumDriveSubsystemSimulation(this);
+
         vss = new VisionSubsysytem(this);
 
         GlobalData.selectAlliance(this);
 
 
         if (GlobalData.isRedAlliance()) {
-            startPose = FieldConstants.redScoringStartPose;
+            startPose = FieldConstants.redScoringLoHiveStartPose;
             flowerApproachPose = FieldConstants.scoringWallFlowerApproachPose;
             flowerPickupPose = FieldConstants.scoringWallFlowerPickupPose;
             secondShootPose = FieldConstants.scoringSecondShootPose;
             parkPose = FieldConstants.redScoringParkPose;
         } else {
-            startPose = FieldConstants.blueAudienceStartPose;
+            startPose = FieldConstants.blueAudienceLoHiveStartPose;
             flowerApproachPose = FieldConstants.audienceWallFlowerApproachPose;
             flowerPickupPose = FieldConstants.audienceWallFlowerPickupPose;
             secondShootPose = FieldConstants.audienceSecondShootPose;
@@ -109,19 +110,30 @@ public class LowHiveStart extends CommandOpMode {
     }
 
     private Command ShootPickupPark() {
-        return Commands.sequence(
-                new CheckForOdometryZoneTags(vss).withTimeout(20000),
+        return
 
-                new ConditionalCommand(
-                        Commands.sequence(
-                                new WaitCommand(500),
-                                new FollowPathCommand(follower, pickupFlower).setGlobalMaxPower(0.5),
-                                new FollowPathCommand(follower, score),
-                                new FollowPathCommand(follower, park, false)),
+                Commands.sequence(
+                        new ConditionalCommand(
+                                new CheckForOdometryZoneTags(vss).withTimeout(20000),
+                                Commands.waitMillis(1000),
+                                () -> !Configurables.doSimulation),
 
-                        new FollowPathCommand(follower, park, false),
+                        new ConditionalCommand(
+                                Commands.sequence(
+                                        new WaitCommand(500),
+                                        new FollowPathCommand(follower, approachFlower),
+                                        new WaitCommand(500),
+                                        new FollowPathCommand(follower, pickupFlower).setGlobalMaxPower(0.5),
+                                        new WaitCommand(500),
+                                        new FollowPathCommand(follower, approachFlower),
+                                        new WaitCommand(500),
+                                        new FollowPathCommand(follower, score),
+                                        new WaitCommand(500),
+                                        new FollowPathCommand(follower, park, false)),
 
-                        () -> vss.isInOdometryZone()));
+                                new FollowPathCommand(follower, park, false),
+
+                                () -> vss.isInOdometryZone() || Configurables.doSimulation));
 
 
     }
@@ -148,18 +160,13 @@ public class LowHiveStart extends CommandOpMode {
         reset();
     }
 
-    public Pose flipBlueToRedPose(Pose blue) {
-        double x = blue.getX();
-        double y = blue.getY();
-        x = SimulatorConstants.width - x;
-        double h = blue.getHeading();
-        return new Pose(x, y, Math.PI - h);
-    }
-
     public void buildPaths() {
-        approachFlower = buildBezierLine(startPose, flowerApproachPose);
 
+        approachFlower = buildBezierCurve(startPose, FieldConstants.scoringWallFlowerApproachControlPointPose, flowerApproachPose);
         pickupFlower = buildBezierLine(flowerApproachPose, flowerPickupPose);
+        score = buildBezierLine(flowerPickupPose, startPose);
+        park = buildBezierLine(startPose, parkPose);
+
     }
 
     PathChain buildBezierLine(Pose start, Pose end) {

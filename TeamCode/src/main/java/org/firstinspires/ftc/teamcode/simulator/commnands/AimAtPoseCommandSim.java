@@ -35,9 +35,9 @@ import java.util.function.DoubleSupplier;
 public class AimAtPoseCommandSim extends CommandBase {
 
     // Live-tunable from the Panels Configurables tab.
-    public static double kP = 1.0;
+    public static double kP = .25;
     public static double kI = 0.0;
-    public static double kD = 0.05;
+    public static double kD = 0.0;
     /**
      * Heading error (radians) below which turn output is zeroed to avoid jitter.
      */
@@ -45,7 +45,7 @@ public class AimAtPoseCommandSim extends CommandBase {
     /**
      * Limit on turn power so aiming never saturates the motors.
      */
-    public static double maxTurn = .25;
+    public static double maxTurn = .5;
     /**
      * Added to the computed angle, e.g. Math.PI if your shooter faces the back of the robot.
      */
@@ -97,7 +97,7 @@ public class AimAtPoseCommandSim extends CommandBase {
             turn = headingController.calculate(error, 0);
             turn = Math.max(-maxTurn, Math.min(maxTurn, turn));
         }
-
+        telemetryM.addData("AIPDESHDG", desiredHeading);
         telemetryM.addData("AIPTurn", turn);
         telemetryM.addData("AIPTgfX", target.getX());
         telemetryM.addData("AIPTurnErr", error);

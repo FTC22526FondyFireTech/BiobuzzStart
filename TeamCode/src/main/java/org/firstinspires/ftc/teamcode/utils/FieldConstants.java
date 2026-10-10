@@ -9,8 +9,9 @@ public class FieldConstants {
     public final static double robotLength = 18;
     public final static double robotArmLengthAdder = 6;
     public final static double robotWidth = 18;
-    public final static double flowerExtensionFromWall = 4.5;
+    public final static double flowerExtensionCenterFromWall = 2.5;
 
+    public final static double flowerApproachClearance = 6;
     public static double loadZoneYLength = 24;
     public static double loadZoneXWidth = 12;
     public static double redLoadZoneYStart = 96;
@@ -27,10 +28,10 @@ public class FieldConstants {
 
 
     //Start Poses
-    public static Pose redScoringStartPose = new Pose(redHiveXCenter, fieldLength - robotLength / 2, -Math.PI / 2);
-    public static Pose redAudienceStartPose = new Pose(redHiveXCenter, robotLength / 2);
+    public static Pose redScoringLoHiveStartPose = new Pose(redHiveXCenter, fieldLength - robotLength / 2, -Math.PI / 2);
+    public static Pose redAudienceStartPose = new Pose(redHiveXCenter, robotLength / 2, Math.PI / 2);
     public static Pose blueScoringStartPose = new Pose(blueHiveXCenter, fieldLength - robotLength / 2, Math.PI / 2);
-    public static Pose blueAudienceStartPose = new Pose(blueHiveXCenter, robotLength / 2, Math.PI / 2);
+    public static Pose blueAudienceLoHiveStartPose = new Pose(blueHiveXCenter, robotLength / 2, Math.PI / 2);
 
 //Shoot poses
 
@@ -64,18 +65,24 @@ public class FieldConstants {
 
     //Flower approach poses
 
-    public static Pose scoringWallFlowerApproachPose = new Pose(scoringWallFlowerPose.getX(), fieldLength - flowerExtensionFromWall - robotLength / 2 - robotArmLengthAdder, Math.PI / 2);
-    public static Pose audienceWallFlowerApproachPose = new Pose(audienceWallFlowerPose.getX(), flowerExtensionFromWall + robotLength / 2 - +robotArmLengthAdder, -Math.PI);
+    public static Pose scoringWallFlowerApproachPose =
+            new Pose(scoringWallFlowerPose.getX(), fieldLength - flowerExtensionCenterFromWall - flowerApproachClearance - robotLength / 2 - robotArmLengthAdder, -Math.PI / 2);
+    public static Pose scoringWallFlowerApproachControlPointPose = new Pose(55,91);
+
+    public static Pose audienceWallFlowerApproachPose =
+            new Pose(audienceWallFlowerPose.getX(), flowerExtensionCenterFromWall + robotLength / 2 - +robotArmLengthAdder, -Math.PI);
 
 
     // Flower pickup poses
-    public static Pose scoringWallFlowerPickupPose = new Pose(scoringWallFlowerPose.getX(), +fieldLength-flowerExtensionFromWall / 2 - robotLength / 2, Math.PI / 2);
-    public static Pose audienceWallFlowerPickupPose = new Pose(audienceWallFlowerPose.getX(), flowerExtensionFromWall + robotLength / 2, -Math.PI);
+    public static Pose
+
+            scoringWallFlowerPickupPose = new Pose(scoringWallFlowerPose.getX(), +fieldLength - flowerExtensionCenterFromWall / 2 - robotLength / 2, -Math.PI / 2);
+    public static Pose audienceWallFlowerPickupPose = new Pose(audienceWallFlowerPose.getX(), flowerExtensionCenterFromWall + robotLength / 2, -Math.PI);
 
 //April TagPoses
 
     public static double tag30X = redHiveXCenter + 6.5;
-    public static Pose tag30 = new Pose(tag30X,redScoringHiveYCenter,Math.toRadians(39));
+    public static Pose tag30 = new Pose(tag30X, redScoringHiveYCenter, Math.toRadians(39));
 
 
 }
