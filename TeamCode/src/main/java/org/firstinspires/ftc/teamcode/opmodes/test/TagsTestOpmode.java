@@ -7,14 +7,13 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.seattlesolvers.solverslib.command.CommandOpMode;
-import com.seattlesolvers.solverslib.geometry.Pose2d;
 import com.seattlesolvers.solverslib.util.Timing;
-
 import org.firstinspires.ftc.teamcode.simulator.drivetrains.MecanumDriveSubsystemSimulation;
 import org.firstinspires.ftc.teamcode.subsystems.VisionSubsysytem;
 import org.firstinspires.ftc.teamcode.utils.GlobalData;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 @TeleOp(name = "TagsTest")
@@ -76,7 +75,7 @@ public class TagsTestOpmode extends CommandOpMode {
 
         double dist = getDistanceToTarget(GlobalData.getActiveHiveTargetPose(), driveSim.getOdometry().getRobotPose());
 
-        telemetryM.addData("DISTFROMODOM", dist);
+        telemetryM.addData("Distance(from odometry)", f3(dist));
         List<LLResultTypes.FiducialResult> fr = vss.getFiducialResults();
 
         List<Integer> tagsSeen = vss.getTagsSeen(fr);
@@ -87,27 +86,44 @@ public class TagsTestOpmode extends CommandOpMode {
         telemetryM.addData("Current Zone", vss.getCurrentTagZone());
         telemetryM.addData("Is In Current Zone", vss.isInCurrentZone(fr));
 
-        LLResult result = vss.getLLResults();
-        if (result.isValid()) {
-            telemetryM.addData("AvgDistance", vss.getAvgDistance(result));
-            telemetryM.addData("AvgArea", vss.getAvgArea(result));
-            telemetryM.addData("YTagDegrees", vss.getTagYDegrees(fr));
-            telemetryM.addData("XTagDegrees", vss.getTagXDegrees(fr));
+        if (!fr.isEmpty()) {
+            double[] temp = vss.getGroupTargetPose(fr);
+            double x = temp[0];
+            double y = temp[1];
+            double z = temp[2];
+            double yaw = temp[3];
+            double pitch = temp[4];
 
-            telemetryM.addData("Yaw", vss.getYaw(result));
-            telemetryM.addData("Roll", vss.getRoll(result));
-            telemetryM.addData("Pitch", vss.getPitch(result));
-
-            telemetryM.addData("tx", result.getTx());
-            telemetryM.addData("ty", result.getTy());
-            telemetryM.addData("ta", result.getTa());
-            telemetryM.addData("Tag Count", result.getBotposeTagCount());
+            telemetryM.addData("X", f3M2I(x));
+            telemetryM.addData("Y", f3M2I(y));
+            telemetryM.addData("Z", f3M2I(z));
+            telemetryM.addData("Yaw", f3(yaw));
+            telemetryM.addData("Z", f3(pitch));
 
 
         }
 
+        LLResult result = vss.getLLResults();
+        if (result.isValid()) {
+
+            telemetryM.addData("tx", f3(result.getTx()));
+            telemetryM.addData("ty", f3(result.getTy()));
+            telemetryM.addData("ta", f3(result.getTa()));
+            telemetryM.addData("Tag Count", vss.getNumberTagsSeen(fr));
+
+        }
+
+
     }
 
-    //}
+    static String f3(double v) {
+        return String.format(Locale.US, "%.3f", v);
+    }
+
+    static String f3M2I(double v) {
+        return String.format(Locale.US, "%.3f", v * 39.37);
+    }
 
 }
+
+

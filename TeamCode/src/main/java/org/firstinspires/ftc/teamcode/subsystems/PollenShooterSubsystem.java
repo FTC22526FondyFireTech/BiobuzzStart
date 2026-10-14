@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.seattlesolvers.solverslib.command.Command;
 import com.seattlesolvers.solverslib.command.Commands;
 import com.seattlesolvers.solverslib.command.SubsystemBase;
@@ -25,6 +26,8 @@ public class PollenShooterSubsystem extends SubsystemBase {
     public static boolean changePollenVelocityCoefficents = false;
 
 
+    public static double holdPosition = 0;
+    public static double shootPosition = .5;
     public double cpr;
     public MotorEx pollenShooterMotor;
     private MotorSimulator shooterMotorSim;
@@ -52,6 +55,8 @@ public class PollenShooterSubsystem extends SubsystemBase {
 
     InterpLUT pollenSpeeds;
 
+    private Servo pollenShootServo;
+
     public PollenShooterSubsystem(HardwareMap hardwareMap) {
         // specifying motor allows top rpm tp be read from motor
         if (!Configurables.doSimulation) {
@@ -63,6 +68,10 @@ public class PollenShooterSubsystem extends SubsystemBase {
             maxShootRPM = maxMotorRPM * .9;
             minShootRPM = maxShootRPM / 2;
             cpr = pollenShooterMotor.getCPR();
+
+            pollenShootServo = hardwareMap.get(Servo.class, "pollenShoot");
+            pollenShootServo.setDirection(Servo.Direction.FORWARD);
+            pollenShootServo.setPosition(holdPosition);
         } else {
             shooterMotorSim = new MotorSimulator(true, 1150);
             shooterMotorSim.setInverted(true);
@@ -74,8 +83,7 @@ public class PollenShooterSubsystem extends SubsystemBase {
         pidController = new PIDController(pollenShooterKp, pollenShooterKi, pollenShooterKd);
 
         //distance in inches, speeds in RPM
-        pollenSpeeds = new InterpLUT()
-        {{
+        pollenSpeeds = new InterpLUT() {{
             add(45.0, 3000.);
             add(40.0, 2800);
             add(35.0, 2500);
@@ -168,7 +176,21 @@ public class PollenShooterSubsystem extends SubsystemBase {
         return Commands.runOnce(() -> changeTargetRPM(val));
     }
 
-    public double getTargetSpeed(double inches){
+    public double getTargetSpeed(double inches) {
         return pollenSpeeds.get(inches);
     }
+
+    public void positionPollenShooter(double position) {
+        if (Configurables.doSimulation)
+            pollenShootServo.setPosition(position);
+    }
+
+    public Command shootPollenCommand() {
+        return Commands.runOnce(() -> positionPollenShooter(shootPosition));
+    }
+
+    public Command holdPollenCommand() {
+        return Commands.runOnce(() -> positionPollenShooter(holdPosition));
+    }
 }
+

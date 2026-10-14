@@ -21,6 +21,8 @@ import org.firstinspires.ftc.teamcode.utils.Configurables;
 import org.firstinspires.ftc.teamcode.utils.Constants;
 import org.firstinspires.ftc.teamcode.utils.GlobalData;
 
+import java.util.Locale;
+
 @TeleOp(name = "Teleop")
 //@Disabled
 
@@ -33,6 +35,27 @@ public class TeleopOpmode extends CommandOpMode {
     IntakeSubsystem intake;
     private MecanumDriveSubsystemSimulation driveSim;
     private Follower follower;
+
+    /**
+     * Teleop Buttons
+     *
+     * Start Intake
+     * Stop Intake
+     * Lower Arm Hold/Release?
+     * Raise Arm
+     *
+     * Start Pollen Shooter Combine with Nectar start.
+     * Start Nectar Shooter
+     * Stop Pollen Shooter Combine with Nectar stop.
+     * Stop Nectar Shooter
+     *
+     * Lock on Target Hold
+     *
+     * Preset Pose (if Odometry off)
+     * Toggle Alliance (if wrong somehow)
+     *
+     *
+     */
 
 
     @Override
@@ -141,16 +164,18 @@ public class TeleopOpmode extends CommandOpMode {
                 dist = getDistanceToTarget(GlobalData.getActiveHiveTargetPose(), drive.getPose());
                 angle = getAngleToTarget(GlobalData.getActiveHiveTargetPose(), drive.getPose());
             } else {
-//    dist = getDistanceToTarget(GlobalData.getActiveHiveTargetPose(), driveSim.getOdometry().getRobotPose());
-//     angle = getAngleToTarget(GlobalData.getActiveHiveTargetPose(), driveSim.getOdometry().getRobotPose());
+                dist = getDistanceToTarget(GlobalData.getActiveHiveTargetPose(), driveSim.getOdometry().getRobotPose());
+                angle = getAngleToTarget(GlobalData.getActiveHiveTargetPose(), driveSim.getOdometry().getRobotPose());
             }
 
-            telemetryM.addData("DISTFROMODOM", dist);
-            telemetryM.addData("ANGLEFROMODOM", angle);
-//            telemetryM.addData("X", driveSim.getOdometry().getRobotPose().getX());
-//            telemetryM.addData("Y", driveSim.getOdometry().getRobotPose().getY());
-            telemetryM.addData("TX", GlobalData.getActiveHiveTargetPose().getX());
-            telemetryM.addData("TY", GlobalData.getActiveHiveTargetPose().getY());
+            telemetryM.addData("DistFromOdometry", f3(dist));
+            telemetryM.addData("AngleFromOdometry", f3(angle));
+            if (Configurables.doSimulation) {
+                telemetryM.addData("X", f3(driveSim.getOdometry().getRobotPose().getX()));
+                telemetryM.addData("Y", f3(driveSim.getOdometry().getRobotPose().getY()));
+            }
+            telemetryM.addData("TX", f3(GlobalData.getActiveHiveTargetPose().getX()));
+            telemetryM.addData("TY", f3(GlobalData.getActiveHiveTargetPose().getY()));
 
 
             telemetryM.update(telemetry);
@@ -168,12 +193,15 @@ public class TeleopOpmode extends CommandOpMode {
     public double getDistanceToTarget(Pose targetPose, Pose robotPose) {
         double XDiff = targetPose.getX() - robotPose.getX();
         double YDiff = targetPose.getY() - robotPose.getY();
-        telemetryM.addData("XDIFF", XDiff);
-        telemetryM.addData("YDIFF", YDiff);
+        telemetryM.addData("XDIFF", f3(XDiff));
+        telemetryM.addData("YDIFF", f3(YDiff));
 
         // return Math.sqrt(Math.pow(XDiff, 2) + Math.pow(YDiff, 2));
         return Math.hypot(XDiff, YDiff);
     }
 
+    static String f3(double v) {
+        return String.format(Locale.US, "%.3f", v);
+    }
 
 }
