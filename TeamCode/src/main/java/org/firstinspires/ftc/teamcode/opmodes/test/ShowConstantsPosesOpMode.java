@@ -40,7 +40,10 @@ public class ShowConstantsPosesOpMode extends CommandOpMode {
         selectPoses = 0;
 
         driverGamepad.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
-                .whenPressed(Commands.runOnce(this::incSelect));
+                .whenPressed(Commands.runOnce(this::incSelectMinus));
+
+        driverGamepad.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
+                .whenPressed(Commands.runOnce(this::incSelectPlus));
 
         Drawing.init();
 
@@ -63,8 +66,13 @@ public class ShowConstantsPosesOpMode extends CommandOpMode {
         reset();
     }
 
-    private void incSelect() {
+    private void incSelectPlus() {
         selectPoses++;
+        // if (selectPoses > 3) selectPoses = 0;
+    }
+
+    private void incSelectMinus() {
+        selectPoses--;
         // if (selectPoses > 3) selectPoses = 0;
     }
 

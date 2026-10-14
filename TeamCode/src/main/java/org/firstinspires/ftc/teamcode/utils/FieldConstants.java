@@ -70,14 +70,15 @@ public class FieldConstants {
     public static Pose scoringWallFlowerApproachControlPointPose = new Pose(55,91);
 
     public static Pose audienceWallFlowerApproachPose =
-            new Pose(audienceWallFlowerPose.getX(), flowerExtensionCenterFromWall + robotLength / 2 - +robotArmLengthAdder, -Math.PI);
+            new Pose(audienceWallFlowerPose.getX(), flowerExtensionCenterFromWall + flowerApproachClearance + robotLength / 2 + robotArmLengthAdder, Math.PI / 2);
 
+    public static Pose auidenceWallFlowerApproachControlPointPose = new Pose(95,17);
 
     // Flower pickup poses
     public static Pose
 
             scoringWallFlowerPickupPose = new Pose(scoringWallFlowerPose.getX(), +fieldLength - flowerExtensionCenterFromWall / 2 - robotLength / 2, -Math.PI / 2);
-    public static Pose audienceWallFlowerPickupPose = new Pose(audienceWallFlowerPose.getX(), flowerExtensionCenterFromWall + robotLength / 2, -Math.PI);
+    public static Pose audienceWallFlowerPickupPose = new Pose(audienceWallFlowerPose.getX(), flowerExtensionCenterFromWall + robotLength / 2, Math.PI / 2);
 
 //April TagPoses
 
