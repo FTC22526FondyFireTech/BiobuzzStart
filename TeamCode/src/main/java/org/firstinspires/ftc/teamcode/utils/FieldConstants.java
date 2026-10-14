@@ -21,14 +21,14 @@ public class FieldConstants {
     public final static double blueHiveXCenter = 84;
 
 
-    public final static double redScoringHiveYCenter = 94;
-    public final static double redAudienceHiveYCenter = 50;
-    public final static double blueScoringHiveYCenter = 84;
-    public final static double blueAudienceHiveYCenter = 50;
+    public final static double redScoringHiveYCenter = 86;
+    public final static double redAudienceHiveYCenter = 58;
+    public final static double blueScoringHiveYCenter = 86;
+    public final static double blueAudienceHiveYCenter = 58;
 
 
     //Start Poses
-    public static Pose redScoringLoHiveStartPose = new Pose(redHiveXCenter, fieldLength - robotLength / 2, -Math.PI / 2);
+    public static Pose redScoringLoHiveStartPose = new Pose(redHiveXCenter, fieldLength - robotLength / 2, Math.PI / 2);
     public static Pose redAudienceStartPose = new Pose(redHiveXCenter, robotLength / 2, Math.PI / 2);
     public static Pose blueScoringStartPose = new Pose(blueHiveXCenter, fieldLength - robotLength / 2, Math.PI / 2);
     public static Pose blueAudienceLoHiveStartPose = new Pose(blueHiveXCenter, robotLength / 2, Math.PI / 2);

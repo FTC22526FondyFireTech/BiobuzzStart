@@ -131,7 +131,7 @@ public class MecanumDriveSubsystemSimulation extends SubsystemBase {
 
 
         Drawing.drawRobot(odometry.getRobotPose(), GlobalData.robotLook);
-
+        //Drawing.drawRobot(GlobalData.getActiveHiveTargetPose(), GlobalData.robotLook);
     }
 
     public void setActiveHiveTargetPose() {
@@ -153,10 +153,9 @@ public class MecanumDriveSubsystemSimulation extends SubsystemBase {
             GlobalData.setCurrentOdometryZone(3);
             GlobalData.setActiveHiveTargetPose(FieldConstants.blueScoringHiveTargetPose);
         }
-          //Drawing.drawPose(GlobalData.getActiveHiveTargetPose());
+        //Drawing.drawPose(GlobalData.getActiveHiveTargetPose());
 
     }
-
 
 
     public void showTelemetry(TelemetryManager telemetryM) {

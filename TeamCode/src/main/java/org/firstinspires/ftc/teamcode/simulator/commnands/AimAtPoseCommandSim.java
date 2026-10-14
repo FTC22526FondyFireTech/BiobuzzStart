@@ -35,7 +35,7 @@ import java.util.function.DoubleSupplier;
 public class AimAtPoseCommandSim extends CommandBase {
 
     // Live-tunable from the Panels Configurables tab.
-    public static double kP = .25;
+    public static double kP = .35;
     public static double kI = 0.0;
     public static double kD = 0.0;
     /**

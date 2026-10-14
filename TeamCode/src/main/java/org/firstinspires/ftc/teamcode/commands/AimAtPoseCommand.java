@@ -8,6 +8,7 @@ import com.seattlesolvers.solverslib.command.CommandBase;
 import com.seattlesolvers.solverslib.controller.PIDController;
 
 import org.firstinspires.ftc.teamcode.subsystems.MecanumDriveSubsystem;
+import org.firstinspires.ftc.teamcode.utils.Configurables;
 import org.firstinspires.ftc.teamcode.utils.GlobalData;
 
 import java.util.function.DoubleSupplier;
@@ -38,6 +39,8 @@ public class AimAtPoseCommand extends CommandBase {
     public static double kP = .5;
     public static double kI = 0.0;
     public static double kD = 0.0;
+
+    public static boolean setPID = false;
     /**
      * Heading error (radians) below which turn output is zeroed to avoid jitter.
      */
@@ -77,6 +80,9 @@ public class AimAtPoseCommand extends CommandBase {
     @Override
     public void execute() {
 
+
+        headingController.setPID(kP, kI, kD);
+
         Pose target = GlobalData.getActiveHiveTargetPose();
 
 
@@ -90,7 +96,7 @@ public class AimAtPoseCommand extends CommandBase {
             // Setpoint = error, measurement = 0, so the PID sees exactly the wrapped error.
             turn = headingController.calculate(error, 0);
             turn = Math.max(-maxTurn, Math.min(maxTurn, turn));
-            turn=-turn;
+            turn = -turn;
         }
 //
         // Pedro: positive turn = counterclockwise, matching positive heading error here.
