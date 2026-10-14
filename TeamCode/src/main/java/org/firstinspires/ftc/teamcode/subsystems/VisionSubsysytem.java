@@ -8,9 +8,9 @@ import com.seattlesolvers.solverslib.command.CommandOpMode;
 import com.seattlesolvers.solverslib.command.SubsystemBase;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.robotcore.external.navigation.Rotation;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
 import java.util.ArrayList;
@@ -39,6 +39,7 @@ public class VisionSubsysytem extends SubsystemBase {
 
     public static final double scoringX = 90;
     public static final double audienceX = 64;
+    public int primaryTag;
 
     public int getCurrentTagZone() {
         return currentTagZone;
@@ -111,8 +112,8 @@ public class VisionSubsysytem extends SubsystemBase {
     }
 
 
-    public double getPitch(LLResult result) {
-        return result.getBotpose().getOrientation().getPitch();
+    public double getPitch(List<LLResultTypes.FiducialResult> llresults) {
+        return llresults.get(0).getTargetPoseRobotSpace().getOrientation().getPitch();
     }
 
     public double getRoll(LLResult result) {
@@ -156,15 +157,23 @@ public class VisionSubsysytem extends SubsystemBase {
         return yDeg;
     }
 
-    public List<Double> getTagXDegrees(List<LLResultTypes.FiducialResult> llresults) {
-        List<Double> yDeg = new ArrayList<>();
-        int i = 0;
-        for (LLResultTypes.FiducialResult fiducial : llresults) {
-            yDeg.add(fiducial.getTargetXDegrees());
-            i++;
+    public double[] getGroupTargetPose(List<LLResultTypes.FiducialResult> llresults) {
+        double[] temp = new double[5];
+        Pose3D pose;
+        if (!llresults.isEmpty()) {
+            pose = llresults.get(0).getRobotPoseTargetSpace();
+            temp[0] = pose.getPosition().x;
+            temp[1] = pose.getPosition().y;
+            temp[2] = pose.getPosition().z;
+            temp[3] = pose.getOrientation().getYaw();
+            temp[4] = pose.getOrientation().getPitch();
+
         }
-        return yDeg;
+        return temp;
+
+
     }
+
 
     public int findZoneFromTags(List<Integer> tagsSeen) {
         int[][] zoneTagSets = new int[][]{redScoringTags, redAudienceTags, blueAudienceTags, blueScoringTags};
@@ -199,14 +208,6 @@ public class VisionSubsysytem extends SubsystemBase {
             }
         }
         return matches >= 2;
-    }
-
-    public double getAvgDistance(LLResult result) {
-        return result.getBotposeAvgDist();
-    }
-
-    public double getAvgArea(LLResult result) {
-        return result.getBotposeAvgArea();
     }
 
 

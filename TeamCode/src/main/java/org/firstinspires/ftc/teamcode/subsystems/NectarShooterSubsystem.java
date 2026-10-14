@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.seattlesolvers.solverslib.command.Command;
 import com.seattlesolvers.solverslib.command.Commands;
 import com.seattlesolvers.solverslib.command.SubsystemBase;
@@ -24,6 +25,9 @@ public class NectarShooterSubsystem extends SubsystemBase {
     public static double nectarShooterKd = 0;
     public static boolean changeNectarVelocityCoefficents = false;
 
+
+    public static double holdPosition = 0;
+    public static double shootPosition = .5;
 
     public double cpr;
     public MotorEx nectarShooterMotor;
@@ -52,6 +56,8 @@ public class NectarShooterSubsystem extends SubsystemBase {
 
     public InterpLUT nectarSpeeds;
 
+    private Servo nectarShootServo;
+
     public  NectarShooterSubsystem(HardwareMap hardwareMap) {
         // specifying motor allows top rpm tp be read from motor
         if (!Configurables.doSimulation) {
@@ -63,6 +69,9 @@ public class NectarShooterSubsystem extends SubsystemBase {
             maxShootRPM = maxMotorRPM * .9;
             minShootRPM = maxShootRPM / 2;
             cpr = nectarShooterMotor.getCPR();
+            nectarShootServo= hardwareMap.get(Servo.class, "nectarShoot");
+            nectarShootServo.setDirection(Servo.Direction.FORWARD);
+            nectarShootServo.setPosition(holdPosition);
         } else {
             shooterMotorSim = new MotorSimulator(true, 1150);
             shooterMotorSim.setInverted(true);
@@ -174,5 +183,18 @@ public class NectarShooterSubsystem extends SubsystemBase {
 
     public double getTargetSpeed(double inches){
         return nectarSpeeds.get(inches);
+    }
+
+    public void positionNectarShooter(double position) {
+        if (Configurables.doSimulation)
+            nectarShootServo.setPosition(position);
+    }
+
+    public Command shootNectarCommand() {
+        return Commands.runOnce(() -> positionNectarShooter(shootPosition));
+    }
+
+    public Command holdNectarCommand() {
+        return Commands.runOnce(() -> positionNectarShooter(holdPosition));
     }
 }

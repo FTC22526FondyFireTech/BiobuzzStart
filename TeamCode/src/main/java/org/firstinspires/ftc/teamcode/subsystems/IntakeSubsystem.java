@@ -4,7 +4,6 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.ServoController;
 import com.seattlesolvers.solverslib.command.Command;
 import com.seattlesolvers.solverslib.command.Commands;
 import com.seattlesolvers.solverslib.command.InstantCommand;
@@ -18,8 +17,8 @@ import org.firstinspires.ftc.teamcode.utils.Configurables;
 @Configurable
 public class IntakeSubsystem extends SubsystemBase {
 
-    public static double upPosition=0;
-    public static double downPosition=.5;
+    public static double upPosition = 0;
+    public static double downPosition = .5;
     public Motor intakeMotor;
     private MotorSimulator intakeMotorSim;
     private boolean direction;
@@ -27,20 +26,21 @@ public class IntakeSubsystem extends SubsystemBase {
     private Servo armServo;
     public static double intakeSpeed = 0.77; // 1150 RPM * 0.77 (or / 77%) = 885.5
     protected double simDt = 0.01; // 10ms fixed physics step (100Hz)
+
     public IntakeSubsystem(HardwareMap hardwareMap) {
         if (!Configurables.doSimulation) {
             intakeMotor = new Motor(hardwareMap, "intake", Motor.GoBILDA.RPM_1150);
             intakeMotor.setInverted(true); // change to true if initially out-taking
             direction = intakeMotor.getInverted();
+            armServo = hardwareMap.get(Servo.class, "armServo");
+            armServo.setDirection(Servo.Direction.FORWARD);
+            armServo.setPosition(upPosition);
         } else {
-            intakeMotorSim = new MotorSimulator(true,1150);
+            intakeMotorSim = new MotorSimulator(true, 1150);
             intakeMotorSim.setInverted(true);
             direction = intakeMotorSim.isInverted();
         }
-        armServo= hardwareMap.get(Servo.class, "armServo");
 
-        armServo.setDirection(Servo.Direction.FORWARD);
-        armServo.setPosition(upPosition);
     }
 
     public void runIntake() {
@@ -98,16 +98,17 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
 
-    public void possitionArm(double position){
-        armServo.setPosition(position);
+    public void positionArm(double position) {
+        if (Configurables.doSimulation)
+            armServo.setPosition(position);
     }
 
-    public Command armDownCommand(){
-        return Commands.runOnce(()->possitionArm(downPosition));
+    public Command armDownCommand() {
+        return Commands.runOnce(() -> positionArm(downPosition));
     }
 
-    public Command armUpCommand(){
-        return Commands.runOnce(()->possitionArm(upPosition));
+    public Command armUpCommand() {
+        return Commands.runOnce(() -> positionArm(upPosition));
     }
 
 
