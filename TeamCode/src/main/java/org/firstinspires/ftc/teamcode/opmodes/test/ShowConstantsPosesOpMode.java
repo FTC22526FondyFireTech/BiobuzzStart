@@ -27,6 +27,8 @@ public class ShowConstantsPosesOpMode extends CommandOpMode {
 
     GamepadEx driverGamepad;
     public static Style robotLook = new Style("", "#3F51B5", 1.0);
+    private static final Style redLook = new Style("", "#FF0000", 1.0);
+    private static final Style blueLook = new Style("", "#0000FF", 1.0);
 
 
     @Override
@@ -58,8 +60,11 @@ public class ShowConstantsPosesOpMode extends CommandOpMode {
 
         while (!isStopRequested() && opModeIsActive()) {
             run();
+            if (selectPoses <= 4 || selectPoses >= 10 && selectPoses <= 13 || selectPoses == 18)
+                Drawing.drawRobot(selectPose(selectPoses), redLook);
+            else
+                Drawing.drawRobot(selectPose(selectPoses), blueLook);
 
-            Drawing.drawRobot(selectPose(selectPoses), robotLook);
             telemetryM.addData("SELPOS", selectPoses);
             telemetryM.update(telemetry);
         }
@@ -105,10 +110,32 @@ public class ShowConstantsPosesOpMode extends CommandOpMode {
                 return FieldConstants.audienceWallFlowerPickupPose;
 
             case 8:
-             return    FieldConstants.blueAudienceLoHiveStartPose;
+                return FieldConstants.blueAudienceLoHiveStartPose;
 
             case 9:
                 return FieldConstants.blueAudienceParkPose;
+
+
+            case 10:
+                return FieldConstants.redAudienceHiHiveStartPose;
+            case 11:
+                return FieldConstants.redAllianceWallFlowerApproachPose;
+            case 12:
+                return FieldConstants.redAllianceWallFlowerPickupPose;
+            case 13:
+                return FieldConstants.redAudienceParkPose;
+            case 14:
+                return FieldConstants.blueScoringHiHiveStartPose;
+            case 15:
+                return FieldConstants.blueAllianceWallFlowerApproachPose;
+            case 16:
+                return FieldConstants.blueAllianceWallFlowerPickupPose;
+            case 17:
+                return FieldConstants.blueAudienceParkPose;
+            case 18:
+                return FieldConstants.scoringWallFlowerApproachControlPointPose;
+            case 19:
+                return FieldConstants.auidenceWallFlowerApproachControlPointPose;
 
 
             case 100:

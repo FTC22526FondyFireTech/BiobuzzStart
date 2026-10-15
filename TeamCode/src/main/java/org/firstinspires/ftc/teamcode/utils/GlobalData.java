@@ -90,6 +90,7 @@ public class GlobalData {
         allianceSelected = false;
         resetAlliances();
         allianceIsConfirmed = false;
+     //   opMode.gamepad1.rumble(250);
 
         while (!allianceIsConfirmed) {
             opMode.telemetry.addData("Selecting Alliance for Team:",
@@ -112,6 +113,8 @@ public class GlobalData {
 
 
             opMode.telemetry.addLine();
+
+
 
             if (opMode.gamepad1.left_bumper) {
                 if (!isBlueAlliance()) {

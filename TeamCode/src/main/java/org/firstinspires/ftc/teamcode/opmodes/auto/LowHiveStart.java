@@ -13,12 +13,15 @@ import com.seattlesolvers.solverslib.command.CommandOpMode;
 import com.seattlesolvers.solverslib.command.Commands;
 import com.seattlesolvers.solverslib.command.ConditionalCommand;
 import com.seattlesolvers.solverslib.command.WaitCommand;
+import com.seattlesolvers.solverslib.command.WaitUntilCommand;
 import com.seattlesolvers.solverslib.pedroCommand.FollowPathCommand;
 
 import org.firstinspires.ftc.teamcode.commands.CheckForOdometryZoneTags;
 import org.firstinspires.ftc.teamcode.simulator.SimulatorConstants;
 import org.firstinspires.ftc.teamcode.simulator.drivetrains.MecanumDriveSubsystemSimulation;
+import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.MecanumDriveSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.PollenShooterSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.VisionSubsysytem;
 import org.firstinspires.ftc.teamcode.utils.Configurables;
 import org.firstinspires.ftc.teamcode.utils.Constants;
@@ -49,16 +52,21 @@ public class LowHiveStart extends CommandOpMode {
     private MecanumDriveSubsystem drive;
     private MecanumDriveSubsystemSimulation driveSim;
 
+    private PollenShooterSubsystem pss;
+    private IntakeSubsystem intake;
+
     private VisionSubsysytem vss;
     private Follower follower;
     TelemetryManager telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
-    private Pose startPose, secondShootPose, flowerApproachPose, flowerPickupPose, parkPose;
+    private Pose startPose, controlPointPose, flowerApproachPose, flowerPickupPose, parkPose;
     private PathChain approachFlower, pickupFlower, score, park;
 
 
     boolean allianceSelected;
     boolean choicesComplete;
     private boolean allianceIsSelected;
+
+    private double startShootRPM = 1500;
 
 
     @Override
@@ -72,16 +80,22 @@ public class LowHiveStart extends CommandOpMode {
 
         vss = new VisionSubsysytem(this);
 
+        pss = new PollenShooterSubsystem(this.hardwareMap);
+
+        intake = new IntakeSubsystem(this.hardwareMap);
+
         GlobalData.selectAlliance(this);
 
 
         if (GlobalData.isRedAlliance()) {
             startPose = FieldConstants.redScoringLoHiveStartPose;
+            controlPointPose = FieldConstants.scoringWallFlowerApproachControlPointPose;
             flowerApproachPose = FieldConstants.scoringWallFlowerApproachPose;
             flowerPickupPose = FieldConstants.scoringWallFlowerPickupPose;
             parkPose = FieldConstants.redScoringParkPose;
         } else {
             startPose = FieldConstants.blueAudienceLoHiveStartPose;
+            controlPointPose = FieldConstants.auidenceWallFlowerApproachControlPointPose;
             flowerApproachPose = FieldConstants.audienceWallFlowerApproachPose;
             flowerPickupPose = FieldConstants.audienceWallFlowerPickupPose;
             parkPose = FieldConstants.blueAudienceParkPose;
@@ -111,21 +125,31 @@ public class LowHiveStart extends CommandOpMode {
         return
 
                 Commands.sequence(
-                        new ConditionalCommand(
-                                new CheckForOdometryZoneTags(vss).withTimeout(20000),
-                                Commands.waitMillis(1000),
-                                () -> !Configurables.doSimulation),
-
+                        new CheckForOdometryZoneTags(vss).withTimeout(20000),
                         new ConditionalCommand(
                                 Commands.sequence(
+                                        pss.setTargetRPMCommand(startShootRPM),
+                                        pss.runShooter2AtVelocityCommand(),
+                                        new WaitUntilCommand(() -> pss.pollenShooterAtSpeed()),
+                                        pss.shootPollenCommand(),
                                         new WaitCommand(500),
+                                        pss.holdPollenCommand(),
                                         new FollowPathCommand(follower, approachFlower),
+                                        intake.runIntakeCommand(),
+                                        intake.armDownCommand(),
                                         new WaitCommand(500),
                                         new FollowPathCommand(follower, pickupFlower).setGlobalMaxPower(0.5),
                                         new WaitCommand(500),
                                         new FollowPathCommand(follower, approachFlower),
                                         new WaitCommand(500),
+                                        intake.stopIntakeCommand(),
+                                        intake.armUpCommand(),
                                         new FollowPathCommand(follower, score),
+                                        new WaitUntilCommand(() -> pss.pollenShooterAtSpeed()),
+                                        pss.shootPollenCommand(),
+                                        new WaitCommand(500),
+                                        pss.holdPollenCommand(),
+                                        pss.stopPollenShooterCommand(),
                                         new WaitCommand(500),
                                         new FollowPathCommand(follower, park, false)),
 
@@ -142,25 +166,33 @@ public class LowHiveStart extends CommandOpMode {
 
         initialize();
         waitForStart();
+//        while (!GlobalData.isRedAlliance() && !GlobalData.isBlueAlliance()) {
+//
+//        }
 
         while (!isStopRequested() && opModeIsActive() && GlobalData.allianceIsConfirmed) {
-            run();
 
-            follower.update();
+            if (GlobalData.isRedAlliance() || GlobalData.isBlueAlliance()) {
+                run();
 
-            telemetryM.addData("X", follower.getPose().getX());
-            telemetryM.addData("Y", follower.getPose().getY());
-            telemetryM.addData("Heading", Math.toDegrees(follower.getPose().getHeading()));
-            telemetryM.addData("Busy", follower.isBusy());
+                follower.update();
 
-            telemetryM.update(telemetry);
+                telemetryM.addData("X", follower.getPose().getX());
+                telemetryM.addData("Y", follower.getPose().getY());
+                telemetryM.addData("Heading", Math.toDegrees(follower.getPose().getHeading()));
+                telemetryM.addData("Busy", follower.isBusy());
+
+                telemetryM.update(telemetry);
+            }
         }
+
+
         reset();
     }
 
     public void buildPaths() {
 
-        approachFlower = buildBezierCurve(startPose, FieldConstants.scoringWallFlowerApproachControlPointPose, flowerApproachPose);
+        approachFlower = buildBezierCurve(startPose, controlPointPose, flowerApproachPose);
         pickupFlower = buildBezierLine(flowerApproachPose, flowerPickupPose);
         score = buildBezierLine(flowerPickupPose, startPose);
         park = buildBezierLine(startPose, parkPose);

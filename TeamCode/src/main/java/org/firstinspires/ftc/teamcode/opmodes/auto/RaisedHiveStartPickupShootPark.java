@@ -43,7 +43,7 @@ import org.firstinspires.ftc.teamcode.utils.GlobalData;
  *
  *
  */
-@Autonomous(name = "Raised Hive Start", group = "Auto")
+@Autonomous(name = "Raised Hive Start Pickup, Shoot, Park", group = "Auto")
 public class RaisedHiveStartPickupShootPark extends CommandOpMode {
 
     private MecanumDriveSubsystem drive;
@@ -76,12 +76,12 @@ public class RaisedHiveStartPickupShootPark extends CommandOpMode {
 
 
         if (GlobalData.isRedAlliance()) {
-            startPose = FieldConstants.redAudienceStartPose;
+            startPose = FieldConstants.redAudienceHiHiveStartPose;
             flowerApproachPose = FieldConstants.redAllianceWallFlowerApproachPose;
             flowerPickupPose = FieldConstants.redAllianceWallFlowerPickupPose;
             parkPose = FieldConstants.redAudienceParkPose;
         } else {
-            startPose = FieldConstants.blueScoringStartPose;
+            startPose = FieldConstants.blueScoringHiHiveStartPose;
             flowerApproachPose = FieldConstants.scoringWallFlowerApproachPose;
             flowerPickupPose = FieldConstants.scoringWallFlowerPickupPose;
             parkPose = FieldConstants.blueScoringParkPose;

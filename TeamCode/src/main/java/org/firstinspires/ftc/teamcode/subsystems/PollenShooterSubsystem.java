@@ -12,7 +12,6 @@ import com.seattlesolvers.solverslib.gamepad.SlewRateLimiter;
 import com.seattlesolvers.solverslib.hardware.motors.Motor;
 import com.seattlesolvers.solverslib.hardware.motors.MotorEx;
 import com.seattlesolvers.solverslib.util.InterpLUT;
-import com.seattlesolvers.solverslib.util.LUT;
 
 import org.firstinspires.ftc.teamcode.simulator.simulators.MotorSimulator;
 import org.firstinspires.ftc.teamcode.utils.Configurables;
@@ -115,7 +114,7 @@ public class PollenShooterSubsystem extends SubsystemBase {
         }
     }
 
-    public Command stopShooter2Command() {
+    public Command stopPollenShooterCommand() {
         return Commands.runOnce(this::stopPollenShooter, this);
     }
 
@@ -132,6 +131,12 @@ public class PollenShooterSubsystem extends SubsystemBase {
         if (!Configurables.doSimulation)
             pollenShooterMotor.set(ff + pidout);
         else shooterMotorSim.setPower(ff + pidout);
+    }
+
+    public boolean pollenShooterAtSpeed() {
+        if (!Configurables.doSimulation)
+            return Math.abs(getTargetRPM() - getMotorRPM()) < getTargetRPM() / 10;
+        else return true;
     }
 
     public double getVelocityError() {
@@ -163,6 +168,10 @@ public class PollenShooterSubsystem extends SubsystemBase {
         pidController.setSetPoint(targetRPM);
     }
 
+    public Command setTargetRPMCommand(double RPM) {
+        return Commands.runOnce(() -> setTargetRPM(RPM));
+    }
+
     public void changeTargetRPM(double val) {
         double tempRPM = getTargetRPM() + val;
         if (tempRPM > maxShootRPM) tempRPM = maxShootRPM;
@@ -186,11 +195,15 @@ public class PollenShooterSubsystem extends SubsystemBase {
     }
 
     public Command shootPollenCommand() {
-        return Commands.runOnce(() -> positionPollenShooter(shootPosition));
+        if (!Configurables.doSimulation)
+            return Commands.runOnce(() -> positionPollenShooter(shootPosition));
+        else return Commands.waitMillis(500);
     }
 
     public Command holdPollenCommand() {
-        return Commands.runOnce(() -> positionPollenShooter(holdPosition));
+        if (!Configurables.doSimulation)
+            return Commands.runOnce(() -> positionPollenShooter(holdPosition));
+        else return Commands.waitMillis(500);
     }
 }
 

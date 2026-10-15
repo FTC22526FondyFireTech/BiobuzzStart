@@ -104,11 +104,15 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public Command armDownCommand() {
-        return Commands.runOnce(() -> positionArm(downPosition));
+        if (!Configurables.doSimulation)
+            return Commands.runOnce(() -> positionArm(downPosition));
+        else return Commands.waitMillis(500);
     }
 
     public Command armUpCommand() {
-        return Commands.runOnce(() -> positionArm(upPosition));
+        if (!Configurables.doSimulation)
+            return Commands.runOnce(() -> positionArm(upPosition));
+        else return Commands.waitMillis(500);
     }
 
 

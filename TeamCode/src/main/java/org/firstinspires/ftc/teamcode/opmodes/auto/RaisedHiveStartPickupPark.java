@@ -43,7 +43,7 @@ import org.firstinspires.ftc.teamcode.utils.GlobalData;
  *
  *
  */
-@Autonomous(name = "Raised Hive Start", group = "Auto")
+@Autonomous(name = "Raised Hive Start Pickup Park", group = "Auto")
 public class RaisedHiveStartPickupPark extends CommandOpMode {
 
     private MecanumDriveSubsystem drive;
@@ -52,7 +52,7 @@ public class RaisedHiveStartPickupPark extends CommandOpMode {
     private VisionSubsysytem vss;
     private Follower follower;
     TelemetryManager telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
-    private Pose startPose, flowerApproachPose, flowerPickupPose, parkPose;
+    private Pose startPose, flowerApproachPose, controlPointPose,flowerPickupPose, parkPose;
     private PathChain approachFlower, pickupFlower,  park;
 
 
@@ -76,12 +76,14 @@ public class RaisedHiveStartPickupPark extends CommandOpMode {
 
 
         if (GlobalData.isRedAlliance()) {
-            startPose = FieldConstants.redAudienceStartPose;
+            startPose = FieldConstants.redAudienceHiHiveStartPose;
+            controlPointPose=FieldConstants.scoringWallFlowerApproachControlPointPose;
             flowerApproachPose = FieldConstants.redAllianceWallFlowerApproachPose;
             flowerPickupPose = FieldConstants.redAllianceWallFlowerPickupPose;
             parkPose = FieldConstants.redAudienceParkPose;
         } else {
-            startPose = FieldConstants.blueScoringStartPose;
+            startPose = FieldConstants.blueScoringHiHiveStartPose;
+            controlPointPose=FieldConstants.auidenceWallFlowerApproachControlPointPose;
             flowerApproachPose = FieldConstants.scoringWallFlowerApproachPose;
             flowerPickupPose = FieldConstants.scoringWallFlowerPickupPose;
             parkPose = FieldConstants.blueScoringParkPose;
@@ -158,7 +160,7 @@ public class RaisedHiveStartPickupPark extends CommandOpMode {
 
     public void buildPaths() {
 
-        approachFlower = buildBezierCurve(startPose, FieldConstants.scoringWallFlowerApproachControlPointPose, flowerApproachPose);
+        approachFlower = buildBezierCurve(startPose, controlPointPose, flowerApproachPose);
         pickupFlower = buildBezierLine(flowerApproachPose, flowerPickupPose);
         park = buildBezierLine(flowerPickupPose, parkPose);
 

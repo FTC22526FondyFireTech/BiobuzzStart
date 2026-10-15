@@ -6,6 +6,7 @@ import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.seattlesolvers.solverslib.command.CommandBase;
 
 import org.firstinspires.ftc.teamcode.subsystems.VisionSubsysytem;
+import org.firstinspires.ftc.teamcode.utils.Configurables;
 import org.firstinspires.ftc.teamcode.utils.GlobalData;
 
 import java.util.List;
@@ -31,7 +32,7 @@ public class CheckForOdometryZoneTags extends CommandBase {
         List<LLResultTypes.FiducialResult> fr = vss.getFiducialResults();
         List<Integer> tagsSeen = vss.getTagsSeen(fr);
         tagsZone = vss.findZoneFromTags(tagsSeen);
-        vss.setInOdometryZone(tagsZone == GlobalData.getCurrentOdometryZone());
+        vss.setInOdometryZone(tagsZone == GlobalData.getCurrentOdometryZone() || Configurables.doSimulation);
     }
 
 
