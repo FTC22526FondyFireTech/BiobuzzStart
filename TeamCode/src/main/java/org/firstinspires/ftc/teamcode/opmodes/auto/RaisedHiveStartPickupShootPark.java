@@ -44,7 +44,7 @@ import org.firstinspires.ftc.teamcode.utils.GlobalData;
  *
  */
 @Autonomous(name = "Raised Hive Start", group = "Auto")
-public class RaisedHiveStart extends CommandOpMode {
+public class RaisedHiveStartPickupShootPark extends CommandOpMode {
 
     private MecanumDriveSubsystem drive;
     private MecanumDriveSubsystemSimulation driveSim;
