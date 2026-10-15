@@ -67,6 +67,7 @@ public class MecanumDriveSubsystem extends SubsystemBase {
             setActiveHiveTargetPose();
             et.reset();
         }
+        if (GlobalData.autoHasRun) GlobalData.robotPose = getPose();
 
         Drawing.drawRobot(getPose(), GlobalData.robotLook);
     }

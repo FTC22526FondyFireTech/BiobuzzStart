@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.seattlesolvers.solverslib.command.CommandOpMode;
 import com.seattlesolvers.solverslib.gamepad.GamepadEx;
 import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
+import com.seattlesolvers.solverslib.geometry.Pose2d;
 
 import org.firstinspires.ftc.teamcode.commands.AimAtLLTXCommand;
 import org.firstinspires.ftc.teamcode.commands.AimAtPoseCommand;
@@ -23,10 +24,12 @@ import org.firstinspires.ftc.teamcode.subsystems.MecanumDriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.VisionSubsysytem;
 import org.firstinspires.ftc.teamcode.utils.Configurables;
 import org.firstinspires.ftc.teamcode.utils.Constants;
+import org.firstinspires.ftc.teamcode.utils.FieldConstants;
 import org.firstinspires.ftc.teamcode.utils.GlobalData;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 @TeleOp(name = "Teleop")
 //@Disabled
@@ -78,6 +81,13 @@ public class TeleopOpmode extends CommandOpMode {
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
         telemetryM.update(telemetry);
+
+        if (GlobalData.autoHasRun) {
+            drive.setPose(GlobalData.robotPose);
+            GlobalData.autoHasRun = false;
+        } else
+            drive.setPose(FieldConstants.redAudienceParkPose);
+
 
         if (!GlobalData.isBlueAlliance() && !GlobalData.isRedAlliance())
             GlobalData.setRedAlliance();

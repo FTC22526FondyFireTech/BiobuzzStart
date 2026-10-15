@@ -87,6 +87,8 @@ public class LowHiveStart extends CommandOpMode {
 
         //   GlobalData.selectAlliance(this);
 
+        GlobalData.autoHasRun = true;
+
 
         if (GlobalData.isRedAlliance()) {
             startPose = FieldConstants.redScoringLoHiveStartPose;

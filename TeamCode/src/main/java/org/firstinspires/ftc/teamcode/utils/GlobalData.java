@@ -3,10 +3,15 @@ package org.firstinspires.ftc.teamcode.utils;
 
 import com.bylazar.field.Style;
 import com.pedropathing.geometry.Pose;
+import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.seattlesolvers.solverslib.command.Command;
 import com.seattlesolvers.solverslib.command.ConditionalCommand;
 import com.seattlesolvers.solverslib.command.InstantCommand;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
 public class GlobalData {
 
@@ -52,6 +57,9 @@ public class GlobalData {
         return new ConditionalCommand(setBlueAllianceCommand(), setRedAllianceCommand(), GlobalData::isRedAlliance);
     }
 
+    public static boolean autoHasRun=false;
+    public static Pose robotPose = new Pose();
+
     public static Style robotLook = new Style("", "#3F51B5", 1.0);
     private static final Style redLook = new Style("", "#FF0000", 1.0);
     private static final Style blueLook = new Style("", "#0000FF", 1.0);
@@ -81,8 +89,6 @@ public class GlobalData {
     public static boolean choicesComplete;
 
 
-
-
     //Method to select starting position and number of artifact group using gamepad
     public static void selectAlliance(OpMode opMode) {
         opMode.telemetry.setAutoClear(true);
@@ -90,7 +96,7 @@ public class GlobalData {
         allianceSelected = false;
         resetAlliances();
         allianceIsConfirmed = false;
-     //   opMode.gamepad1.rumble(250);
+        //   opMode.gamepad1.rumble(250);
 
         while (!allianceIsConfirmed) {
             opMode.telemetry.addData("Selecting Alliance for Team:",
@@ -113,7 +119,6 @@ public class GlobalData {
 
 
             opMode.telemetry.addLine();
-
 
 
             if (opMode.gamepad1.left_bumper) {
