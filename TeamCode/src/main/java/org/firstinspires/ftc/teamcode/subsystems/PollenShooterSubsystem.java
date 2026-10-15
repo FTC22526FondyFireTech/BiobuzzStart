@@ -55,6 +55,17 @@ public class PollenShooterSubsystem extends SubsystemBase {
     InterpLUT pollenSpeeds;
 
     private Servo pollenShootServo;
+    public double shooterServoTargetPosition = .05;
+
+    public boolean isRunPollenShooterAtVelocity() {
+        return runPollenShooterAtVelocity;
+    }
+
+    public void setRunPollenShooterAtVelocity(boolean runPollenShooterAtVelocity) {
+        this.runPollenShooterAtVelocity = runPollenShooterAtVelocity;
+    }
+
+    private boolean runPollenShooterAtVelocity;
 
     public PollenShooterSubsystem(HardwareMap hardwareMap) {
         // specifying motor allows top rpm tp be read from motor
@@ -112,6 +123,7 @@ public class PollenShooterSubsystem extends SubsystemBase {
         } else {
             shooterMotorSim.setPower(0);
         }
+        setRunPollenShooterAtVelocity(false);
     }
 
     public Command stopPollenShooterCommand() {
@@ -124,13 +136,13 @@ public class PollenShooterSubsystem extends SubsystemBase {
      * The controller setpoint is set by setTargetRPM()
      * The motor defaults to the raw power mode
      */
-    public void runShooter2AtVelocity() {
-        tst++;
-        pidout = pidController.calculate(getMotorRPM());
-        ff = sff.calculate(targetRPM);
-        if (!Configurables.doSimulation)
+    public void runPollenShooterAtVelocity() {
+        if (!Configurables.doSimulation) {
+            tst++;
+            pidout = pidController.calculate(getMotorRPM());
+            ff = sff.calculate(targetRPM);
             pollenShooterMotor.set(ff + pidout);
-        else shooterMotorSim.setPower(ff + pidout);
+        } else shooterMotorSim.setPower(ff + pidout);
     }
 
     public boolean pollenShooterAtSpeed() {
@@ -143,8 +155,8 @@ public class PollenShooterSubsystem extends SubsystemBase {
         return pidController.getVelocityError();
     }
 
-    public Command runShooter2AtVelocityCommand() {
-        return Commands.run(this::runShooter2AtVelocity, this);
+    public Command runPollenShooterAtVelocityCommand() {
+        return Commands.runOnce(() -> setRunPollenShooterAtVelocity(true));
     }
 
     public double getMotorRPM() {
@@ -190,20 +202,31 @@ public class PollenShooterSubsystem extends SubsystemBase {
     }
 
     public void positionPollenShooter(double position) {
-        if (Configurables.doSimulation)
+        if (!Configurables.doSimulation)
             pollenShootServo.setPosition(position);
+        else shooterServoTargetPosition = position;
     }
 
     public Command shootPollenCommand() {
-        if (!Configurables.doSimulation)
-            return Commands.runOnce(() -> positionPollenShooter(shootPosition));
-        else return Commands.waitMillis(500);
+            return
+                    Commands.runOnce(() -> positionPollenShooter(shootPosition));
     }
 
     public Command holdPollenCommand() {
-        if (!Configurables.doSimulation)
-            return Commands.runOnce(() -> positionPollenShooter(holdPosition));
-        else return Commands.waitMillis(500);
+        return Commands.runOnce(() -> positionPollenShooter(holdPosition));
+
+    }
+
+    public double getPollenShooterPosition() {
+        return shooterServoTargetPosition;
+    }
+
+    @Override
+    public void periodic() {
+        if (runPollenShooterAtVelocity) {
+            runPollenShooterAtVelocity();
+        }
+
     }
 }
 

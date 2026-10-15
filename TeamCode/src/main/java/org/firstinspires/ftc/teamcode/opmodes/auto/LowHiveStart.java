@@ -84,7 +84,7 @@ public class LowHiveStart extends CommandOpMode {
 
         intake = new IntakeSubsystem(this.hardwareMap);
 
-        GlobalData.selectAlliance(this);
+        //   GlobalData.selectAlliance(this);
 
 
         if (GlobalData.isRedAlliance()) {
@@ -129,25 +129,26 @@ public class LowHiveStart extends CommandOpMode {
                         new ConditionalCommand(
                                 Commands.sequence(
                                         pss.setTargetRPMCommand(startShootRPM),
-                                        pss.runShooter2AtVelocityCommand(),
+                                        pss.runPollenShooterAtVelocityCommand(),
                                         new WaitUntilCommand(() -> pss.pollenShooterAtSpeed()),
                                         pss.shootPollenCommand(),
-                                        new WaitCommand(500),
+                                        new WaitCommand(2000),
                                         pss.holdPollenCommand(),
+                                        pss.stopPollenShooterCommand(),
                                         new FollowPathCommand(follower, approachFlower),
                                         intake.runIntakeCommand(),
                                         intake.armDownCommand(),
                                         new WaitCommand(500),
                                         new FollowPathCommand(follower, pickupFlower).setGlobalMaxPower(0.5),
                                         new WaitCommand(500),
-                                        new FollowPathCommand(follower, approachFlower),
-                                        new WaitCommand(500),
                                         intake.stopIntakeCommand(),
                                         intake.armUpCommand(),
                                         new FollowPathCommand(follower, score),
+                                        pss.setTargetRPMCommand(startShootRPM),
+                                        pss.runPollenShooterAtVelocityCommand(),
                                         new WaitUntilCommand(() -> pss.pollenShooterAtSpeed()),
                                         pss.shootPollenCommand(),
-                                        new WaitCommand(500),
+                                        new WaitCommand(2000),
                                         pss.holdPollenCommand(),
                                         pss.stopPollenShooterCommand(),
                                         new WaitCommand(500),
@@ -176,6 +177,9 @@ public class LowHiveStart extends CommandOpMode {
                 run();
 
                 follower.update();
+                telemetryM.addData("TGTRPM", pss.getTargetRPM());
+                telemetryM.addData("PSSRVTGT", pss.shooterServoTargetPosition);
+                telemetryM.addData("PSSATSPEED", pss.pollenShooterAtSpeed());
 
                 telemetryM.addData("X", follower.getPose().getX());
                 telemetryM.addData("Y", follower.getPose().getY());

@@ -6,8 +6,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.seattlesolvers.solverslib.command.Command;
 import com.seattlesolvers.solverslib.command.Commands;
-import com.seattlesolvers.solverslib.command.InstantCommand;
-import com.seattlesolvers.solverslib.command.RunCommand;
 import com.seattlesolvers.solverslib.command.SubsystemBase;
 import com.seattlesolvers.solverslib.hardware.motors.Motor;
 
@@ -83,18 +81,17 @@ public class IntakeSubsystem extends SubsystemBase {
 
     }
 
-    public RunCommand runIntakeCommand() {
-        return new RunCommand(
-                this::runIntake, this);
+    public Command runIntakeCommand() {
+        return Commands.runOnce(this::runIntake, this);
     }
 
-    public InstantCommand stopIntakeCommand() {
-        return new InstantCommand(
-                this::stopIntake, this);
+    public Command stopIntakeCommand() {
+        return Commands.runOnce(this::stopIntake);
+
     }
 
-    public InstantCommand invertIntakeCommand() {
-        return new InstantCommand(this::invertIntake);
+    public Command invertIntakeCommand() {
+        return Commands.runOnce(this::invertIntake);
     }
 
 

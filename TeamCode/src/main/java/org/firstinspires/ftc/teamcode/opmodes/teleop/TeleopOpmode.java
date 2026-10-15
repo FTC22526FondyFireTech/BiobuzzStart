@@ -53,19 +53,19 @@ public class TeleopOpmode extends CommandOpMode {
 
     /**
      * Teleop Buttons
-     *
+     * <p>
      * Start Intake
      * Stop Intake
      * Lower Arm Hold/Release?
      * Raise Arm
-     *
+     * <p>
      * Start Pollen Shooter Combine with Nectar start.
      * Start Nectar Shooter
      * Stop Pollen Shooter Combine with Nectar stop.
      * Stop Nectar Shooter
-     *
+     * <p>
      * Lock on Target Hold
-     *
+     * <p>
      * Preset Pose (if Odometry off)
      * Toggle Alliance (if wrong somehow)
      *
@@ -78,7 +78,9 @@ public class TeleopOpmode extends CommandOpMode {
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
         telemetryM.update(telemetry);
-        GlobalData.setRedAlliance();
+
+        if (!GlobalData.isBlueAlliance() && !GlobalData.isRedAlliance())
+            GlobalData.setRedAlliance();
         driverGamepad = new GamepadEx(gamepad1);
 
         if (!Configurables.doSimulation) {
@@ -96,7 +98,7 @@ public class TeleopOpmode extends CommandOpMode {
                     () -> driverGamepad.getLeftX(),
                     () -> driverGamepad.getRightX(), () -> true));
         }
-        vss=new VisionSubsysytem(this);
+        vss = new VisionSubsysytem(this);
 
 
         if (!Configurables.doSimulation)
@@ -124,7 +126,7 @@ public class TeleopOpmode extends CommandOpMode {
 
         }
         driverGamepad.getGamepadButton(GamepadKeys.Button.X)
-                .whenHeld(new AimAtLLTXCommand(drive,vss,()->-driverGamepad.getLeftY(),()->driverGamepad.getLeftX()));
+                .whenHeld(new AimAtLLTXCommand(drive, vss, () -> -driverGamepad.getLeftY(), () -> driverGamepad.getLeftX()));
 
         if (!Configurables.doSimulation) {
             driverGamepad.getGamepadButton(GamepadKeys.Button.B)
@@ -237,7 +239,6 @@ public class TeleopOpmode extends CommandOpMode {
         }
         reset();
     }
-
 
 
     public double getAngleToTarget(Pose targetPose, Pose robotPose) {

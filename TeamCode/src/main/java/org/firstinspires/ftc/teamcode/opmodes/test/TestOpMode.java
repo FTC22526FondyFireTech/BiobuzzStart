@@ -44,7 +44,7 @@ public class TestOpMode extends CommandOpMode {
                     .whenReleased(intake.stopIntakeCommand());
 
         driverGamepad.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
-                .whenPressed(pollenShooter.runShooter2AtVelocityCommand());
+                .whenPressed(pollenShooter.runPollenShooterAtVelocityCommand());
 
         driverGamepad.getGamepadButton(GamepadKeys.Button.DPAD_UP)
                 .whenPressed(pollenShooter.changeTargetRPMCommand(25));
