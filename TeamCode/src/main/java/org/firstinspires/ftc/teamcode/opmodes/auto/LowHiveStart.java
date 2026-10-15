@@ -23,6 +23,7 @@ import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.MecanumDriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.PollenShooterSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.VisionSubsysytem;
+import org.firstinspires.ftc.teamcode.utils.AutoCommands;
 import org.firstinspires.ftc.teamcode.utils.Configurables;
 import org.firstinspires.ftc.teamcode.utils.Constants;
 import org.firstinspires.ftc.teamcode.utils.FieldConstants;
@@ -58,15 +59,13 @@ public class LowHiveStart extends CommandOpMode {
     private VisionSubsysytem vss;
     private Follower follower;
     TelemetryManager telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
-    private Pose startPose, controlPointPose, flowerApproachPose, flowerPickupPose, parkPose;
+    private Pose startPose, controlPointPose, flowerApproachPose, flowerPickupPose, secondShootPose, parkPose;
     private PathChain approachFlower, pickupFlower, score, park;
-
+    private AutoCommands ac;
 
     boolean allianceSelected;
     boolean choicesComplete;
     private boolean allianceIsSelected;
-
-    private double startShootRPM = 1500;
 
 
     @Override
@@ -84,6 +83,8 @@ public class LowHiveStart extends CommandOpMode {
 
         intake = new IntakeSubsystem(this.hardwareMap);
 
+        ac = new AutoCommands(pss);
+
         //   GlobalData.selectAlliance(this);
 
 
@@ -92,12 +93,14 @@ public class LowHiveStart extends CommandOpMode {
             controlPointPose = FieldConstants.scoringWallFlowerApproachControlPointPose;
             flowerApproachPose = FieldConstants.scoringWallFlowerApproachPose;
             flowerPickupPose = FieldConstants.scoringWallFlowerPickupPose;
+            secondShootPose = FieldConstants.redScoringSecondShootPose;
             parkPose = FieldConstants.redScoringParkPose;
         } else {
             startPose = FieldConstants.blueAudienceLoHiveStartPose;
             controlPointPose = FieldConstants.auidenceWallFlowerApproachControlPointPose;
             flowerApproachPose = FieldConstants.audienceWallFlowerApproachPose;
             flowerPickupPose = FieldConstants.audienceWallFlowerPickupPose;
+            secondShootPose = FieldConstants.blueAudienceSecondShootPose;
             parkPose = FieldConstants.blueAudienceParkPose;
         }
 
@@ -128,31 +131,20 @@ public class LowHiveStart extends CommandOpMode {
                         new CheckForOdometryZoneTags(vss).withTimeout(20000),
                         new ConditionalCommand(
                                 Commands.sequence(
-                                        pss.setTargetRPMCommand(startShootRPM),
-                                        pss.runPollenShooterAtVelocityCommand(),
-                                        new WaitUntilCommand(() -> pss.pollenShooterAtSpeed()),
-                                        pss.shootPollenCommand(),
-                                        new WaitCommand(2000),
-                                        pss.holdPollenCommand(),
-                                        pss.stopPollenShooterCommand(),
-                                        new FollowPathCommand(follower, approachFlower),
-                                        intake.runIntakeCommand(),
-                                        intake.armDownCommand(),
+                                        ac.autoShootCommand(),
+                                        Commands.parallel(
+                                                new FollowPathCommand(follower, approachFlower),
+                                                intake.runIntakeCommand(),
+                                                intake.armDownCommand()),
                                         new WaitCommand(500),
                                         new FollowPathCommand(follower, pickupFlower).setGlobalMaxPower(0.5),
                                         new WaitCommand(500),
-                                        intake.stopIntakeCommand(),
-                                        intake.armUpCommand(),
                                         new FollowPathCommand(follower, score),
-                                        pss.setTargetRPMCommand(startShootRPM),
-                                        pss.runPollenShooterAtVelocityCommand(),
-                                        new WaitUntilCommand(() -> pss.pollenShooterAtSpeed()),
-                                        pss.shootPollenCommand(),
-                                        new WaitCommand(2000),
-                                        pss.holdPollenCommand(),
-                                        pss.stopPollenShooterCommand(),
-                                        new WaitCommand(500),
-                                        new FollowPathCommand(follower, park, false)),
+                                        Commands.parallel(
+                                                intake.stopIntakeCommand(),
+                                                intake.armUpCommand()),
+                                        ac.autoShootCommand(),
+                                        new WaitCommand(500)),
 
                                 new FollowPathCommand(follower, park, false),
 
@@ -198,8 +190,8 @@ public class LowHiveStart extends CommandOpMode {
 
         approachFlower = buildBezierCurve(startPose, controlPointPose, flowerApproachPose);
         pickupFlower = buildBezierLine(flowerApproachPose, flowerPickupPose);
-        score = buildBezierLine(flowerPickupPose, startPose);
-        park = buildBezierLine(startPose, parkPose);
+        score = buildBezierLine(flowerPickupPose, secondShootPose);
+        park = buildBezierLine(secondShootPose, parkPose);
 
     }
 

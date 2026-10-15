@@ -95,7 +95,7 @@ public class ShowConstantsPosesOpMode extends CommandOpMode {
                 return FieldConstants.scoringWallFlowerPickupPose;
 
             case 3:
-                return FieldConstants.redScoringLoHiveStartPose;
+                return FieldConstants.redScoringSecondShootPose;
 
             case 4:
                 return FieldConstants.redScoringParkPose;
@@ -110,7 +110,7 @@ public class ShowConstantsPosesOpMode extends CommandOpMode {
                 return FieldConstants.audienceWallFlowerPickupPose;
 
             case 8:
-                return FieldConstants.blueAudienceLoHiveStartPose;
+                return FieldConstants.blueAudienceSecondShootPose;
 
             case 9:
                 return FieldConstants.blueAudienceParkPose;

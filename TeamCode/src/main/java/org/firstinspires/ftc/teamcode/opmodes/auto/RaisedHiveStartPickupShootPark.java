@@ -72,7 +72,7 @@ public class RaisedHiveStartPickupShootPark extends CommandOpMode {
 
         vss = new VisionSubsysytem(this);
 
-        GlobalData.selectAlliance(this);
+      //  GlobalData.selectAlliance(this);
 
 
         if (GlobalData.isRedAlliance()) {
