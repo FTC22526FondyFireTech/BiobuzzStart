@@ -4,11 +4,14 @@ import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.seattlesolvers.solverslib.command.CommandOpMode;
 import com.seattlesolvers.solverslib.gamepad.GamepadEx;
 import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 
+import org.firstinspires.ftc.teamcode.commands.AimAtLLTXCommand;
 import org.firstinspires.ftc.teamcode.commands.AimAtPoseCommand;
 import org.firstinspires.ftc.teamcode.commands.DriveCommand;
 import org.firstinspires.ftc.teamcode.simulator.SimulatorConstants;
@@ -17,10 +20,12 @@ import org.firstinspires.ftc.teamcode.simulator.commnands.DriveSimCommand;
 import org.firstinspires.ftc.teamcode.simulator.drivetrains.MecanumDriveSubsystemSimulation;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.MecanumDriveSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.VisionSubsysytem;
 import org.firstinspires.ftc.teamcode.utils.Configurables;
 import org.firstinspires.ftc.teamcode.utils.Constants;
 import org.firstinspires.ftc.teamcode.utils.GlobalData;
 
+import java.util.List;
 import java.util.Locale;
 
 @TeleOp(name = "Teleop")
@@ -32,9 +37,19 @@ public class TeleopOpmode extends CommandOpMode {
     GamepadEx driverGamepad;
     MecanumDriveSubsystem drive;
 
+    VisionSubsysytem vss;
+
     IntakeSubsystem intake;
     private MecanumDriveSubsystemSimulation driveSim;
     private Follower follower;
+
+    static String f3(double v) {
+        return String.format(Locale.US, "%.3f", v);
+    }
+
+    static String f3M2I(double v) {
+        return String.format(Locale.US, "%.3f", v * 39.37);
+    }
 
     /**
      * Teleop Buttons
@@ -81,6 +96,7 @@ public class TeleopOpmode extends CommandOpMode {
                     () -> driverGamepad.getLeftX(),
                     () -> driverGamepad.getRightX(), () -> true));
         }
+        vss=new VisionSubsysytem(this);
 
 
         if (!Configurables.doSimulation)
@@ -107,6 +123,8 @@ public class TeleopOpmode extends CommandOpMode {
                     .whileActiveOnce(driveSim.getOdometry().setPoseCommand(new Pose(12, 12, 0)));
 
         }
+        driverGamepad.getGamepadButton(GamepadKeys.Button.X)
+                .whenHeld(new AimAtLLTXCommand(drive,vss,()->-driverGamepad.getLeftY(),()->driverGamepad.getLeftX()));
 
         if (!Configurables.doSimulation) {
             driverGamepad.getGamepadButton(GamepadKeys.Button.B)
@@ -177,11 +195,49 @@ public class TeleopOpmode extends CommandOpMode {
             telemetryM.addData("TX", f3(GlobalData.getActiveHiveTargetPose().getX()));
             telemetryM.addData("TY", f3(GlobalData.getActiveHiveTargetPose().getY()));
 
+            List<LLResultTypes.FiducialResult> fr = vss.getFiducialResults();
+
+            List<Integer> tagsSeen = vss.getTagsSeen(fr);
+            telemetryM.addData("TagsSeen", tagsSeen);
+
+
+            telemetryM.addData("ZoneFromTags", vss.findZoneFromTags(tagsSeen));
+            telemetryM.addData("Current Zone", vss.getCurrentTagZone());
+            telemetryM.addData("Is In Current Zone", vss.isInCurrentZone(fr));
+
+            if (!fr.isEmpty()) {
+                double[] temp = vss.getGroupTargetPose(fr);
+                double x = temp[0];
+                double y = temp[1];
+                double z = temp[2];
+                double yaw = temp[3];
+                double pitch = temp[4];
+
+                telemetryM.addData("X", f3M2I(x));
+                telemetryM.addData("Y", f3M2I(y));
+                telemetryM.addData("Z", f3M2I(z));
+                telemetryM.addData("Yaw", f3(yaw));
+                telemetryM.addData("Z", f3(pitch));
+
+
+            }
+
+            LLResult result = vss.getLLResults();
+            if (result.isValid()) {
+
+                telemetryM.addData("tx", f3(result.getTx()));
+                telemetryM.addData("ty", f3(result.getTy()));
+                telemetryM.addData("ta", f3(result.getTa()));
+                telemetryM.addData("Tag Count", vss.getNumberTagsSeen(fr));
+
+            }
+
 
             telemetryM.update(telemetry);
         }
         reset();
     }
+
 
 
     public double getAngleToTarget(Pose targetPose, Pose robotPose) {
@@ -200,8 +256,5 @@ public class TeleopOpmode extends CommandOpMode {
         return Math.hypot(XDiff, YDiff);
     }
 
-    static String f3(double v) {
-        return String.format(Locale.US, "%.3f", v);
-    }
 
 }

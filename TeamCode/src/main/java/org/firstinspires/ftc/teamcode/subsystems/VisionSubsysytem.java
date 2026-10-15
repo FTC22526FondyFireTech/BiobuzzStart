@@ -255,7 +255,6 @@ public class VisionSubsysytem extends SubsystemBase {
         }
     }
 
-
     @Override
     public void periodic() {
 

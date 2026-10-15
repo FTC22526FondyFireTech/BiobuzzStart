@@ -79,13 +79,11 @@ public class LowHiveStart extends CommandOpMode {
             startPose = FieldConstants.redScoringLoHiveStartPose;
             flowerApproachPose = FieldConstants.scoringWallFlowerApproachPose;
             flowerPickupPose = FieldConstants.scoringWallFlowerPickupPose;
-            secondShootPose = FieldConstants.scoringSecondShootPose;
             parkPose = FieldConstants.redScoringParkPose;
         } else {
             startPose = FieldConstants.blueAudienceLoHiveStartPose;
             flowerApproachPose = FieldConstants.audienceWallFlowerApproachPose;
             flowerPickupPose = FieldConstants.audienceWallFlowerPickupPose;
-            secondShootPose = FieldConstants.audienceSecondShootPose;
             parkPose = FieldConstants.blueAudienceParkPose;
         }
 

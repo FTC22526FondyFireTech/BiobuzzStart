@@ -7,10 +7,14 @@ import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.ftc.FollowerBuilder;
 import com.pedropathing.ftc.drivetrains.MecanumConstants;
 import com.pedropathing.ftc.localization.Encoder;
+import com.pedropathing.ftc.localization.constants.PinpointConstants;
 import com.pedropathing.ftc.localization.constants.ThreeWheelConstants;
 import com.pedropathing.paths.PathConstraints;
+import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 /**
  * Central tuning/config file for the mecanum drivebase.
@@ -33,7 +37,7 @@ public class Constants {
     public static final String BACK_LEFT_MOTOR_NAME = "backLeft";
     public static final String BACK_RIGHT_MOTOR_NAME = "backRight";
 
-    //public static final String PINPOINT_NAME = "pinpoint";
+    public static final String PINPOINT_NAME = "pinpoint";
 
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(7.17) // 15.8 lbs
@@ -42,7 +46,7 @@ public class Constants {
             .translationalPIDFCoefficients(new PIDFCoefficients( // done!
                     0.075, 0, 0.025, 0.025
             ))
-            .translationalPIDFSwitch(4) 
+            .translationalPIDFSwitch(4)
             .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(
                     0.4, 0, 0.005, 0.0006
             ))
@@ -77,15 +81,18 @@ public class Constants {
     // goBILDA Pinpoint odometry computer configuration.
     // forwardPodY / strafePodX are the offsets (in inches) of the odometry pods from the
     // robot's center of rotation. See https://pedropathing.com/docs/pathing/tuning/localization/pinpoint
-    /*public static PinpointConstants localizerConstantsPinpoint = new PinpointConstants()
+
+    public static PinpointConstants localizerConstantsPinpoint = new PinpointConstants()
             .hardwareMapName(PINPOINT_NAME)
-            .forwardPodY(0.75)
+            .forwardPodY(6.5)
+            .strafePodX(-5)
+            .distanceUnit(DistanceUnit.INCH)
             .distanceUnit(DistanceUnit.INCH)
             .encoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD)
             .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD)
-            .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED);
+            .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD);
 
-     */
+
 
 
     public static ThreeWheelConstants localizerConstantsThreeWheel = new ThreeWheelConstants()
@@ -130,10 +137,10 @@ public class Constants {
 
     public static Follower createFollower(HardwareMap hardwareMap) {
         return new FollowerBuilder(followerConstants, hardwareMap)
-                // .pinpointLocalizer(localizerConstantsPinpoint)
+                 .pinpointLocalizer(localizerConstantsPinpoint)
                 .pathConstraints(pathConstraints)
                 .mecanumDrivetrain(driveConstants)
-                .threeWheelLocalizer(localizerConstantsThreeWheel) //uses 3 deadwheels
+               // .threeWheelLocalizer(localizerConstantsThreeWheel) //uses 3 deadwheels
                 .build();
     }
 }
