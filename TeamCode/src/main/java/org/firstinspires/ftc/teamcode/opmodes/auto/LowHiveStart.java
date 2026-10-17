@@ -85,7 +85,7 @@ public class LowHiveStart extends CommandOpMode {
 
         intake = new IntakeSubsystem(this.hardwareMap);
 
-        ac = new AutoCommands(drive, pss, nss, vss);
+        ac = new AutoCommands(drive, driveSim, pss, nss, vss);
 
         //   GlobalData.selectAlliance(this);
 

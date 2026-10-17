@@ -16,6 +16,8 @@ public class AutoCommands {
 
     private final MecanumDriveSubsystem drive;
 
+    private final MecanumDriveSubsystemSimulation driveSim;
+
 
     private final PollenShooterSubsystem pss;
     private final NectarShooterSubsystem nss;
@@ -23,8 +25,9 @@ public class AutoCommands {
     private final double startShootRPM = 1500;
 
 
-    public AutoCommands(MecanumDriveSubsystem drive, PollenShooterSubsystem pss, NectarShooterSubsystem nss, VisionSubsysytem vss) {
+    public AutoCommands(MecanumDriveSubsystem drive, MecanumDriveSubsystemSimulation driveSim, PollenShooterSubsystem pss, NectarShooterSubsystem nss, VisionSubsysytem vss) {
         this.drive = drive;
+        this.driveSim = driveSim;
         this.pss = pss;
         this.nss = nss;
         this.vss = vss;
@@ -48,7 +51,10 @@ public class AutoCommands {
     }
 
     public double getDistanceFromOdometry() {
-        return getDistanceToTarget(GlobalData.getActiveHiveTargetPose(), drive.getPose());
+        if (!Configurables.doSimulation)
+            return getDistanceToTarget(GlobalData.getActiveHiveTargetPose(), drive.getPose());
+        else
+            return getDistanceToTarget(GlobalData.getActiveHiveTargetPose(), driveSim.getOdometry().getRobotPose());
     }
 
 

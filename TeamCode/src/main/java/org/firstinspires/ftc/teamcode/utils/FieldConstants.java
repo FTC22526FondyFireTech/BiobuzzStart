@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.utils;
 
 import com.pedropathing.geometry.Pose;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+
 public class FieldConstants {
 
     public final static double fieldLength = 144;
@@ -28,7 +30,8 @@ public class FieldConstants {
 
 
     //Start Poses
-    public static Pose redScoringLoHiveStartPose = new Pose(redHiveXCenter,
+    public static Pose redScoringLoHiveStartPose =
+            new Pose(redHiveXCenter,
             fieldLength - robotLength / 2,
             Math.PI / 2);
     public static Pose redAudienceHiHiveStartPose = new Pose(redHiveXCenter,
@@ -59,9 +62,9 @@ public class FieldConstants {
                     Math.PI / 2);
     public static Pose redAudienceParkPose =
             new Pose(loadZoneXWidth,
-            redLoadZoneYStart,
-            Math.PI);
-    public static Pose blueScoringParkPose = new Pose(fieldWidth - loadZoneXWidth, blueLoadZoneYStart,Math.PI/2);
+                    redLoadZoneYStart,
+                    Math.PI);
+    public static Pose blueScoringParkPose = new Pose(fieldWidth - loadZoneXWidth, blueLoadZoneYStart, Math.PI / 2);
     public static Pose blueAudienceParkPose = new Pose(fieldWidth - loadZoneXWidth, blueLoadZoneYStart, -Math.PI / 2);
 
 
@@ -126,6 +129,24 @@ public class FieldConstants {
             new Pose(audienceWallFlowerPose.getX(),
                     flowerExtensionCenterFromWall + robotLength / 2,
                     -Math.PI / 2);
+
+
+    /**
+     * BIOBUZZ: blue = red rotated 180° about field center (72,72).
+     */
+    static double FIELD = 144;
+
+    public static Pose toBlue(Pose red) {
+        return new Pose(
+                FIELD - red.getX(),
+                FIELD - red.getY(),
+                AngleUnit.normalizeRadians(red.getHeading() + Math.PI));
+    }
+
+    public static Pose forAlliance(Pose redPose, boolean isBlue) {
+        return isBlue ? toBlue(redPose) : redPose;
+    }
+
 
 //April TagPoses
 

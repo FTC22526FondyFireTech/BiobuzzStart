@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.seattlesolvers.solverslib.command.CommandOpMode;
 import com.seattlesolvers.solverslib.gamepad.GamepadEx;
 import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
+
 import org.firstinspires.ftc.teamcode.commands.AimAtLLTXCommand;
 import org.firstinspires.ftc.teamcode.commands.AimAtPoseCommand;
 import org.firstinspires.ftc.teamcode.commands.DriveCommand;
@@ -91,12 +92,13 @@ public class TeleopOpmode extends CommandOpMode {
 
         telemetryM.update(telemetry);
 
-        if (GlobalData.autoHasRun) {
-            drive.setPose(GlobalData.robotPose);
-            GlobalData.autoHasRun = false;
-        } else
-            drive.setPose(FieldConstants.redAudienceParkPose);
-
+        if (!Configurables.doSimulation) {
+            if (GlobalData.autoHasRun) {
+                drive.setPose(GlobalData.robotPose);
+                GlobalData.autoHasRun = false;
+            } else
+                drive.setPose(FieldConstants.redAudienceParkPose);
+        }
 
         if (!GlobalData.isBlueAlliance() && !GlobalData.isRedAlliance())
             GlobalData.setRedAlliance();
@@ -108,7 +110,7 @@ public class TeleopOpmode extends CommandOpMode {
                     () -> driverGamepad.getLeftY(),
                     () -> -driverGamepad.getLeftX(),
                     () -> driverGamepad.getRightX()));
-            intake = new IntakeSubsystem(this.hardwareMap);
+
         } else {
             driveSim = new MecanumDriveSubsystemSimulation(this);
             driveSim.setDefaultCommand(new DriveSimCommand(
@@ -123,7 +125,9 @@ public class TeleopOpmode extends CommandOpMode {
 
         nss = new NectarShooterSubsystem(this.hardwareMap);
 
-        ac = new AutoCommands(drive, pss, nss, vss);
+        intake = new IntakeSubsystem(this.hardwareMap);
+
+        ac = new AutoCommands(drive, driveSim, pss, nss, vss);
 
 
         if (!Configurables.doSimulation)

@@ -60,10 +60,11 @@ public class ShowConstantsPosesOpMode extends CommandOpMode {
 
         while (!isStopRequested() && opModeIsActive()) {
             run();
-            if (selectPoses <= 4 || selectPoses >= 10 && selectPoses <= 13 || selectPoses == 18)
+//            if (selectPoses <= 4 || selectPoses >= 10 && selectPoses <= 13 || selectPoses == 18)
+//                Drawing.drawRobot(selectPose(selectPoses), redLook);
+//            else
                 Drawing.drawRobot(selectPose(selectPoses), redLook);
-            else
-                Drawing.drawRobot(selectPose(selectPoses), blueLook);
+                Drawing.sendPacket();
 
             telemetryM.addData("SELPOS", selectPoses);
             telemetryM.update(telemetry);
