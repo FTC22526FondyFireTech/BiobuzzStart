@@ -4,6 +4,7 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.geometry.Pose;
+import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.seattlesolvers.solverslib.command.SubsystemBase;
@@ -16,6 +17,8 @@ import org.firstinspires.ftc.teamcode.utils.Configurables;
 import org.firstinspires.ftc.teamcode.utils.Drawing;
 import org.firstinspires.ftc.teamcode.utils.FieldConstants;
 import org.firstinspires.ftc.teamcode.utils.GlobalData;
+
+import java.lang.reflect.Field;
 
 @Configurable
 public class MecanumDriveSubsystemSimulation extends SubsystemBase {
@@ -36,6 +39,7 @@ public class MecanumDriveSubsystemSimulation extends SubsystemBase {
     public boolean isRobotCentric = false;
     private int currentFieldZoneSim;
 
+   public PathChain pc = null;
 
     public boolean isRobotCentric() {
         return isRobotCentric;
@@ -131,6 +135,9 @@ public class MecanumDriveSubsystemSimulation extends SubsystemBase {
 
 
         Drawing.drawRobot(odometry.getRobotPose(), GlobalData.robotLook);
+        Drawing.drwaLine(odometry.getRobotPose().getX(), odometry.getRobotPose().getY(),
+                GlobalData.getActiveHiveTargetPose().getX(), GlobalData.getActiveHiveTargetPose().getY());
+        Drawing.sendPacket();
         //Drawing.drawRobot(GlobalData.getActiveHiveTargetPose(), GlobalData.robotLook);
     }
 
@@ -143,15 +150,19 @@ public class MecanumDriveSubsystemSimulation extends SubsystemBase {
         if (x < 72 && y >= 72) {
             GlobalData.setCurrentOdometryZone(0);
             GlobalData.setActiveHiveTargetPose(FieldConstants.redScoringHiveTargetPose);
+            GlobalData.setActiveStartPose(FieldConstants.redScoringLoHiveStartPose);
         } else if (x < 72 && y < 72) {
             GlobalData.setCurrentOdometryZone(1);
             GlobalData.setActiveHiveTargetPose(FieldConstants.redAudienceHiveTargetPose);
+            GlobalData.setActiveStartPose(FieldConstants.redAudienceHiHiveStartPose);
         } else if (x >= 72 && y < 72) {
             GlobalData.setCurrentOdometryZone(2);
             GlobalData.setActiveHiveTargetPose(FieldConstants.blueAudienceHiveTargetPose);
+            GlobalData.setActiveStartPose(FieldConstants.blueAudienceLoHiveStartPose);
         } else if (x >= 72 && y > 72) {
             GlobalData.setCurrentOdometryZone(3);
             GlobalData.setActiveHiveTargetPose(FieldConstants.blueScoringHiveTargetPose);
+            GlobalData.setActiveStartPose(FieldConstants.blueScoringHiHiveStartPose);
         }
         //Drawing.drawPose(GlobalData.getActiveHiveTargetPose());
 

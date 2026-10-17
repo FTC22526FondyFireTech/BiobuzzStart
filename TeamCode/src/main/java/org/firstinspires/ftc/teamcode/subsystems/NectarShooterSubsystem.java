@@ -12,7 +12,6 @@ import com.seattlesolvers.solverslib.gamepad.SlewRateLimiter;
 import com.seattlesolvers.solverslib.hardware.motors.Motor;
 import com.seattlesolvers.solverslib.hardware.motors.MotorEx;
 import com.seattlesolvers.solverslib.util.InterpLUT;
-import com.seattlesolvers.solverslib.util.LUT;
 
 import org.firstinspires.ftc.teamcode.simulator.simulators.MotorSimulator;
 import org.firstinspires.ftc.teamcode.utils.Configurables;
@@ -58,7 +57,17 @@ public class NectarShooterSubsystem extends SubsystemBase {
 
     private Servo nectarShootServo;
 
-    public  NectarShooterSubsystem(HardwareMap hardwareMap) {
+    public boolean isRunNectarShooterAtVelocity() {
+        return runNectarShooterAtVelocity;
+    }
+
+    public void setRunNectartShooterAtVelocity(boolean runNectarShooterAtVelocity) {
+        this.runNectarShooterAtVelocity = runNectarShooterAtVelocity;
+    }
+
+    private boolean runNectarShooterAtVelocity;
+
+    public NectarShooterSubsystem(HardwareMap hardwareMap) {
         // specifying motor allows top rpm tp be read from motor
         if (!Configurables.doSimulation) {
             nectarShooterMotor = new MotorEx(hardwareMap, "nectar", Motor.GoBILDA.RPM_1150);
@@ -69,7 +78,7 @@ public class NectarShooterSubsystem extends SubsystemBase {
             maxShootRPM = maxMotorRPM * .9;
             minShootRPM = maxShootRPM / 2;
             cpr = nectarShooterMotor.getCPR();
-            nectarShootServo= hardwareMap.get(Servo.class, "nectarShoot");
+            nectarShootServo = hardwareMap.get(Servo.class, "nectarShoot");
             nectarShootServo.setDirection(Servo.Direction.FORWARD);
             nectarShootServo.setPosition(holdPosition);
         } else {
@@ -83,15 +92,17 @@ public class NectarShooterSubsystem extends SubsystemBase {
         pidController = new PIDController(nectarShooterKp, nectarShooterKi, nectarShooterKd);
 
 //distance in inches, speeds in RPM
-        nectarSpeeds = new InterpLUT()
-        {{
-            {{
-                add(45.0, 3000.);
-                add(40.0, 2800);
-                add(35.0, 2500);
-                add(30.0, 2000);
-                add(25.0, 1800);
-            }};
+        nectarSpeeds = new InterpLUT() {{
+            {
+                {
+                    add(45.0, 3000.);
+                    add(40.0, 2800);
+                    add(35.0, 2500);
+                    add(30.0, 2000);
+                    add(25.0, 1800);
+                }
+            }
+            ;
         }};
 
     }
@@ -110,7 +121,7 @@ public class NectarShooterSubsystem extends SubsystemBase {
         return Commands.runOnce(() -> runNectarShooter(pct), this);
     }
 
-    public void stopNetarShooter() {
+    public void stopNectarShooter() {
         if (!Configurables.doSimulation) {
             nectarShooterMotor.stopMotor();
             nectarShooterMotor.set(0);
@@ -120,7 +131,7 @@ public class NectarShooterSubsystem extends SubsystemBase {
     }
 
     public Command stopNectarShooterCommand() {
-        return Commands.runOnce(this::stopNetarShooter, this);
+        return Commands.runOnce(this::stopNectarShooter, this);
     }
 
     /**
@@ -131,7 +142,7 @@ public class NectarShooterSubsystem extends SubsystemBase {
      */
     public void runNectarShooterAtVelocity() {
         tst++;
-        pidout = pidController.calculate(getNectarMotorRPM());
+        pidout = pidController.calculate(getNectarShooterRPM());
         ff = sff.calculate(targetRPM);
         if (!Configurables.doSimulation)
             nectarShooterMotor.set(ff + pidout);
@@ -143,14 +154,22 @@ public class NectarShooterSubsystem extends SubsystemBase {
     }
 
     public Command runNectarShooterAtVelocityCommand() {
-        return Commands.run(this::runNectarShooterAtVelocity, this);
+        return Commands.runOnce(() -> setRunNectartShooterAtVelocity(true));
     }
 
-    public double getNectarMotorRPM() {
+    public double getNectarShooterRPM() {
         if (!Configurables.doSimulation) {
             return nectarShooterMotor.getVelocity() * 60. / cpr;
         } else return shooterMotorSim.getVelocityRPM();
     }
+
+
+    public boolean nectarShooterAtSpeed() {
+        if (!Configurables.doSimulation)
+            return Math.abs(getTargetRPM() - getNectarShooterRPM()) < getTargetRPM() / 10;
+        else return true;
+    }
+
 
     public double getTargetRPM() {
         return targetRPM;
@@ -180,8 +199,10 @@ public class NectarShooterSubsystem extends SubsystemBase {
         return Commands.runOnce(() -> changeTargetRPM(val));
     }
 
-
-    public double getTargetSpeed(double inches){
+    public double getTargetRPMFromDistance(double inches) {
+        return nectarSpeeds.get(inches);
+    }
+    public double getTargetSpeed(double inches) {
         return nectarSpeeds.get(inches);
     }
 
@@ -196,5 +217,12 @@ public class NectarShooterSubsystem extends SubsystemBase {
 
     public Command holdNectarCommand() {
         return Commands.runOnce(() -> positionNectarShooter(holdPosition));
+    }
+
+    @Override
+    public void periodic() {
+        if (runNectarShooterAtVelocity) {
+            runNectarShooterAtVelocity();
+        }
     }
 }

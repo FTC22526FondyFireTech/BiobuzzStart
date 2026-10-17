@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes.test;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.geometry.Pose;
+import com.pedropathing.paths.PathChain;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -10,6 +11,7 @@ import com.seattlesolvers.solverslib.command.CommandOpMode;
 import com.seattlesolvers.solverslib.util.Timing;
 import org.firstinspires.ftc.teamcode.simulator.drivetrains.MecanumDriveSubsystemSimulation;
 import org.firstinspires.ftc.teamcode.subsystems.VisionSubsysytem;
+import org.firstinspires.ftc.teamcode.utils.Configurables;
 import org.firstinspires.ftc.teamcode.utils.GlobalData;
 
 import java.util.List;
@@ -25,6 +27,7 @@ public class TagsTestOpmode extends CommandOpMode {
     VisionSubsysytem vss;
     Timing.Timer readCamera;
     long readMilliSecs = 250;
+
 
     MecanumDriveSubsystemSimulation driveSim;
 
@@ -73,7 +76,9 @@ public class TagsTestOpmode extends CommandOpMode {
 
         //  if (readCamera.done()) {
 
-        double dist = getDistanceToTarget(GlobalData.getActiveHiveTargetPose(), driveSim.getOdometry().getRobotPose());
+        double dist = 0;
+
+        dist =getDistanceToTarget(GlobalData.getActiveHiveTargetPose(), driveSim.getOdometry().getRobotPose());
 
         telemetryM.addData("Distance(from odometry)", f3(dist));
         List<LLResultTypes.FiducialResult> fr = vss.getFiducialResults();

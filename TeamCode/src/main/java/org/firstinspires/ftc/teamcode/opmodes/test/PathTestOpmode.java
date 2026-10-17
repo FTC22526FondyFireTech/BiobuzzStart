@@ -16,7 +16,7 @@ import com.seattlesolvers.solverslib.pedroCommand.FollowPathCommand;
 
 import org.firstinspires.ftc.teamcode.commands.DriveCommand;
 import org.firstinspires.ftc.teamcode.simulator.SimulatorConstants;
-import org.firstinspires.ftc.teamcode.simulator.commnands.DriveSimCommand;
+import org.firstinspires.ftc.teamcode.simulator.commands.DriveSimCommand;
 import org.firstinspires.ftc.teamcode.simulator.drivetrains.MecanumDriveSubsystemSimulation;
 import org.firstinspires.ftc.teamcode.subsystems.MecanumDriveSubsystem;
 import org.firstinspires.ftc.teamcode.utils.Configurables;
@@ -24,6 +24,7 @@ import org.firstinspires.ftc.teamcode.utils.Constants;
 import org.firstinspires.ftc.teamcode.utils.GlobalData;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 //@Autonomous(name = "Blank")
 @TeleOp(name = "Path Test")
@@ -121,7 +122,7 @@ public class PathTestOpmode extends CommandOpMode {
                         Commands.defer
                                 (() -> Commands.sequence(
                                         Commands.runOnce(() -> follower.setStartingPose(startPose1)),
-                                        new FollowPathCommand(follower, forwardOneTile, false)), Arrays.asList()));
+                                        new FollowPathCommand(follower, forwardOneTile, false)), Collections.emptyList()));
 
         // intake path binding
         driverGamepad.getGamepadButton(GamepadKeys.Button.X)

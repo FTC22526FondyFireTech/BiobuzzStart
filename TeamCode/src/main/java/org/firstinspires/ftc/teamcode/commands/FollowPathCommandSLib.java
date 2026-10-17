@@ -26,17 +26,17 @@ import org.firstinspires.ftc.teamcode.subsystems.MecanumDriveSubsystem;
  * for the motors. This subsystem-scoped version trades that extra feature for correct
  * scheduler resource locking against {@link DriveCommand}; use whichever fits your OpMode.
  */
-public class FollowPathCommand extends CommandBase {
+public class FollowPathCommandSLib extends CommandBase {
 
     private final MecanumDriveSubsystem drive;
     private final PathChain path;
     private final boolean holdEnd;
 
-    public FollowPathCommand(MecanumDriveSubsystem drive, PathChain path) {
+    public FollowPathCommandSLib(MecanumDriveSubsystem drive, PathChain path) {
         this(drive, path, true);
     }
 
-    public FollowPathCommand(MecanumDriveSubsystem drive, PathChain path, boolean holdEnd) {
+    public FollowPathCommandSLib(MecanumDriveSubsystem drive, PathChain path, boolean holdEnd) {
         this.drive = drive;
         this.path = path;
         this.holdEnd = holdEnd;

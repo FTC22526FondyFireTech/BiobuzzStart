@@ -170,8 +170,6 @@ public class VisionSubsysytem extends SubsystemBase {
 
         }
         return temp;
-
-
     }
 
 

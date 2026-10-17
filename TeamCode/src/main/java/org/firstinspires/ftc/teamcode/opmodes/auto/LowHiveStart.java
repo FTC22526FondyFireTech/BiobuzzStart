@@ -21,6 +21,7 @@ import org.firstinspires.ftc.teamcode.simulator.SimulatorConstants;
 import org.firstinspires.ftc.teamcode.simulator.drivetrains.MecanumDriveSubsystemSimulation;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.MecanumDriveSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.NectarShooterSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.PollenShooterSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.VisionSubsysytem;
 import org.firstinspires.ftc.teamcode.utils.AutoCommands;
@@ -54,6 +55,7 @@ public class LowHiveStart extends CommandOpMode {
     private MecanumDriveSubsystemSimulation driveSim;
 
     private PollenShooterSubsystem pss;
+    private NectarShooterSubsystem nss;
     private IntakeSubsystem intake;
 
     private VisionSubsysytem vss;
@@ -83,7 +85,7 @@ public class LowHiveStart extends CommandOpMode {
 
         intake = new IntakeSubsystem(this.hardwareMap);
 
-        ac = new AutoCommands(pss);
+        ac = new AutoCommands(drive, pss, nss, vss);
 
         //   GlobalData.selectAlliance(this);
 
@@ -138,6 +140,7 @@ public class LowHiveStart extends CommandOpMode {
                                                 new FollowPathCommand(follower, approachFlower),
                                                 intake.runIntakeCommand(),
                                                 intake.armDownCommand()),
+
                                         new WaitCommand(500),
                                         new FollowPathCommand(follower, pickupFlower).setGlobalMaxPower(0.5),
                                         new WaitCommand(500),
@@ -146,7 +149,9 @@ public class LowHiveStart extends CommandOpMode {
                                                 intake.stopIntakeCommand(),
                                                 intake.armUpCommand()),
                                         ac.autoShootCommand(),
-                                        new WaitCommand(500)),
+                                        new WaitCommand(500),
+                                        new FollowPathCommand(follower, park, false),
+                                        new WaitCommand(250)),
 
                                 new FollowPathCommand(follower, park, false),
 

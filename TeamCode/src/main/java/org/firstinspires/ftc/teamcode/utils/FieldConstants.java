@@ -53,14 +53,16 @@ public class FieldConstants {
 
 
     //Park poses
-    public static Pose redScoringParkPose = new Pose(loadZoneXWidth,
-            redLoadZoneYStart + loadZoneYLength,
-            Math.PI / 2);
-    public static Pose redAudienceParkPose = new Pose(loadZoneXWidth,
+    public static Pose redScoringParkPose =
+            new Pose(loadZoneXWidth,
+                    redLoadZoneYStart + loadZoneYLength,
+                    Math.PI / 2);
+    public static Pose redAudienceParkPose =
+            new Pose(loadZoneXWidth,
             redLoadZoneYStart,
             Math.PI);
-    public static Pose blueScoringParkPose = new Pose(fieldWidth - loadZoneXWidth, blueLoadZoneYStart);
-    public static Pose blueAudienceParkPose = new Pose(fieldWidth - loadZoneXWidth, blueLoadZoneYStart, -Math.PI/2);
+    public static Pose blueScoringParkPose = new Pose(fieldWidth - loadZoneXWidth, blueLoadZoneYStart,Math.PI/2);
+    public static Pose blueAudienceParkPose = new Pose(fieldWidth - loadZoneXWidth, blueLoadZoneYStart, -Math.PI / 2);
 
 
     // Flower Poses
@@ -73,11 +75,11 @@ public class FieldConstants {
 
     //Hive targets
 
-    public static Pose redAudienceHiveTargetPose = new Pose(redHiveXCenter, redAudienceHiveYCenter);
-    public static Pose redScoringHiveTargetPose = new Pose(redHiveXCenter, redScoringHiveYCenter);
+    public static Pose redAudienceHiveTargetPose = new Pose(redHiveXCenter, redAudienceHiveYCenter, -Math.PI / 2);
+    public static Pose redScoringHiveTargetPose = new Pose(redHiveXCenter, redScoringHiveYCenter, Math.PI / 2);
     //BLUE poses
-    public static Pose blueAudienceHiveTargetPose = new Pose(blueHiveXCenter, blueAudienceHiveYCenter);
-    public static Pose blueScoringHiveTargetPose = new Pose(blueHiveXCenter, blueScoringHiveYCenter);
+    public static Pose blueAudienceHiveTargetPose = new Pose(blueHiveXCenter, blueAudienceHiveYCenter, -Math.PI / 2);
+    public static Pose blueScoringHiveTargetPose = new Pose(blueHiveXCenter, blueScoringHiveYCenter, Math.PI / 2);
 
 
     //Flower approach poses

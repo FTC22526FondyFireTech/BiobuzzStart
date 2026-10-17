@@ -1,6 +1,5 @@
-package org.firstinspires.ftc.teamcode.simulator.commnands;
+package org.firstinspires.ftc.teamcode.simulator.commands;
 
-import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.geometry.Pose;
@@ -8,7 +7,6 @@ import com.seattlesolvers.solverslib.command.CommandBase;
 import com.seattlesolvers.solverslib.controller.PIDController;
 
 import org.firstinspires.ftc.teamcode.simulator.drivetrains.MecanumDriveSubsystemSimulation;
-import org.firstinspires.ftc.teamcode.subsystems.MecanumDriveSubsystem;
 import org.firstinspires.ftc.teamcode.utils.GlobalData;
 
 import java.util.function.DoubleSupplier;
@@ -32,7 +30,7 @@ import java.util.function.DoubleSupplier;
  * Requires the drive subsystem, so it interrupts the default DriveCommand while active and
  * the default command resumes when this command ends.
  */
-public class AimAtPoseCommandSim extends CommandBase {
+public class AlignToPoseCommandSim extends CommandBase {
 
     // Live-tunable from the Panels Configurables tab.
     public static double kP = .35;
@@ -49,18 +47,19 @@ public class AimAtPoseCommandSim extends CommandBase {
     /**
      * Added to the computed angle, e.g. Math.PI if your shooter faces the back of the robot.
      */
-    public static double headingOffsetRad = 0.0;
+    public static double headingOffsetRad = Math.PI;
 
     private final MecanumDriveSubsystemSimulation drive;
-    private  Pose target;
+    private Pose target;
     private final DoubleSupplier forward;
     private final DoubleSupplier strafe;
     private final PIDController headingController = new PIDController(kP, kI, kD);
 
     TelemetryManager telemetryM;
+    private double error;
 
-    public AimAtPoseCommandSim(MecanumDriveSubsystemSimulation drive,
-                               DoubleSupplier forward, DoubleSupplier strafe) {
+    public AlignToPoseCommandSim(MecanumDriveSubsystemSimulation drive,
+                                 DoubleSupplier forward, DoubleSupplier strafe) {
         this.drive = drive;
 
         this.forward = forward;
@@ -80,7 +79,7 @@ public class AimAtPoseCommandSim extends CommandBase {
 
     @Override
     public void execute() {
-        target= GlobalData.getActiveHiveTargetPose();
+        target = GlobalData.getActiveHiveTargetPose();
 
 
         Pose pose = drive.getOdometry().getRobotPose();
@@ -88,7 +87,8 @@ public class AimAtPoseCommandSim extends CommandBase {
         double desiredHeading = Math.atan2(target.getY() - pose.getY(), target.getX() - pose.getX())
                 + headingOffsetRad;
 
-        double error = (wrapAngle(desiredHeading - pose.getHeading()));
+
+        error =  (wrapAngle(desiredHeading - pose.getHeading()));
 
         double turn = 0;
 
@@ -97,11 +97,14 @@ public class AimAtPoseCommandSim extends CommandBase {
             turn = headingController.calculate(error, 0);
             turn = Math.max(-maxTurn, Math.min(maxTurn, turn));
         }
-        telemetryM.addData("AIPDESHDG", desiredHeading);
-        telemetryM.addData("AIPTurn", turn);
-        telemetryM.addData("AIPTgfX", target.getX());
-        telemetryM.addData("AIPTurnErr", error);
-        telemetryM.addData("AIPDESHDG", Math.toDegrees(desiredHeading));
+
+        double distToTarget = getDistanceToTarget(target, pose);
+
+        telemetryM.addData("Aim Dist2Tgt,deg", distToTarget);
+        telemetryM.addData("AimDesiredHeading", Math.toDegrees(desiredHeading));
+        telemetryM.addData("Aim Turn", turn);
+        telemetryM.addData("Aim Target X", target.getX());
+        telemetryM.addData("Aim TurnErr", error);
 
         // Pedro: positive turn = counterclockwise, matching positive heading error here.
         drive.drive(forward.getAsDouble(), strafe.getAsDouble(), turn);
@@ -114,7 +117,7 @@ public class AimAtPoseCommandSim extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return false; // runs while held / until interrupted
+        return Math.abs(error) <= deadbandRad; // runs while held / until interrupted
     }
 
     /**
@@ -125,4 +128,12 @@ public class AimAtPoseCommandSim extends CommandBase {
         while (angle <= -Math.PI) angle += 2 * Math.PI;
         return angle;
     }
+
+
+    public double getDistanceToTarget(Pose targetPose, Pose robotPose) {
+        double XDiff = targetPose.getX() - robotPose.getX();
+        double YDiff = targetPose.getY() - robotPose.getY();
+        return Math.sqrt(Math.pow(XDiff, 2) - Math.pow(YDiff, 2));
+    }
+
 }

@@ -38,6 +38,13 @@ public class Drawing {
         drawPoseHistory(follower.getPoseHistory(), historyLook);
         drawRobot(follower.getPose(), historyLook);
         sendPacket();
+
+    }
+
+    public static void drwaLine(double x1, double y1, double x2, double y2){
+        panelsField.setStyle(robotLook);
+        panelsField.moveCursor(x1, y1);
+        panelsField.line(x2, y2);
     }
 
     public static void drawRobot(Pose pose, Style style) {
@@ -57,7 +64,7 @@ public class Drawing {
         panelsField.setStyle(style);
         panelsField.moveCursor(x1, y1);
         panelsField.line(x2, y2);
-        panelsField.update();
+       // panelsField.update();
     }
 
     public static void drawPose(Pose pose) {

@@ -72,6 +72,16 @@ public class GlobalData {
         activeHiveTargetPose = activeTargetPose;
     }
 
+    public static Pose getActiveStartPose() {
+        return activeStartPose;
+    }
+
+    public static void setActiveStartPose(Pose activeStartPose) {
+        GlobalData.activeStartPose = activeStartPose;
+    }
+
+    private static Pose activeStartPose=new Pose();
+
     public static int getCurrentOdometryZone() {
         return currentOdometryZone;
     }
