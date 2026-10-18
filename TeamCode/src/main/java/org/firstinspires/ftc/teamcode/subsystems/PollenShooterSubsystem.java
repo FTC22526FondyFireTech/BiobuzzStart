@@ -67,6 +67,7 @@ public class PollenShooterSubsystem extends SubsystemBase {
 
     private boolean runPollenShooterAtVelocity;
 
+
     public PollenShooterSubsystem(HardwareMap hardwareMap) {
         // specifying motor allows top rpm tp be read from motor
         if (!Configurables.doSimulation) {
@@ -92,14 +93,25 @@ public class PollenShooterSubsystem extends SubsystemBase {
 
         pidController = new PIDController(pollenShooterKp, pollenShooterKi, pollenShooterKd);
 
+
         //distance in inches, speeds in RPM
-        pollenSpeeds = new InterpLUT() {{
-            add(45.0, 3000.);
-            add(40.0, 2800);
-            add(35.0, 2500);
-            add(30.0, 2000);
-            add(25.0, 1800);
-        }};
+        pollenSpeeds = new InterpLUT() {
+            {
+
+                add(10, 100);
+                add(25.0, 1500);
+                add(30.0, 1600);
+                add(35.0, 1750);
+                add(40.0, 1800);
+                add(45.0, 1900);
+                add(50.0, 2000.);
+                add(55.0, 2200.);
+                add(100, 2500);
+            }
+
+        };
+        pollenSpeeds.createLUT();
+
     }
 
     public void setVelocityCoefficients() {
@@ -162,7 +174,8 @@ public class PollenShooterSubsystem extends SubsystemBase {
     public double getPollenShooterRPM() {
         if (!Configurables.doSimulation) {
             return pollenShooterMotor.getVelocity() * 60. / cpr;
-        } else return shooterMotorSim.getVelocityRPM();
+        } else if (runPollenShooterAtVelocity) return targetRPM;
+        else return 0;
     }
 
     public double getTargetRPM() {
@@ -176,7 +189,7 @@ public class PollenShooterSubsystem extends SubsystemBase {
      * @param RPM
      */
     public void setTargetRPM(double RPM) {
-        this.targetRPM = RPM;
+        targetRPM = RPM;
         pidController.setSetPoint(targetRPM);
     }
 
@@ -188,8 +201,6 @@ public class PollenShooterSubsystem extends SubsystemBase {
         double tempRPM = getTargetRPM() + val;
         if (tempRPM > maxShootRPM) tempRPM = maxShootRPM;
         if (tempRPM < minShootRPM) tempRPM = minShootRPM;
-
-
         setTargetRPM(tempRPM);
     }
 
@@ -198,8 +209,11 @@ public class PollenShooterSubsystem extends SubsystemBase {
     }
 
     public double getTargetRPMFromDistance(double inches) {
-        return pollenSpeeds.get(inches);
+        if (inches > 100 || inches < 20) return 0;
+        else
+            return pollenSpeeds.get(inches);
     }
+
 
     public void positionPollenShooter(double position) {
         if (!Configurables.doSimulation)
@@ -208,8 +222,8 @@ public class PollenShooterSubsystem extends SubsystemBase {
     }
 
     public Command shootPollenCommand() {
-            return
-                    Commands.runOnce(() -> positionPollenShooter(shootPosition));
+        return
+                Commands.runOnce(() -> positionPollenShooter(shootPosition));
     }
 
     public Command holdPollenCommand() {

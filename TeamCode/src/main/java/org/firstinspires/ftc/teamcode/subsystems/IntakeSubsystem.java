@@ -24,6 +24,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private Servo armServo;
     public static double intakeSpeed = 0.77; // 1150 RPM * 0.77 (or / 77%) = 885.5
     protected double simDt = 0.01; // 10ms fixed physics step (100Hz)
+    private double armTargetPosition;
 
     public IntakeSubsystem(HardwareMap hardwareMap) {
         if (!Configurables.doSimulation) {
@@ -62,7 +63,7 @@ public class IntakeSubsystem extends SubsystemBase {
         if (!Configurables.doSimulation) {
             return intakeMotor.getCorrectedVelocity();
         } else {
-            return intakeMotorSim.getVelocityRPM();
+            return intakeSpeed * 1100;
         }
     }
 
@@ -96,6 +97,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
 
     public void positionArm(double position) {
+        armTargetPosition=position;
         if (Configurables.doSimulation)
             armServo.setPosition(position);
     }
@@ -103,13 +105,17 @@ public class IntakeSubsystem extends SubsystemBase {
     public Command armDownCommand() {
         if (!Configurables.doSimulation)
             return Commands.runOnce(() -> positionArm(downPosition));
-        else return Commands.waitMillis(500);
+        else return Commands.runOnce(()->armTargetPosition=downPosition);
     }
 
     public Command armUpCommand() {
         if (!Configurables.doSimulation)
             return Commands.runOnce(() -> positionArm(upPosition));
-        else return Commands.waitMillis(500);
+        else return Commands.runOnce(()->armTargetPosition=upPosition);
+    }
+
+    public double getArmPosition() {
+        return armTargetPosition;
     }
 
 

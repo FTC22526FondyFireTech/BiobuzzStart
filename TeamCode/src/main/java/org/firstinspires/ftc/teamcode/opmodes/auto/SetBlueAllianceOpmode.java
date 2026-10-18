@@ -22,8 +22,6 @@ public class SetBlueAllianceOpmode extends CommandOpMode {
 
         GlobalData.allianceIsConfirmed=GlobalData.isBlueAlliance();
 
-
-
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
         telemetryM.addData("Alliance is BlueG",GlobalData.isBlueAlliance());

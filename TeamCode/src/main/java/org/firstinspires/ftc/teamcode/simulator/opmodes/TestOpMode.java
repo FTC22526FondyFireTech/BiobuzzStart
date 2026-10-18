@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opmodes.test;
+package org.firstinspires.ftc.teamcode.simulator.opmodes;
 
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
@@ -15,13 +15,15 @@ import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 import org.firstinspires.ftc.teamcode.simulator.SimulatorConstants;
 import org.firstinspires.ftc.teamcode.simulator.commands.AlignToPoseCommandSim;
 import org.firstinspires.ftc.teamcode.simulator.commands.DriveSimCommand;
-import org.firstinspires.ftc.teamcode.simulator.commands.DriveToPoseCommand;
+import org.firstinspires.ftc.teamcode.simulator.commands.DriveToPoseCommandSim;
 import org.firstinspires.ftc.teamcode.simulator.drivetrains.MecanumDriveSubsystemSimulation;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.NectarShooterSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.PollenShooterSubsystem;
 import org.firstinspires.ftc.teamcode.utils.GlobalData;
 
 import java.util.Arrays;
+import java.util.Locale;
 
 //@Autonomous(name = "Blank")
 @TeleOp(name = "TestOpMode")
@@ -37,7 +39,27 @@ public class TestOpMode extends CommandOpMode {
     IntakeSubsystem intake;
     PollenShooterSubsystem pollenShooter;
 
+    NectarShooterSubsystem nectarShooter;
+
     PathChain myPath;
+
+
+    static String f3(double v) {
+        return String.format(Locale.US, "%.3f", v);
+    }
+
+    static String f1(double v) {
+        return String.format(Locale.US, "%.1f", v);
+    }
+
+    static String f0(double v) {
+        return String.format(Locale.US, "%.0f", v);
+    }
+
+    static String f3M2I(double v) {
+        return String.format(Locale.US, "%.3f", v * 39.37);
+    }
+
 
     @Override
     public void initialize() {
@@ -46,12 +68,10 @@ public class TestOpMode extends CommandOpMode {
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
 
-
-
         driverGamepad = new GamepadEx(gamepad1);
 
         driveSim = new MecanumDriveSubsystemSimulation(this);
-        telemetryM.addData("RC",driveSim.isRobotCentric());
+        telemetryM.addData("RC", driveSim.isRobotCentric());
         telemetryM.update(telemetry);
         follower = SimulatorConstants.createSimulatedFollower(driveSim);
         driveSim.setDefaultCommand(new DriveSimCommand(
@@ -62,6 +82,8 @@ public class TestOpMode extends CommandOpMode {
 
         intake = new IntakeSubsystem(this.hardwareMap);
         pollenShooter = new PollenShooterSubsystem(this.hardwareMap);
+        nectarShooter = new NectarShooterSubsystem(this.hardwareMap);
+
 
         myPath = buildBezierLine(new Pose(0, 0, 0), new Pose(10, 10, 0));
 
@@ -75,10 +97,17 @@ public class TestOpMode extends CommandOpMode {
         driverGamepad.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
                 .whenPressed(
                         Commands.defer(() ->
-                                new DriveToPoseCommand(driveSim, GlobalData.getActiveStartPose()), Arrays.asList()));
+                                new DriveToPoseCommandSim(driveSim, GlobalData.getActiveStartPose()), Arrays.asList()));
+
+        driverGamepad.getGamepadButton(GamepadKeys.Button.BACK)
+                .whileActiveOnce(GlobalData.toggleAllianceCommand());
 
 
-        // driverGamepad.getGamepadButton(GamepadKeys.Button.A)
+        driverGamepad.getGamepadButton(GamepadKeys.Button.A)
+                .whenPressed(intake.armUpCommand());
+        driverGamepad.getGamepadButton(GamepadKeys.Button.B)
+                .whenPressed(intake.armDownCommand());
+
 
 //                //.whenPressed(shooter2.setMotorVelocityModeCommand())
 //                .whenHeld(pollenShooter.jogPollenShooterCommand(0.5))
@@ -112,16 +141,19 @@ public class TestOpMode extends CommandOpMode {
 
         while (!isStopRequested() && opModeIsActive()) {
             run();
-//            if (PollenShooterSubsystem.changePollenVelocityCoefficents) {
-//                pollenShooter.setVelocityCoefficients();
-//                PollenShooterSubsystem.changePollenVelocityCoefficents = false;
-//            }
 
-//
-//            telemetryM.addData("shooter2RPM", pollenShooter.getPollenShooterRPM());
-//            telemetryM.addData("targetRPM", pollenShooter.getTargetRPM());
-            telemetryM.addData("ROBCENTRIC", driveSim.isRobotCentric());
-           telemetryM.update(telemetry);
+
+            double distToTarget = getDistanceToTarget(GlobalData.getActiveHiveTargetPose(), driveSim.getOdometry().getRobotPose());
+           //  pollenShooter.setTargetRPMFromDistance(distToTarget);
+             double pollenRPM = pollenShooter.getTargetRPM();
+            double nectarRPM = nectarShooter.getTargetRPMFromDistance(distToTarget);
+
+//            telemetryM.addData("InakeArmPosition", intake.getArmPosition());
+//            telemetryM.addData("Dist2Tgt,in", f1(distToTarget));
+//            telemetryM.addData("Tgt Pollen RPM", f0(pollenRPM));
+//            telemetryM.addData("Tgt Nectar RPM", f0(nectarRPM));
+            telemetryM.update();
+
         }
         reset();
     }
@@ -131,6 +163,13 @@ public class TestOpMode extends CommandOpMode {
                 .addPath(new BezierLine(start, end))
                 .setLinearHeadingInterpolation(start.getHeading(), end.getHeading())
                 .build();
+    }
+
+
+    public double getDistanceToTarget(Pose targetPose, Pose robotPose) {
+        double XDiff = targetPose.getX() - robotPose.getX();
+        double YDiff = targetPose.getY() - robotPose.getY();
+        return Math.hypot(XDiff, YDiff);
     }
 
 }

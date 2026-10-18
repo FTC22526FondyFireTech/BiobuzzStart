@@ -83,15 +83,19 @@ public class MecanumDriveSubsystem extends SubsystemBase {
         if (x < 72 && y >= 72) {
             GlobalData.setCurrentOdometryZone(0);
             GlobalData.setActiveHiveTargetPose(FieldConstants.redScoringHiveTargetPose);
+            GlobalData.setActiveStartPose(FieldConstants.redScoringLoHiveStartPose);
         } else if (x < 72 && y < 72) {
             GlobalData.setCurrentOdometryZone(1);
             GlobalData.setActiveHiveTargetPose(FieldConstants.redAudienceHiveTargetPose);
+            GlobalData.setActiveStartPose(FieldConstants.redAudienceHiHiveStartPose);
         } else if (x >= 72 && y < 72) {
             GlobalData.setCurrentOdometryZone(2);
-            GlobalData.setActiveHiveTargetPose(FieldConstants.blueAudienceHiveTargetPose);
+            GlobalData.setActiveHiveTargetPose(FieldConstants.toBlue(FieldConstants.redAudienceHiveTargetPose));
+            GlobalData.setActiveStartPose(FieldConstants.toBlue(FieldConstants.redScoringLoHiveStartPose));
         } else if (x >= 72 && y > 72) {
             GlobalData.setCurrentOdometryZone(3);
-            GlobalData.setActiveHiveTargetPose(FieldConstants.blueScoringHiveTargetPose);
+            GlobalData.setActiveHiveTargetPose(FieldConstants.toBlue(FieldConstants.redScoringHiveTargetPose));
+            GlobalData.setActiveStartPose(FieldConstants.toBlue(FieldConstants.redAudienceHiHiveStartPose));
         }
 
     }

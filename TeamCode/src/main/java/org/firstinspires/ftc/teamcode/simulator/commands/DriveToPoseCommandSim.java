@@ -1,4 +1,6 @@
 package org.firstinspires.ftc.teamcode.simulator.commands;
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.geometry.Pose;
 import com.seattlesolvers.solverslib.command.CommandBase;
 import com.seattlesolvers.solverslib.controller.PIDController;
@@ -19,7 +21,7 @@ import java.util.concurrent.TimeUnit;
  * The translation output is pointed straight at the target, so the robot drives
  * in a straight line while turning, rather than doing X and Y separately.
  */
-public class DriveToPoseCommand extends CommandBase {
+public class DriveToPoseCommandSim extends CommandBase {
 
     // ---- Tuning constants: start small and tune on the robot ----
     public static double TRANSLATION_KP = 0.08, TRANSLATION_KI = 0.0, TRANSLATION_KD = 0.005;
@@ -41,6 +43,8 @@ public class DriveToPoseCommand extends CommandBase {
     public static double TURN_SIGN = -1.0;
 
     private final MecanumDriveSubsystemSimulation driveSim;
+
+    TelemetryManager telemetryM;
     private final Pose target;
     private final PIDController translationPID =
             new PIDController(TRANSLATION_KP, TRANSLATION_KI, TRANSLATION_KD);
@@ -50,7 +54,7 @@ public class DriveToPoseCommand extends CommandBase {
     private final Timing.Timer settleTimer = new Timing.Timer(SETTLE_TIME_MS, TimeUnit.MILLISECONDS);
     private boolean inTolerance = false;
 
-    public DriveToPoseCommand(MecanumDriveSubsystemSimulation driveSim, Pose target) {
+    public DriveToPoseCommandSim(MecanumDriveSubsystemSimulation driveSim, Pose target) {
         this.driveSim = driveSim;
         this.target = target;
         addRequirements(driveSim);
@@ -58,6 +62,7 @@ public class DriveToPoseCommand extends CommandBase {
 
     @Override
     public void initialize() {
+        telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
         driveSim.setRobotCentric(true);
         translationPID.reset();
         headingPID.reset();
@@ -71,10 +76,14 @@ public class DriveToPoseCommand extends CommandBase {
         Pose pose = driveSim.getOdometry().getRobotPose();
         double robotHeading = pose.getHeading();
 
+
+
         // --- Errors in field frame ---
         double dx = target.getX() - pose.getX();
         double dy = target.getY() - pose.getY();
         double distance = Math.hypot(dx, dy);
+
+
         double headingError = angleWrap(target.getHeading() - robotHeading);
 
         // --- Translation: PID on distance, pointed along the error vector ---
@@ -109,6 +118,10 @@ public class DriveToPoseCommand extends CommandBase {
             settleTimer.start();
         }
         inTolerance = nowInTolerance;
+
+        telemetryM.addData("Dist2Tgt,in", distance);
+        telemetryM.addData("In Tol", inTolerance);
+        telemetryM.update();
     }
 
     @Override
@@ -132,4 +145,5 @@ public class DriveToPoseCommand extends CommandBase {
     private static double clamp(double v, double lo, double hi) {
         return Math.max(lo, Math.min(hi, v));
     }
+
 }

@@ -8,16 +8,18 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.seattlesolvers.solverslib.command.CommandOpMode;
+import com.seattlesolvers.solverslib.command.Commands;
 import com.seattlesolvers.solverslib.gamepad.GamepadEx;
 import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 
 import org.firstinspires.ftc.teamcode.commands.AimAtLLTXCommand;
 import org.firstinspires.ftc.teamcode.commands.AimAtPoseCommand;
+import org.firstinspires.ftc.teamcode.commands.AlignToPoseCommand;
 import org.firstinspires.ftc.teamcode.commands.DriveCommand;
-import org.firstinspires.ftc.teamcode.simulator.SimulatorConstants;
+import org.firstinspires.ftc.teamcode.commands.DriveToPoseCommand;
 import org.firstinspires.ftc.teamcode.simulator.commands.AlignToPoseCommandSim;
 import org.firstinspires.ftc.teamcode.simulator.commands.DriveSimCommand;
-import org.firstinspires.ftc.teamcode.simulator.drivetrains.MecanumDriveSubsystemSimulation;
+import org.firstinspires.ftc.teamcode.simulator.commands.DriveToPoseCommandSim;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.MecanumDriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.NectarShooterSubsystem;
@@ -30,6 +32,7 @@ import org.firstinspires.ftc.teamcode.utils.FieldConstants;
 import org.firstinspires.ftc.teamcode.utils.GPTrig;
 import org.firstinspires.ftc.teamcode.utils.GlobalData;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -52,7 +55,7 @@ public class TeleopOpmode extends CommandOpMode {
     NectarShooterSubsystem nss;
 
     AutoCommands ac;
-    private MecanumDriveSubsystemSimulation driveSim;
+
     private Follower follower;
 
     static String f3(double v) {
@@ -102,23 +105,16 @@ public class TeleopOpmode extends CommandOpMode {
 
         if (!GlobalData.isBlueAlliance() && !GlobalData.isRedAlliance())
             GlobalData.setRedAlliance();
+
         driverGamepad = new GamepadEx(gamepad1);
 
-        if (!Configurables.doSimulation) {
-            drive = new MecanumDriveSubsystem(this.hardwareMap, new Pose());
-            drive.setDefaultCommand(new DriveCommand(drive,
-                    () -> driverGamepad.getLeftY(),
-                    () -> -driverGamepad.getLeftX(),
-                    () -> driverGamepad.getRightX()));
+        drive = new MecanumDriveSubsystem(this.hardwareMap, new Pose());
+        drive.setDefaultCommand(new DriveCommand(drive,
+                () -> driverGamepad.getLeftY(),
+                () -> -driverGamepad.getLeftX(),
+                () -> driverGamepad.getRightX()));
 
-        } else {
-            driveSim = new MecanumDriveSubsystemSimulation(this);
-            driveSim.setDefaultCommand(new DriveSimCommand(
-                    driveSim,
-                    () -> driverGamepad.getLeftY(),
-                    () -> driverGamepad.getLeftX(),
-                    () -> driverGamepad.getRightX(), () -> true));
-        }
+
         vss = new VisionSubsysytem(this);
 
         pss = new PollenShooterSubsystem(this.hardwareMap);
@@ -127,24 +123,27 @@ public class TeleopOpmode extends CommandOpMode {
 
         intake = new IntakeSubsystem(this.hardwareMap);
 
-        ac = new AutoCommands(drive, driveSim, pss, nss, vss);
+        ac = new AutoCommands(drive, pss, nss, vss);
 
 
-        if (!Configurables.doSimulation)
-            follower = Constants.createFollower(this.hardwareMap);
-        else
-            follower = SimulatorConstants.createSimulatedFollower(driveSim);
+        driverGamepad.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
+                .whenPressed(new AlignToPoseCommand(drive, () -> driverGamepad.getLeftY(), () -> driverGamepad.getLeftX()));
+
+
+        driverGamepad.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
+                .whenPressed(
+                        Commands.defer(() ->
+                                new DriveToPoseCommand(drive, GlobalData.getActiveStartPose()), Arrays.asList()));
+
+
+        follower = Constants.createFollower(this.hardwareMap);
 
         driverGamepad.getGamepadButton(GamepadKeys.Button.BACK)
                 .whileActiveOnce(GlobalData.toggleAllianceCommand());
 
-        if (!Configurables.doSimulation) {
-            driverGamepad.getGamepadButton(GamepadKeys.Button.START)
-                    .whileActiveOnce(drive.setPoseCommand(new Pose()));
-        } else {
-            driverGamepad.getGamepadButton(GamepadKeys.Button.Y)
-                    .whileActiveOnce(driveSim.getOdometry().setPoseCommand(new Pose(12, 12, 0)));
-        }
+
+        driverGamepad.getGamepadButton(GamepadKeys.Button.START)
+                .whileActiveOnce(drive.setPoseCommand(new Pose()));
 
 
         //Triggers
@@ -161,41 +160,24 @@ public class TeleopOpmode extends CommandOpMode {
 
         rightTrigger.whenActive(new AimAtPoseCommand(drive, () -> driverGamepad.getLeftY(), () -> driverGamepad.getLeftX()));
 
-        driverGamepad.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
-                .whenHeld(ac.pollenShootUsingDistanceCommand());
+//        driverGamepad.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
+//                .whenHeld(ac.pollenShootUsingDistanceCommand());
 
 
-        if (!Configurables.doSimulation) {
-            driverGamepad.getGamepadButton(GamepadKeys.Button.A)
-                    .whileActiveOnce(drive.setPoseCommand(new Pose(12, 12, 0)));
-        } else {
-            driverGamepad.getGamepadButton(GamepadKeys.Button.A)
-                    .whileActiveOnce(driveSim.getOdometry().setPoseCommand(new Pose(12, 12, 0)));
+        driverGamepad.getGamepadButton(GamepadKeys.Button.A)
+                .whileActiveOnce(drive.setPoseCommand(new Pose(12, 12, 0)));
 
-        }
         driverGamepad.getGamepadButton(GamepadKeys.Button.X)
                 .whenHeld(new AimAtLLTXCommand(drive, vss, () -> -driverGamepad.getLeftY(), () -> driverGamepad.getLeftX()));
 
-        if (!Configurables.doSimulation) {
-            driverGamepad.getGamepadButton(GamepadKeys.Button.B)
-                    .whenHeld(new AimAtPoseCommand(drive, () -> driverGamepad.getLeftY(),
-                            () -> driverGamepad.getLeftX()));
-        } else {
-            driverGamepad.getGamepadButton(GamepadKeys.Button.B)
-                    .whenHeld(new AlignToPoseCommandSim(driveSim, () -> driverGamepad.getLeftY(),
-                            () -> driverGamepad.getLeftX()));
-        }
+        driverGamepad.getGamepadButton(GamepadKeys.Button.B)
+                .whenHeld(new AimAtPoseCommand(drive, () -> driverGamepad.getLeftY(),
+                        () -> driverGamepad.getLeftX()));
 
-        if (!Configurables.doSimulation) {
-            driverGamepad.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
-                    .whenHeld(intake.runIntakeCommand())
-                    .whenReleased(intake.stopIntakeCommand());
-        }
 
-        if (!Configurables.doSimulation) {
-            driverGamepad.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
-                    .whenPressed(intake.invertIntakeCommand());
-        }
+        driverGamepad.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
+                .whenHeld(intake.runIntakeCommand())
+                .whenReleased(intake.stopIntakeCommand());
 
 
     }
@@ -210,17 +192,11 @@ public class TeleopOpmode extends CommandOpMode {
         while (!isStopRequested() && opModeIsActive()) {
             run();
 
-            if (!Configurables.doSimulation) {
-                drive.setRobotCentric(driverGamepad.getGamepadButton(
-                        GamepadKeys.Button.RIGHT_BUMPER).get());
-                drive.showTelemetry(telemetryM);
-            } else {
-                driveSim.setRobotCentric(driverGamepad.getGamepadButton(
-                        GamepadKeys.Button.RIGHT_BUMPER).get());
-                driveSim.showTelemetry(telemetryM);
-            }
 
-            if (Configurables.doSimulation) follower.update();
+            drive.setRobotCentric(driverGamepad.getGamepadButton(
+                    GamepadKeys.Button.RIGHT_BUMPER).get());
+            drive.showTelemetry(telemetryM);
+
 
             //intake.showTelemetry(telemetryM);
             telemetryM.addData("IsBusy", follower.isBusy());
@@ -228,20 +204,13 @@ public class TeleopOpmode extends CommandOpMode {
 
             double dist = 0;
             double angle = 0;
-            if (!Configurables.doSimulation) {
-                dist = getDistanceToTarget(GlobalData.getActiveHiveTargetPose(), drive.getPose());
-                angle = getAngleToTarget(GlobalData.getActiveHiveTargetPose(), drive.getPose());
-            } else {
-                dist = getDistanceToTarget(GlobalData.getActiveHiveTargetPose(), driveSim.getOdometry().getRobotPose());
-                angle = getAngleToTarget(GlobalData.getActiveHiveTargetPose(), driveSim.getOdometry().getRobotPose());
-            }
+            dist = getDistanceToTarget(GlobalData.getActiveHiveTargetPose(), drive.getPose());
+            angle = getAngleToTarget(GlobalData.getActiveHiveTargetPose(), drive.getPose());
+
 
             telemetryM.addData("DistFromOdometry", f3(dist));
             telemetryM.addData("AngleFromOdometry", f3(angle));
-            if (Configurables.doSimulation) {
-                telemetryM.addData("X", f3(driveSim.getOdometry().getRobotPose().getX()));
-                telemetryM.addData("Y", f3(driveSim.getOdometry().getRobotPose().getY()));
-            }
+
             telemetryM.addData("TX", f3(GlobalData.getActiveHiveTargetPose().getX()));
             telemetryM.addData("TY", f3(GlobalData.getActiveHiveTargetPose().getY()));
 

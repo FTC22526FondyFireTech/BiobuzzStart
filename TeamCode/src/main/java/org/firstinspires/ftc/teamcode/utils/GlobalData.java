@@ -62,7 +62,8 @@ public class GlobalData {
 
     public static Style robotLook = new Style("", "#3F51B5", 1.0);
     private static final Style redLook = new Style("", "#FF0000", 1.0);
-    private static final Style blueLook = new Style("", "#0000FF", 1.0);
+  //  private static final Style blueLook = new Style("", "#0000FF", 1.0);
+  private static final Style blueLook = new Style("", "#ADD8E6", 1.0);
 
     public static Pose getActiveHiveTargetPose() {
         return activeHiveTargetPose;

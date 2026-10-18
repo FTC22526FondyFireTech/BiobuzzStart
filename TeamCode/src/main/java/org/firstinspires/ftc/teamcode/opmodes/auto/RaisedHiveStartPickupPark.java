@@ -15,6 +15,7 @@ import com.seattlesolvers.solverslib.command.ConditionalCommand;
 import com.seattlesolvers.solverslib.command.WaitCommand;
 import com.seattlesolvers.solverslib.pedroCommand.FollowPathCommand;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.commands.CheckForOdometryZoneTags;
 import org.firstinspires.ftc.teamcode.simulator.SimulatorConstants;
 import org.firstinspires.ftc.teamcode.simulator.drivetrains.MecanumDriveSubsystemSimulation;
@@ -52,8 +53,10 @@ public class RaisedHiveStartPickupPark extends CommandOpMode {
     private VisionSubsysytem vss;
     private Follower follower;
     TelemetryManager telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
-    private Pose startPose, flowerApproachPose, controlPointPose,flowerPickupPose, parkPose;
-    private PathChain approachFlower, pickupFlower,  park;
+    private Pose startPose, flowerApproachPose, controlPointPose, flowerPickupPose, parkPose;
+    private PathChain approachFlower, pickupFlower, park;
+
+    private boolean isBlueAlliance;
 
 
     boolean allianceSelected;
@@ -64,7 +67,7 @@ public class RaisedHiveStartPickupPark extends CommandOpMode {
     @Override
     public void initialize() {
         super.reset();
-
+        isBlueAlliance = GlobalData.isBlueAlliance();
         if (!Configurables.doSimulation)
             drive = new MecanumDriveSubsystem(this.hardwareMap);
         else
@@ -72,23 +75,21 @@ public class RaisedHiveStartPickupPark extends CommandOpMode {
 
         vss = new VisionSubsysytem(this);
 
-      //  GlobalData.selectAlliance(this);
+        //  GlobalData.selectAlliance(this);
 
         GlobalData.autoHasRun = true;
 
-        if (GlobalData.isRedAlliance()) {
-            startPose = FieldConstants.redAudienceHiHiveStartPose;
-            controlPointPose=FieldConstants.scoringWallFlowerApproachControlPointPose;
-            flowerApproachPose = FieldConstants.redAllianceWallFlowerApproachPose;
-            flowerPickupPose = FieldConstants.redAllianceWallFlowerPickupPose;
-            parkPose = FieldConstants.redAudienceParkPose;
-        } else {
-            startPose = FieldConstants.blueScoringHiHiveStartPose;
-            controlPointPose=FieldConstants.auidenceWallFlowerApproachControlPointPose;
-            flowerApproachPose = FieldConstants.scoringWallFlowerApproachPose;
-            flowerPickupPose = FieldConstants.scoringWallFlowerPickupPose;
-            parkPose = FieldConstants.blueScoringParkPose;
-        }
+
+        startPose = forAlliance(FieldConstants.redAudienceHiHiveStartPose, isBlueAlliance);
+        flowerApproachPose = forAlliance(FieldConstants.redAllianceWallFlowerApproachPose, isBlueAlliance);
+        flowerPickupPose = forAlliance(FieldConstants.redAllianceWallFlowerPickupPose, isBlueAlliance);
+        parkPose = forAlliance(FieldConstants.redAudienceParkPose, isBlueAlliance);
+
+
+//        controlPointPose = isBlueAlliance
+//                ? FieldConstants.audienceWallFlowerApproachPoseContro
+//                : FieldConstants.scoringWallFlowerApproachControlPointPose;
+
 
         // Only this line differs from PedroAutoSample.initialize() - everything below is
         // identical Follower/PathChain/FollowPathCommand usage.
@@ -107,8 +108,25 @@ public class RaisedHiveStartPickupPark extends CommandOpMode {
                 ShootPickupPark()
         );
 
-
     }
+
+
+    /**
+     * BIOBUZZ: blue = red rotated 180° about field center (72,72).
+     */
+    static double FIELD = 144;
+
+    public static Pose toBlue(Pose red) {
+        return new Pose(
+                FIELD - red.getX(),
+                FIELD - red.getY(),
+                AngleUnit.normalizeRadians(red.getHeading() + Math.PI));
+    }
+
+    public static Pose forAlliance(Pose redPose, boolean isBlue) {
+        return isBlue ? toBlue(redPose) : redPose;
+    }
+
 
     private Command ShootPickupPark() {
         return
@@ -161,7 +179,7 @@ public class RaisedHiveStartPickupPark extends CommandOpMode {
 
     public void buildPaths() {
 
-        approachFlower = buildBezierCurve(startPose, controlPointPose, flowerApproachPose);
+        approachFlower = buildBezierLine(startPose,  flowerApproachPose);
         pickupFlower = buildBezierLine(flowerApproachPose, flowerPickupPose);
         park = buildBezierLine(flowerPickupPose, parkPose);
 

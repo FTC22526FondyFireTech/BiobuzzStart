@@ -33,13 +33,13 @@ import java.util.function.DoubleSupplier;
 public class AlignToPoseCommandSim extends CommandBase {
 
     // Live-tunable from the Panels Configurables tab.
-    public static double kP = .35;
+    public static double kP = 2.5;
     public static double kI = 0.0;
     public static double kD = 0.0;
     /**
      * Heading error (radians) below which turn output is zeroed to avoid jitter.
      */
-    public static double deadbandRad = Math.toRadians(1.0);
+    public static double deadbandRad = Math.toRadians(2.0);
     /**
      * Limit on turn power so aiming never saturates the motors.
      */
@@ -58,12 +58,17 @@ public class AlignToPoseCommandSim extends CommandBase {
     TelemetryManager telemetryM;
     private double error;
 
-    public AlignToPoseCommandSim(MecanumDriveSubsystemSimulation drive,
-                                 DoubleSupplier forward, DoubleSupplier strafe) {
+    public AlignToPoseCommandSim(MecanumDriveSubsystemSimulation drive, DoubleSupplier forward, DoubleSupplier strafe) {
         this.drive = drive;
-
         this.forward = forward;
         this.strafe = strafe;
+        addRequirements(drive);
+    }
+
+    public AlignToPoseCommandSim(MecanumDriveSubsystemSimulation drive) {
+        this.drive = drive;
+        this.forward = ()->0;
+        this.strafe = ()->0;
         addRequirements(drive);
     }
 
@@ -88,7 +93,7 @@ public class AlignToPoseCommandSim extends CommandBase {
                 + headingOffsetRad;
 
 
-        error =  (wrapAngle(desiredHeading - pose.getHeading()));
+        error = (wrapAngle(desiredHeading - pose.getHeading()));
 
         double turn = 0;
 
@@ -100,11 +105,11 @@ public class AlignToPoseCommandSim extends CommandBase {
 
         double distToTarget = getDistanceToTarget(target, pose);
 
-        telemetryM.addData("Aim Dist2Tgt,deg", distToTarget);
+        telemetryM.addData("Aim Dist2Tgt,in", distToTarget);
         telemetryM.addData("AimDesiredHeading", Math.toDegrees(desiredHeading));
         telemetryM.addData("Aim Turn", turn);
         telemetryM.addData("Aim Target X", target.getX());
-        telemetryM.addData("Aim TurnErr", error);
+        telemetryM.addData("Aim TurnErr", Math.toDegrees(error));
 
         // Pedro: positive turn = counterclockwise, matching positive heading error here.
         drive.drive(forward.getAsDouble(), strafe.getAsDouble(), turn);
@@ -133,7 +138,7 @@ public class AlignToPoseCommandSim extends CommandBase {
     public double getDistanceToTarget(Pose targetPose, Pose robotPose) {
         double XDiff = targetPose.getX() - robotPose.getX();
         double YDiff = targetPose.getY() - robotPose.getY();
-        return Math.sqrt(Math.pow(XDiff, 2) - Math.pow(YDiff, 2));
+        return Math.hypot(XDiff, YDiff);
     }
 
 }
