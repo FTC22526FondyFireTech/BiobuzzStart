@@ -107,8 +107,13 @@ public class AlignToPoseCommand extends CommandBase {
         telemetryM.addData("Aim Target X", target.getX());
         telemetryM.addData("Aim TurnErr", error);
 
+        if (GlobalData.isRedAlliance()) {
+            drive.drive(forward.getAsDouble(), strafe.getAsDouble(), turn);
+        } else {
+            drive.drive(-forward.getAsDouble(), -strafe.getAsDouble(), turn);
+        }
         // Pedro: positive turn = counterclockwise, matching positive heading error here.
-        drive.drive(forward.getAsDouble(), strafe.getAsDouble(), turn);
+      //  drive.drive(forward.getAsDouble(), strafe.getAsDouble(), turn);
     }
 
     @Override

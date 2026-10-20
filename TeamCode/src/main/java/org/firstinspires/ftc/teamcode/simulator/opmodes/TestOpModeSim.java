@@ -28,7 +28,7 @@ import java.util.Locale;
 //@Autonomous(name = "Blank")
 @TeleOp(name = "TestOpMode")
 
-public class TestOpMode extends CommandOpMode {
+public class TestOpModeSim extends CommandOpMode {
 
     TelemetryManager telemetryM;
     GamepadEx driverGamepad;

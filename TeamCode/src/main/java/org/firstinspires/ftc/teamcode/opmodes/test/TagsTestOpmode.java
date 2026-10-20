@@ -3,16 +3,19 @@ package org.firstinspires.ftc.teamcode.opmodes.test;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.geometry.Pose;
-import com.pedropathing.paths.PathChain;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.seattlesolvers.solverslib.command.CommandOpMode;
+import com.seattlesolvers.solverslib.gamepad.GamepadEx;
+import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 import com.seattlesolvers.solverslib.util.Timing;
+
+import org.firstinspires.ftc.teamcode.commands.CheckForOdometryZoneTags;
 import org.firstinspires.ftc.teamcode.simulator.drivetrains.MecanumDriveSubsystemSimulation;
 import org.firstinspires.ftc.teamcode.subsystems.VisionSubsysytem;
-import org.firstinspires.ftc.teamcode.utils.Configurables;
 import org.firstinspires.ftc.teamcode.utils.GlobalData;
+import org.firstinspires.ftc.teamcode.utils.HiveMotionTracker;
 
 import java.util.List;
 import java.util.Locale;
@@ -27,14 +30,18 @@ public class TagsTestOpmode extends CommandOpMode {
     VisionSubsysytem vss;
     Timing.Timer readCamera;
     long readMilliSecs = 250;
-
+    int HIVE_TAG_ID = 31;
 
     MecanumDriveSubsystemSimulation driveSim;
+    HiveMotionTracker hmt;
 
+    GamepadEx driverGamepad;
 
     @Override
     public void initialize() {
+        driverGamepad = new GamepadEx(gamepad1);
         vss = new VisionSubsysytem(this);
+        hmt = new HiveMotionTracker();
 
         driveSim = new MecanumDriveSubsystemSimulation(this);
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
@@ -43,6 +50,8 @@ public class TagsTestOpmode extends CommandOpMode {
         readCamera = new Timing.Timer(readMilliSecs, TimeUnit.MILLISECONDS);
         readCamera.start();
 
+        driverGamepad.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
+                .whenPressed(new CheckForOdometryZoneTags(vss));
     }
 
 
@@ -56,6 +65,7 @@ public class TagsTestOpmode extends CommandOpMode {
             run();
             showTelemetry();
             telemetryM.update(telemetry);
+
         }
         reset();
     }
@@ -78,9 +88,10 @@ public class TagsTestOpmode extends CommandOpMode {
 
         double dist = 0;
 
-        dist =getDistanceToTarget(GlobalData.getActiveHiveTargetPose(), driveSim.getOdometry().getRobotPose());
+        dist = getDistanceToTarget(GlobalData.getActiveHiveTargetPose(), driveSim.getOdometry().getRobotPose());
 
         telemetryM.addData("Distance(from odometry)", f3(dist));
+
         List<LLResultTypes.FiducialResult> fr = vss.getFiducialResults();
 
         List<Integer> tagsSeen = vss.getTagsSeen(fr);
@@ -98,23 +109,33 @@ public class TagsTestOpmode extends CommandOpMode {
             double z = temp[2];
             double yaw = temp[3];
             double pitch = temp[4];
+            telemetryM.addData("Distance(from tags)", f0M2I(z));
+
 
             telemetryM.addData("X", f3M2I(x));
             telemetryM.addData("Y", f3M2I(y));
             telemetryM.addData("Z", f3M2I(z));
             telemetryM.addData("Yaw", f3(yaw));
-            telemetryM.addData("Z", f3(pitch));
+            telemetryM.addData("Pitch", f3(pitch));
 
 
         }
 
         LLResult result = vss.getLLResults();
+
         if (result.isValid()) {
 
-            telemetryM.addData("tx", f3(result.getTx()));
+            //   telemetryM.addData("tx", f3(result.getTx()));
             telemetryM.addData("ty", f3(result.getTy()));
             telemetryM.addData("ta", f3(result.getTa()));
             telemetryM.addData("Tag Count", vss.getNumberTagsSeen(fr));
+
+
+            hmt.update(result);
+            telemetryM.addData("Hive Falling", hmt.getMotion()==HiveMotionTracker.Motion.FALLING);
+            telemetryM.addData("ty (deg)", f3(hmt.getLatestTy()));
+            telemetryM.addData("rate (deg/s)", f3(hmt.getRateDegPerSec()));
+            telemetryM.addData("samples", hmt.getSampleCount());
 
         }
 
@@ -127,6 +148,10 @@ public class TagsTestOpmode extends CommandOpMode {
 
     static String f3M2I(double v) {
         return String.format(Locale.US, "%.3f", v * 39.37);
+    }
+
+    static String f0M2I(double v) {
+        return String.format(Locale.US, "%.0f", v * 39.37);
     }
 
 }

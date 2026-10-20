@@ -63,16 +63,16 @@ public class IntakeCommand extends CommandBase {
 
     @Override
     public void execute() {
-     int   pollenCount = wcs.getCount(BiobuzzBallPipeline_1.BallColor.YELLOW);
-       int redNectarCount = wcs.getCount(BiobuzzBallPipeline_1.BallColor.RED);
-      int  blueNectarCount = wcs.getCount(BiobuzzBallPipeline_1.BallColor.BLUE);
+        intake.pollenCount = wcs.getCount(BiobuzzBallPipeline_1.BallColor.YELLOW);
+        intake.redNectarCount = wcs.getCount(BiobuzzBallPipeline_1.BallColor.RED);
+        intake.blueNectarCount = wcs.getCount(BiobuzzBallPipeline_1.BallColor.BLUE);
 
         if (GlobalData.isRedAlliance()) {
-            int allianceNectarCount = redNectarCount;
-            int opponemtNectarCount = blueNectarCount;
+            intake.allianceNectarCount = intake.redNectarCount;
+            intake.opponemtNectarCount = intake.blueNectarCount;
         } else {
-            int allianceNectarCount = blueNectarCount;
-            int opponemtNectarCount = redNectarCount;
+            intake.allianceNectarCount = intake.blueNectarCount;
+            intake.opponemtNectarCount = intake.redNectarCount;
         }
 
         BiobuzzBallPipeline_1.Ball nearest = wcs.getNearest();

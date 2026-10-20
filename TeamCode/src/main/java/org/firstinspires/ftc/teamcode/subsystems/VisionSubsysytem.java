@@ -41,6 +41,12 @@ public class VisionSubsysytem extends SubsystemBase {
     public static final double audienceX = 64;
     public int primaryTag;
 
+    public boolean hiveFalling;
+    public boolean hiveRising;
+    public boolean hiveStill;
+    public double hiveRateDegPerSec;
+    public double latestHiveTy;
+
     public int getCurrentTagZone() {
         return currentTagZone;
     }

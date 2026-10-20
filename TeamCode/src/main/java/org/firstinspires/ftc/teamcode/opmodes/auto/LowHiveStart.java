@@ -36,14 +36,6 @@ import java.util.Arrays;
 import java.util.Locale;
 
 /**
- * {@link MecanumDriveSubsystemSimulation} instead of real hardware - no robot required.
- * Swap {@link Constants#createFollower(com.qualcomm.robotcore.hardware.HardwareMap)}
- * for {@link SimulatorConstants#createSimulatedFollower(MecanumDriveSubsystemSimulation)} and
- * everything else (PathChains, FollowPathCommand, follower.update()/getPose()) works unchanged,
- * since both factories hand back a real {@code Follower}.
- */
-
-/**
  * Used only when partner can score in the initial raised hive.
  * Robot starts at the red or blue low hive and waits until it raises before shooting.
  * Then moves to pick up from adjacent flower and shoots those before parking.
@@ -109,6 +101,8 @@ public class LowHiveStart extends CommandOpMode {
 
         pss = new PollenShooterSubsystem(this.hardwareMap);
 
+        nss = new NectarShooterSubsystem(this.hardwareMap);
+
         intake = new IntakeSubsystem(this.hardwareMap);
 
         acSim = new AutoCommandsSim(driveSim, pss, nss);
@@ -170,7 +164,10 @@ public class LowHiveStart extends CommandOpMode {
         return
 
                 Commands.sequence(
-                        new CheckForOdometryZoneTags(vss).withTimeout(20000),
+                        new ConditionalCommand(
+                                new CheckForOdometryZoneTags(vss).withTimeout(20000),
+                                Commands.waitMillis(500),
+                                () -> !Configurables.doSimulation),
                         new ConditionalCommand(
                                 Commands.sequence(
                                         checkSequenceStepCommand(),

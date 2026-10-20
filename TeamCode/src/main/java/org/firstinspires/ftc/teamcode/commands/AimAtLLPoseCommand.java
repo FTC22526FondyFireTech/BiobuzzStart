@@ -10,6 +10,7 @@ import com.seattlesolvers.solverslib.controller.PIDController;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.subsystems.MecanumDriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.VisionSubsysytem;
+import org.firstinspires.ftc.teamcode.utils.GlobalData;
 
 import java.util.List;
 import java.util.function.DoubleSupplier;
@@ -107,7 +108,13 @@ public class AimAtLLPoseCommand extends CommandBase {
         turn = Math.max(-maxTurn, Math.min(maxTurn, turn));
         strafe = Math.max(-maxStrafe, Math.min(maxStrafe, strafe));
 
-        drive.drive(forward.getAsDouble(), strafe, turn);
+        if (GlobalData.isRedAlliance()) {
+            drive.drive(forward.getAsDouble(), strafe, turn);
+        } else {
+            drive.drive(-forward.getAsDouble(), -strafe, turn);
+        }
+
+       // drive.drive(forward.getAsDouble(), strafe, turn);
 
     }
 

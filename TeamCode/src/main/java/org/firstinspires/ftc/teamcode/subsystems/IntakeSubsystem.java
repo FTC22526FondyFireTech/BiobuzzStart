@@ -21,6 +21,14 @@ public class IntakeSubsystem extends SubsystemBase {
     private MotorSimulator intakeMotorSim;
     private boolean direction;
 
+
+    public int pollenCount;
+    public int redNectarCount;
+    public int blueNectarCount;
+    public int allianceNectarCount;
+    public int opponemtNectarCount;
+
+
     private Servo armServo;
     public static double intakeSpeed = 0.77; // 1150 RPM * 0.77 (or / 77%) = 885.5
     protected double simDt = 0.01; // 10ms fixed physics step (100Hz)

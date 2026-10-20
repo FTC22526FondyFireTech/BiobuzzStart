@@ -204,7 +204,7 @@ public class PollenShooterSubsystem extends SubsystemBase {
         setTargetRPM(tempRPM);
     }
 
-    public Command changeTargetRPMCommand(double val) {
+    public Command changePollenTargetRPMCommand(double val) {
         return Commands.runOnce(() -> changeTargetRPM(val));
     }
 
@@ -222,8 +222,7 @@ public class PollenShooterSubsystem extends SubsystemBase {
     }
 
     public Command shootPollenCommand() {
-        return
-                Commands.runOnce(() -> positionPollenShooter(shootPosition));
+        return Commands.runOnce(() -> positionPollenShooter(shootPosition));
     }
 
     public Command holdPollenCommand() {

@@ -198,7 +198,6 @@ public class NectarShooterSubsystem extends SubsystemBase {
         if (tempRPM > maxShootRPM) tempRPM = maxShootRPM;
         if (tempRPM < minShootRPM) tempRPM = minShootRPM;
 
-
         setTargetRPM(tempRPM);
     }
 

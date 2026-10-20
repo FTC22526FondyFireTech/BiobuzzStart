@@ -100,8 +100,13 @@ public class AimAtPoseCommand extends CommandBase {
             turn = -turn;
         }
 //
+        if (GlobalData.isRedAlliance()) {
+            drive.drive(forward.getAsDouble(), strafe.getAsDouble(), turn);
+        } else {
+            drive.drive(-forward.getAsDouble(), -strafe.getAsDouble(), turn);
+        }
         // Pedro: positive turn = counterclockwise, matching positive heading error here.
-        drive.drive(forward.getAsDouble(), strafe.getAsDouble(), turn);
+        //drive.drive(forward.getAsDouble(), strafe.getAsDouble(), turn);
 //
 //
         telemetryM.addData("AIPTurn", turn);

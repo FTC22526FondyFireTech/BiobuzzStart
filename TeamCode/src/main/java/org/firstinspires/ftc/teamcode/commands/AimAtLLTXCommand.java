@@ -87,12 +87,12 @@ public class AimAtLLTXCommand extends CommandBase {
             headingController.setPID(headingkP, headingkI, headingkD);
         }
         LLResult result = vss.getLLResults();
-        double turn=0;
+        double turn = 0;
         if (result.isValid()) {
             double tx = result.getTx();
 
 
-             turn = headingController.calculate(tx, 0);
+            turn = headingController.calculate(tx, 0);
             turn = Math.max(-maxTurn, Math.min(maxTurn, turn));
         }
         drive.drive(forward.getAsDouble(), strafe.getAsDouble(), turn);
