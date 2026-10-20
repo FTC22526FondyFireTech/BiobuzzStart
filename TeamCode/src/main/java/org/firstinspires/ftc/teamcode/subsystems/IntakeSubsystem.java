@@ -33,6 +33,7 @@ public class IntakeSubsystem extends SubsystemBase {
     public static double intakeSpeed = 0.77; // 1150 RPM * 0.77 (or / 77%) = 885.5
     protected double simDt = 0.01; // 10ms fixed physics step (100Hz)
     private double armTargetPosition;
+    public boolean intakeRunning;
 
     public IntakeSubsystem(HardwareMap hardwareMap) {
         if (!Configurables.doSimulation) {
@@ -47,16 +48,18 @@ public class IntakeSubsystem extends SubsystemBase {
             intakeMotorSim.setInverted(true);
             direction = intakeMotorSim.isInverted();
         }
-
+        intakeRunning = false;
     }
 
     public void runIntake() {
+        intakeRunning = true;
         if (!Configurables.doSimulation)
             intakeMotor.set(intakeSpeed);
         else intakeMotorSim.setPower(intakeSpeed);
     }
 
     public void stopIntake() {
+        intakeRunning=false;
         if (!Configurables.doSimulation)
             intakeMotor.stopMotor();
         else intakeMotorSim.setPower(0);
@@ -105,7 +108,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
 
     public void positionArm(double position) {
-        armTargetPosition=position;
+        armTargetPosition = position;
         if (Configurables.doSimulation)
             armServo.setPosition(position);
     }
@@ -113,13 +116,13 @@ public class IntakeSubsystem extends SubsystemBase {
     public Command armDownCommand() {
         if (!Configurables.doSimulation)
             return Commands.runOnce(() -> positionArm(downPosition));
-        else return Commands.runOnce(()->armTargetPosition=downPosition);
+        else return Commands.runOnce(() -> armTargetPosition = downPosition);
     }
 
     public Command armUpCommand() {
         if (!Configurables.doSimulation)
             return Commands.runOnce(() -> positionArm(upPosition));
-        else return Commands.runOnce(()->armTargetPosition=upPosition);
+        else return Commands.runOnce(() -> armTargetPosition = upPosition);
     }
 
     public double getArmPosition() {

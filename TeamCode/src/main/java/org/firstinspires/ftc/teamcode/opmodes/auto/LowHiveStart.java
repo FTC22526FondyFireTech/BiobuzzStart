@@ -8,6 +8,7 @@ import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.seattlesolvers.solverslib.command.Command;
 import com.seattlesolvers.solverslib.command.CommandOpMode;
 import com.seattlesolvers.solverslib.command.Commands;
@@ -16,6 +17,7 @@ import com.seattlesolvers.solverslib.command.WaitCommand;
 import com.seattlesolvers.solverslib.pedroCommand.FollowPathCommand;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.commands.AlignToPoseCommand;
 import org.firstinspires.ftc.teamcode.commands.CheckForOdometryZoneTags;
 import org.firstinspires.ftc.teamcode.simulator.SimulatorConstants;
 import org.firstinspires.ftc.teamcode.simulator.commands.AlignToPoseCommandSim;
@@ -26,6 +28,7 @@ import org.firstinspires.ftc.teamcode.subsystems.MecanumDriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.NectarShooterSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.PollenShooterSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.VisionSubsysytem;
+import org.firstinspires.ftc.teamcode.utils.AutoCommands;
 import org.firstinspires.ftc.teamcode.utils.Configurables;
 import org.firstinspires.ftc.teamcode.utils.Constants;
 import org.firstinspires.ftc.teamcode.utils.FieldConstants;
@@ -61,11 +64,12 @@ public class LowHiveStart extends CommandOpMode {
     private PathChain approachFlower, pickupFlower, score, park;
     private AutoCommandsSim acSim;
 
+    private AutoCommands ac;
+
     private GetRPMFromDistance grpmpollenfd;
 
-    boolean allianceSelected;
-    boolean choicesComplete;
-    private boolean allianceIsSelected;
+
+    private ElapsedTime autoTimer;
 
     private int seqStep;
     private double distancetoTarget;
@@ -92,10 +96,13 @@ public class LowHiveStart extends CommandOpMode {
     public void initialize() {
         super.reset();
 
-        if (!Configurables.doSimulation)
+
+        if (!Configurables.doSimulation) {
             drive = new MecanumDriveSubsystem(this.hardwareMap);
-        else
+
+        } else {
             driveSim = new MecanumDriveSubsystemSimulation(this);
+        }
 
         vss = new VisionSubsysytem(this);
 
@@ -103,16 +110,21 @@ public class LowHiveStart extends CommandOpMode {
 
         nss = new NectarShooterSubsystem(this.hardwareMap);
 
-        intake = new IntakeSubsystem(this.hardwareMap);
+        //  if (!Configurables.doSimulation) {
+        ac = new AutoCommands(drive, pss, nss);
 
+        //  } else {
         acSim = new AutoCommandsSim(driveSim, pss, nss);
+        //  }
+
+
+        intake = new IntakeSubsystem(this.hardwareMap);
 
         grpmpollenfd = new GetRPMFromDistance(driveSim, pss);
 
-        //   GlobalData.selectAlliance(this);
-
         GlobalData.autoHasRun = true;
 
+        autoTimer = new ElapsedTime();
 
         startPose = forAlliance(FieldConstants.redScoringLoHiveStartPose, GlobalData.isBlueAlliance());
         flowerApproachPose = forAlliance(FieldConstants.scoringWallFlowerApproachPose, GlobalData.isBlueAlliance());
@@ -171,10 +183,11 @@ public class LowHiveStart extends CommandOpMode {
                         new ConditionalCommand(
                                 Commands.sequence(
                                         checkSequenceStepCommand(),
-                                        //  Commands.waitUntil(() -> targetRPMFromDistance > 500),
-                                        checkSequenceStepCommand(),
                                         Commands.defer(() -> pss.setTargetRPMCommand(targetRPMFromDistance), Arrays.asList()),
+
+                                        //   ac.autoShootCommand(),
                                         acSim.autoShootPollenCommand(),
+
                                         Commands.parallel(
                                                 checkSequenceStepCommand(),
                                                 new FollowPathCommand(follower, approachFlower),
@@ -190,11 +203,16 @@ public class LowHiveStart extends CommandOpMode {
                                         Commands.parallel(
                                                 intake.stopIntakeCommand(),
                                                 intake.armUpCommand(),
+
+                                                //   new AlignToPoseCommand(drive),
                                                 new AlignToPoseCommandSim(driveSim)),
 
                                         Commands.defer(() -> pss.setTargetRPMCommand(targetRPMFromDistance), Arrays.asList()),
 
-                                        acSim.autoShootPollenCommand(),
+                                        new ConditionalCommand(
+                                                ac.autoShootCommand(),
+                                                acSim.autoShootPollenCommand(),
+                                                () -> !Configurables.doSimulation),
                                         new WaitCommand(500),
                                         new FollowPathCommand(follower, park, false),
                                         new WaitCommand(250)),
@@ -212,7 +230,8 @@ public class LowHiveStart extends CommandOpMode {
 
         initialize();
         waitForStart();
-        while (!isStopRequested() && opModeIsActive() && GlobalData.allianceIsConfirmed) {
+        autoTimer.reset();
+        while (!isStopRequested() && opModeIsActive() && GlobalData.allianceIsConfirmed && autoTimer.seconds() <= 30) {
 
             if (GlobalData.isRedAlliance() || GlobalData.isBlueAlliance()) {
                 run();
@@ -225,22 +244,18 @@ public class LowHiveStart extends CommandOpMode {
 
                 //   pss.setTargetRPM(targetRPMFromDistance);
 
-                telemetryM.addData("SEQSTEP", seqStep);
+                distancetoTarget = getDistanceToTarget(GlobalData.getActiveHiveTargetPose(), driveSim.getOdometry().getRobotPose());
 
-                telemetryM.addData("Dist To Tgt", f0(distancetoTarget));
-                telemetryM.addData("TGTRPMFD", f0(targetRPMFromDistance));
-                telemetryM.addData("IntakeRPM", f0(intake.getVelocityRPM()));
-                telemetryM.addData("TGET RPM", f0(pss.getTargetRPM()));
-                telemetryM.addData("ACT RPM", f0(pss.getPollenShooterRPM()));
+                targetRPMFromDistance = grpmpollenfd.getPollenRPMFromDistanceSim(distancetoTarget);
 
-                telemetryM.addData("Intake Arm Position", intake.getArmPosition());
-                telemetryM.addData("PSSRVTGT", pss.shooterServoTargetPosition);
-                telemetryM.addData("PSSATSPEED", pss.pollenShooterAtSpeed());
 
-//                telemetryM.addData("X", follower.getPose().getX());
-//                telemetryM.addData("Y", follower.getPose().getY());
-//                telemetryM.addData("Heading", Math.toDegrees(follower.getPose().getHeading()));
-//                telemetryM.addData("Busy", follower.isBusy());
+                telemetryM.addData("Auto Timer", autoTimer.seconds());
+                telemetryM.addData("Follower Is Busy", follower.isBusy());
+                telemetryM.addData("Shooting", pss.shooterServoTargetPosition == PollenShooterSubsystem.shootPosition);
+                telemetryM.addData("Intake Running", intake.intakeRunning);
+                telemetryM.addData("Intake Arm Down", intake.getArmPosition() == IntakeSubsystem.downPosition);
+
+                telemetryM.addData("SeqStep", seqStep);
 
                 telemetryM.update(telemetry);
             }

@@ -105,11 +105,11 @@ public class AlignToPoseCommandSim extends CommandBase {
 
         double distToTarget = getDistanceToTarget(target, pose);
 
-        telemetryM.addData("Aim Dist2Tgt,in", distToTarget);
-        telemetryM.addData("AimDesiredHeading", Math.toDegrees(desiredHeading));
-        telemetryM.addData("Aim Turn", turn);
-        telemetryM.addData("Aim Target X", target.getX());
-        telemetryM.addData("Aim TurnErr", Math.toDegrees(error));
+//        telemetryM.addData("Aim Dist2Tgt,in", distToTarget);
+//        telemetryM.addData("AimDesiredHeading", Math.toDegrees(desiredHeading));
+//        telemetryM.addData("Aim Turn", turn);
+//        telemetryM.addData("Aim Target X", target.getX());
+//        telemetryM.addData("Aim TurnErr", Math.toDegrees(error));
 
         // Pedro: positive turn = counterclockwise, matching positive heading error here.
         drive.drive(forward.getAsDouble(), strafe.getAsDouble(), turn);

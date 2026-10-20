@@ -19,15 +19,14 @@ public class AutoCommands {
 
     private final PollenShooterSubsystem pss;
     private final NectarShooterSubsystem nss;
-    private final VisionSubsysytem vss;
+
     private final double startShootRPM = 1500;
 
 
-    public AutoCommands(MecanumDriveSubsystem drive, PollenShooterSubsystem pss, NectarShooterSubsystem nss, VisionSubsysytem vss) {
+    public AutoCommands(MecanumDriveSubsystem drive, PollenShooterSubsystem pss, NectarShooterSubsystem nss) {
         this.drive = drive;
         this.pss = pss;
         this.nss = nss;
-        this.vss = vss;
     }
 
     public Command autoShootCommand() {

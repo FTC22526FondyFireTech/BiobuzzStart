@@ -52,8 +52,8 @@ public class AlignToPoseCommand extends CommandBase {
 
     private final MecanumDriveSubsystem drive;
     private Pose target;
-    private final DoubleSupplier forward;
-    private final DoubleSupplier strafe;
+    private DoubleSupplier forward;
+    private  DoubleSupplier strafe;
     private final PIDController headingController = new PIDController(kP, kI, kD);
 
     TelemetryManager telemetryM;
@@ -68,8 +68,16 @@ public class AlignToPoseCommand extends CommandBase {
         addRequirements(drive);
     }
 
+    public AlignToPoseCommand(MecanumDriveSubsystem drive) {
+        this.drive = drive;
+        addRequirements(drive);
+    }
+
     @Override
     public void initialize() {
+        forward=()->0;
+        strafe=()->0;
+
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
         headingController.reset();
         headingController.setPID(kP, kI, kD);

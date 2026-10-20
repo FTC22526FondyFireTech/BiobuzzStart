@@ -12,7 +12,7 @@ public class FieldConstants {
     public final static double robotArmLengthAdder = 6;
     public final static double robotWidth = 18;
 
-    public final static double flowerApproachClearance = 6;
+    public final static double flowerApproachClearance = 12;
     public static double loadZoneYLength = 24;
     public static double loadZoneXWidth = 12;
     public static double redLoadZoneYStart = 96;
@@ -41,6 +41,12 @@ public class FieldConstants {
             new Pose(loadZoneXWidth,
                     redLoadZoneYStart,
                     Math.PI);
+
+
+    public static Pose redAudienceParkPoseFromStart =
+            new Pose(loadZoneXWidth,
+                    redLoadZoneYStart,
+                    -Math.PI/2);
 
 
     // Flower Poses
@@ -76,6 +82,8 @@ public class FieldConstants {
     private final Pose point2Control1 = new Pose(28, 65, 0);
     private final Pose point2Control2 = new Pose(29.6127, 107.7505, 0);
     private final Pose point2Control3 = new Pose(60, 112, 0);
+
+    public static final Pose redAllianceParkfromStartControlPointPose=new Pose(17,35,0);
 
     public static Pose redAllianceWallFlowerApproachPose =
             new Pose(redAllianceWallFlowerPose.getX() + robotArmLengthAdder + flowerApproachClearance,
