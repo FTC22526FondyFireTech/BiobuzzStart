@@ -7,7 +7,7 @@ import com.seattlesolvers.solverslib.command.CommandOpMode;
 
 import org.firstinspires.ftc.teamcode.utils.GlobalData;
 
-@Autonomous(name = "Set Blue Alliance")
+@Autonomous(name = "Set Blue Alliance", group = "Auto")
 //@TeleOp(name = "Set Blue Allianced")
 //@Disabled
 
@@ -20,13 +20,13 @@ public class SetBlueAllianceOpmode extends CommandOpMode {
 
         GlobalData.setBlueAlliance();
 
-        GlobalData.allianceIsConfirmed=GlobalData.isBlueAlliance();
+        GlobalData.allianceIsConfirmed = GlobalData.isBlueAlliance();
 
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
-        telemetryM.addData("Alliance is BlueG",GlobalData.isBlueAlliance());
+        telemetryM.addData("Alliance is BlueG", GlobalData.isBlueAlliance());
 
-        telemetryM.addData("Alliance Confirmed",GlobalData.allianceIsConfirmed);
+        telemetryM.addData("Alliance Confirmed", GlobalData.allianceIsConfirmed);
 
         telemetryM.update(telemetry);
 

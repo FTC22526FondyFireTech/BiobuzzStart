@@ -15,11 +15,10 @@ import com.seattlesolvers.solverslib.command.Commands;
 import com.seattlesolvers.solverslib.command.ConditionalCommand;
 import com.seattlesolvers.solverslib.command.WaitCommand;
 import com.seattlesolvers.solverslib.pedroCommand.FollowPathCommand;
-import com.seattlesolvers.solverslib.util.Timing;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.commands.AlignToPoseCommand;
-import org.firstinspires.ftc.teamcode.commands.CheckForOdometryZoneTags;
+import org.firstinspires.ftc.teamcode.commands.CheckIfOdometryZoneTagsSeen;
 import org.firstinspires.ftc.teamcode.simulator.SimulatorConstants;
 import org.firstinspires.ftc.teamcode.simulator.commands.AlignToPoseCommandSim;
 import org.firstinspires.ftc.teamcode.simulator.commands.AutoCommandsSim;
@@ -37,6 +36,7 @@ import org.firstinspires.ftc.teamcode.utils.GetRPMFromDistance;
 import org.firstinspires.ftc.teamcode.utils.GlobalData;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * {@link MecanumDriveSubsystemSimulation} instead of real hardware - no robot required.
@@ -60,7 +60,6 @@ import java.util.Arrays;
 public class RaisedHiveStartPickupPark extends CommandOpMode {
 
     private MecanumDriveSubsystem drive;
-    private MecanumDriveSubsystemSimulation driveSim;
     private IntakeSubsystem intake;
     private PollenShooterSubsystem pss;
     private NectarShooterSubsystem nss;
@@ -73,7 +72,6 @@ public class RaisedHiveStartPickupPark extends CommandOpMode {
     private boolean isBlueAlliance;
 
     private ElapsedTime autoTimer;
-    private AutoCommandsSim acSim;
 
     private AutoCommands ac;
     private GetRPMFromDistance grpmpollenfd;
@@ -89,11 +87,9 @@ public class RaisedHiveStartPickupPark extends CommandOpMode {
         super.reset();
         isBlueAlliance = GlobalData.isBlueAlliance();
 
-        if (!Configurables.doSimulation) {
-            drive = new MecanumDriveSubsystem(this.hardwareMap);
-        } else {
-            driveSim = new MecanumDriveSubsystemSimulation(this);
-        }
+
+        drive = new MecanumDriveSubsystem(this.hardwareMap);
+
 
         intake = new IntakeSubsystem(this.hardwareMap);
         pss = new PollenShooterSubsystem(this.hardwareMap);
@@ -101,14 +97,7 @@ public class RaisedHiveStartPickupPark extends CommandOpMode {
         nss = new NectarShooterSubsystem(this.hardwareMap);
         vss = new VisionSubsysytem(this);
 
-//if (!Configurables.doSimulation) {
         ac = new AutoCommands(drive, pss, nss);
-
-        //
-        acSim = new AutoCommandsSim(driveSim, pss, nss);
-        //  }
-
-        grpmpollenfd = new GetRPMFromDistance(driveSim, pss);
 
         GlobalData.autoHasRun = true;
 
@@ -118,27 +107,22 @@ public class RaisedHiveStartPickupPark extends CommandOpMode {
         flowerPickupPose = forAlliance(FieldConstants.redAllianceWallFlowerPickupPose, isBlueAlliance);
         parkPose = forAlliance(FieldConstants.redAudienceParkPose, isBlueAlliance);
         parkPoseFromStart = forAlliance(FieldConstants.redAudienceParkPoseFromStart, isBlueAlliance);
-
         controlPointPose = forAlliance(FieldConstants.redAllianceParkfromStartControlPointPose, isBlueAlliance);
 
 
         // Only this line differs from PedroAutoSample.initialize() - everything below is
         // identical Follower/PathChain/FollowPathCommand usage.
 
-        if (!Configurables.doSimulation)
-            follower = Constants.createFollower(this.hardwareMap);
-        else
-            follower = SimulatorConstants.createSimulatedFollower(driveSim);
+
+
+        follower = Constants.createFollower(this.hardwareMap);
 
         follower.setStartingPose(startPose);
 
         buildPaths();
-
-
         hiveHasFallen = false;
 
         schedule(
-
                 ShootPickupPark()
         );
 
@@ -163,61 +147,77 @@ public class RaisedHiveStartPickupPark extends CommandOpMode {
 
 
     private Command ShootPickupPark() {
-        return
-                Commands.sequence(
+        return Commands.sequence(
 
-                        Commands.sequence(
-                                new WaitCommand(500),
-                                checkSequenceStepCommand(),
-                                Commands.defer(() -> pss.setTargetRPMCommand(targetRPMFromDistance), Arrays.asList()),
-                                new ConditionalCommand(
-                                        ac.autoShootCommand(),
-                                        acSim.autoShootPollenCommand(),
-                                        () -> !Configurables.doSimulation),
-                                Commands.parallel(
-                                        checkSequenceStepCommand(),
-                                        new FollowPathCommand(follower, approachFlower, true),
-                                        intake.runIntakeCommand(),
-                                        intake.armDownCommand()),
-                                checkSequenceStepCommand(),
-                                new WaitCommand(500),
-                                new FollowPathCommand(follower, pickupFlower, true).setGlobalMaxPower(0.25),
-                                new WaitCommand(1500),
-                                checkSequenceStepCommand(),
-                                new FollowPathCommand(follower, retractFlower, true),
-                                Commands.waitMillis(1500),
-                                Commands.parallel(
-                                        intake.stopIntakeCommand(),
-                                        intake.armUpCommand(),
-                                        new WaitCommand(500)),
-                                checkSequenceStepCommand(),
+                pss.setTargetRPMCommand(PollenShooterSubsystem.autoShootRPM),
+                shoot(),
+                Commands.waitMillis(2000),//check hive fallen
+                pickup(),
 
-                                new CheckForOdometryZoneTags(vss, false).withTimeout(5000),
-                                Commands.defer(() -> new ConditionalCommand(
-                                                Commands.sequence(
-                                                        new FollowPathCommand(follower, returnToStart, true),
+                Commands.defer(() -> new ConditionalCommand(
+                                park(),
+                                Commands.sequence(
+                                        moveForSecondShoot(),
+                                        shoot(),
+                                        parkAfterSecondShoot()),
 
-                                                        checkSequenceStepCommand(),
-                                                        Commands.waitMillis(500),
-                                                        new ConditionalCommand(
-                                                                ac.autoShootCommand(),
-                                                                acSim.autoShootPollenCommand(),
-                                                                () -> !Configurables.doSimulation),
-                                                        checkSequenceStepCommand(),
-                                                        Commands.waitMillis(500),
-                                                        new FollowPathCommand(follower, parkFromStart, true),
-                                                        checkSequenceStepCommand()),
+                                () -> Configurables.hiveHasFallenSim),
+
+                        Collections.emptyList()));
+    }
 
 
-                                                Commands.sequence(
-                                                        Commands.waitMillis(500),
-                                                        new FollowPathCommand(follower, park, true),
-                                                        checkSequenceStepCommand(),
-                                                        new WaitCommand(250)),
+    public Command pickup() {
+        return Commands.sequence(
+                Commands.parallel(
+                        checkSequenceStepCommand(),
+                        new FollowPathCommand(follower, approachFlower),
+                        intake.runIntakeCommand(),
+                        intake.armDownCommand()),
+                checkSequenceStepCommand(),
+                new WaitCommand(1000),
+                new FollowPathCommand(follower, pickupFlower).setGlobalMaxPower(0.25),
+                new WaitCommand(1500),
+                checkSequenceStepCommand(),
+                new FollowPathCommand(follower, retractFlower),
+                new WaitCommand(250),
+                checkSequenceStepCommand());
+    }
 
-                                                () -> vss.isInOdometryZone()),
+    public Command moveForSecondShoot() {
 
-                                        Arrays.asList())));
+        return Commands.sequence(
+                new FollowPathCommand(follower, returnToStart, true),
+                checkSequenceStepCommand(),
+                Commands.parallel(
+                        intake.stopIntakeCommand(),
+                        intake.armUpCommand()),
+                Commands.waitMillis(500), Commands.none());
+        // new AlignToPoseCommandSim(driveSim));
+    }
+
+    private Command shoot() {
+        return ac.autoShootCommand();
+    }
+
+
+    public Command park() {
+        return new FollowPathCommand(follower, park, false);
+    }
+
+//    public Command parkAfterSecondShoot() {
+//        return new FollowPathCommand(follower, parkFromStart, false).setGlobalMaxPower(1.);
+//    }
+
+    public Command parkAfterSecondShoot() {
+        return Commands.sequence(
+                new FollowPathCommand(follower,approachFlower).setGlobalMaxPower(1.),
+                Commands.waitMillis(250),
+                new FollowPathCommand(follower, park));
+    }
+
+    public Command parkFromStart() {
+        return new FollowPathCommand(follower, parkFromStart, false).setGlobalMaxPower(1.);
     }
 
 
@@ -233,10 +233,10 @@ public class RaisedHiveStartPickupPark extends CommandOpMode {
 
             follower.update();
 
-            distancetoTarget = getDistanceToTarget(GlobalData.getActiveHiveTargetPose(), driveSim.getOdometry().getRobotPose());
+
+            distancetoTarget = getDistanceToTarget(GlobalData.getActiveHiveTargetPose(), drive.getPose());
 
             targetRPMFromDistance = grpmpollenfd.getPollenRPMFromDistanceSim(distancetoTarget);
-
             telemetryM.addData("Auto Timer", autoTimer.seconds());
             telemetryM.addData("Follower Is Busy", follower.isBusy());
             telemetryM.addData("Shooting", pss.shooterServoTargetPosition == PollenShooterSubsystem.shootPosition);
@@ -257,8 +257,8 @@ public class RaisedHiveStartPickupPark extends CommandOpMode {
         retractFlower = buildBezierLine(flowerPickupPose, flowerApproachPose);
         returnToStart = buildBezierLine(flowerApproachPose, startPose);
         park = buildBezierLine(flowerPickupPose, parkPose);
-        parkFromStart = buildBezierCurve(startPose, controlPointPose, parkPoseFromStart);
-
+        // parkFromStart = buildBezierCurve(startPose, controlPointPose, parkPose);
+        parkFromStart = buildBezierLine(startPose, parkPose);
     }
 
     PathChain buildBezierLine(Pose start, Pose end) {
@@ -273,7 +273,7 @@ public class RaisedHiveStartPickupPark extends CommandOpMode {
         return follower.pathBuilder()
                 .addPath(new BezierCurve(start, control, end))
                 // .setConstantHeadingInterpolation(end.getHeading())
-                .setLinearHeadingInterpolation(start.getHeading(), end.getHeading())
+                // .setLinearHeadingInterpolation(start.getHeading(), end.getHeading())
                 .build();
     }
 

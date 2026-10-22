@@ -11,7 +11,7 @@ import com.seattlesolvers.solverslib.gamepad.GamepadEx;
 import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 import com.seattlesolvers.solverslib.util.Timing;
 
-import org.firstinspires.ftc.teamcode.commands.CheckForOdometryZoneTags;
+import org.firstinspires.ftc.teamcode.commands.CheckIfOdometryZoneTagsSeen;
 import org.firstinspires.ftc.teamcode.simulator.drivetrains.MecanumDriveSubsystemSimulation;
 import org.firstinspires.ftc.teamcode.subsystems.VisionSubsysytem;
 import org.firstinspires.ftc.teamcode.utils.GlobalData;
@@ -51,7 +51,7 @@ public class TagsTestOpmode extends CommandOpMode {
         readCamera.start();
 
         driverGamepad.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
-                .whenPressed(new CheckForOdometryZoneTags(vss));
+                .whenPressed(new CheckIfOdometryZoneTagsSeen(vss,true));
     }
 
 

@@ -13,8 +13,11 @@ public class Configurables {
     public static boolean showIntakeTelemetry = false;
 
 
-    public static boolean doSimulation =false;
+    public static boolean doSimulation = true;
 
+    public static boolean hiveHasFallenSim = false;
+
+    public static boolean hiveRaisedSim = false;
 
 
 

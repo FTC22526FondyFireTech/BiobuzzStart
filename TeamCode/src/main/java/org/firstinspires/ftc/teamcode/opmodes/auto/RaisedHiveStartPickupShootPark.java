@@ -16,7 +16,6 @@ import com.seattlesolvers.solverslib.command.WaitCommand;
 import com.seattlesolvers.solverslib.pedroCommand.FollowPathCommand;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.teamcode.commands.CheckForOdometryZoneTags;
 import org.firstinspires.ftc.teamcode.simulator.SimulatorConstants;
 import org.firstinspires.ftc.teamcode.simulator.drivetrains.MecanumDriveSubsystemSimulation;
 import org.firstinspires.ftc.teamcode.subsystems.MecanumDriveSubsystem;
@@ -131,10 +130,6 @@ public class RaisedHiveStartPickupShootPark extends CommandOpMode {
         return
 
                 Commands.sequence(
-                        new ConditionalCommand(
-                                new CheckForOdometryZoneTags(vss).withTimeout(20000),
-                                Commands.waitMillis(1000),
-                                () -> !Configurables.doSimulation),
 
                         new ConditionalCommand(
                                 Commands.sequence(
@@ -149,7 +144,7 @@ public class RaisedHiveStartPickupShootPark extends CommandOpMode {
 
                                 new FollowPathCommand(follower, park, false),
 
-                                () -> vss.isInOdometryZone() || Configurables.doSimulation));
+                                () -> vss.getZoneTagsSeen() || Configurables.doSimulation));
 
 
     }

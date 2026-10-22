@@ -18,11 +18,8 @@ import com.seattlesolvers.solverslib.pedroCommand.FollowPathCommand;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.commands.AlignToPoseCommand;
-import org.firstinspires.ftc.teamcode.commands.CheckForOdometryZoneTags;
-import org.firstinspires.ftc.teamcode.simulator.SimulatorConstants;
-import org.firstinspires.ftc.teamcode.simulator.commands.AlignToPoseCommandSim;
+import org.firstinspires.ftc.teamcode.commands.CheckIfOdometryZoneTagsSeen;
 import org.firstinspires.ftc.teamcode.simulator.commands.AutoCommandsSim;
-import org.firstinspires.ftc.teamcode.simulator.drivetrains.MecanumDriveSubsystemSimulation;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.MecanumDriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.NectarShooterSubsystem;
@@ -35,7 +32,7 @@ import org.firstinspires.ftc.teamcode.utils.FieldConstants;
 import org.firstinspires.ftc.teamcode.utils.GetRPMFromDistance;
 import org.firstinspires.ftc.teamcode.utils.GlobalData;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Locale;
 
 /**
@@ -52,7 +49,6 @@ import java.util.Locale;
 public class LowHiveStart extends CommandOpMode {
 
     private MecanumDriveSubsystem drive;
-    private MecanumDriveSubsystemSimulation driveSim;
     private PollenShooterSubsystem pss;
     private NectarShooterSubsystem nss;
     private IntakeSubsystem intake;
@@ -60,8 +56,8 @@ public class LowHiveStart extends CommandOpMode {
     private VisionSubsysytem vss;
     private Follower follower;
     TelemetryManager telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
-    private Pose startPose, controlPointPose, flowerApproachPose, flowerPickupPose, secondShootPose, parkPose;
-    private PathChain approachFlower, pickupFlower, score, park;
+    private Pose startPose, controlPointPose, flowerApproachPose, flowerPickupPose, secondShootPose, parkControlPointPose, parkPose;
+    private PathChain approachFlower, pickupFlower, moveForSecondShoot, parkAfterSecondShoot, park;
     private AutoCommandsSim acSim;
 
     private AutoCommands ac;
@@ -96,13 +92,11 @@ public class LowHiveStart extends CommandOpMode {
     public void initialize() {
         super.reset();
 
+        super.reset();
 
-        if (!Configurables.doSimulation) {
-            drive = new MecanumDriveSubsystem(this.hardwareMap);
 
-        } else {
-            driveSim = new MecanumDriveSubsystemSimulation(this);
-        }
+        drive = new MecanumDriveSubsystem(this.hardwareMap);
+
 
         vss = new VisionSubsysytem(this);
 
@@ -110,17 +104,11 @@ public class LowHiveStart extends CommandOpMode {
 
         nss = new NectarShooterSubsystem(this.hardwareMap);
 
-        //  if (!Configurables.doSimulation) {
         ac = new AutoCommands(drive, pss, nss);
-
-        //  } else {
-        acSim = new AutoCommandsSim(driveSim, pss, nss);
-        //  }
 
 
         intake = new IntakeSubsystem(this.hardwareMap);
 
-        grpmpollenfd = new GetRPMFromDistance(driveSim, pss);
 
         GlobalData.autoHasRun = true;
 
@@ -137,11 +125,13 @@ public class LowHiveStart extends CommandOpMode {
                 ? FieldConstants.toBlueXY(FieldConstants.scoringWallFlowerApproachControlPointPose)
                 : FieldConstants.scoringWallFlowerApproachControlPointPose;
 
+        parkControlPointPose = GlobalData.isBlueAlliance()
+                ? FieldConstants.toBlueXY(FieldConstants.lowHiveStartControlPointPose)
+                : FieldConstants.lowHiveStartControlPointPose;
 
-        if (!Configurables.doSimulation)
-            follower = Constants.createFollower(this.hardwareMap);
-        else
-            follower = SimulatorConstants.createSimulatedFollower(driveSim);
+
+        follower = Constants.createFollower(this.hardwareMap);
+
 
         follower.setStartingPose(startPose);
 
@@ -176,52 +166,69 @@ public class LowHiveStart extends CommandOpMode {
         return
 
                 Commands.sequence(
-                        new ConditionalCommand(
-                                new CheckForOdometryZoneTags(vss,true).withTimeout(20000),
-                                Commands.waitMillis(500),
-                                () -> !Configurables.doSimulation),
-                        new ConditionalCommand(
-                                Commands.sequence(
-                                        checkSequenceStepCommand(),
-                                        Commands.defer(() -> pss.setTargetRPMCommand(targetRPMFromDistance), Arrays.asList()),
 
-                                        //   ac.autoShootCommand(),
-                                        acSim.autoShootPollenCommand(),
+                        new CheckIfOdometryZoneTagsSeen(vss, true).withTimeout(20000),
 
-                                        Commands.parallel(
-                                                checkSequenceStepCommand(),
-                                                new FollowPathCommand(follower, approachFlower),
-                                                intake.runIntakeCommand(),
-                                                intake.armDownCommand()),
-                                        checkSequenceStepCommand(),
-                                        new WaitCommand(500),
-                                        new FollowPathCommand(follower, pickupFlower).setGlobalMaxPower(0.25),
-                                        new WaitCommand(1500),
-                                        checkSequenceStepCommand(),
-                                        new FollowPathCommand(follower, score, false),
-                                        checkSequenceStepCommand(),
-                                        Commands.parallel(
-                                                intake.stopIntakeCommand(),
-                                                intake.armUpCommand(),
+                        checkSequenceStepCommand(),
 
-                                                //   new AlignToPoseCommand(drive),
-                                                new AlignToPoseCommandSim(driveSim)),
-
-                                        Commands.defer(() -> pss.setTargetRPMCommand(targetRPMFromDistance), Arrays.asList()),
-
-                                        new ConditionalCommand(
-                                                ac.autoShootCommand(),
-                                                acSim.autoShootPollenCommand(),
-                                                () -> !Configurables.doSimulation),
-                                        new WaitCommand(500),
-                                        new FollowPathCommand(follower, park, false),
-                                        new WaitCommand(250)),
-
-                                new FollowPathCommand(follower, park, false),
-
-                                () -> vss.isInOdometryZone() || Configurables.doSimulation));
+                        Commands.defer(() -> new ConditionalCommand(
+                                        Commands.sequence(
+                                                pss.setTargetRPMCommand(PollenShooterSubsystem.autoShootRPM),
+                                                shoot(),
+                                                pickup(),
+                                                moveForSecondShoot(),
+                                                pss.setTargetRPMCommand(PollenShooterSubsystem.autoSecondShootRPM),
+                                                shoot(),
+                                                parkAfterSecondShoot()),
+                                        park(),
+                                        () -> vss.getZoneTagsSeen()),
+                                Collections.emptyList()));
+    }
 
 
+    public Command pickup() {
+        return Commands.sequence(
+                Commands.parallel(
+                        checkSequenceStepCommand(),
+                        new FollowPathCommand(follower, approachFlower),
+                        intake.runIntakeCommand(),
+                        intake.armDownCommand()),
+                checkSequenceStepCommand(),
+                new WaitCommand(1000),
+                new FollowPathCommand(follower, pickupFlower).setGlobalMaxPower(0.25),
+                new WaitCommand(1500),
+                checkSequenceStepCommand(),
+                new FollowPathCommand(follower, approachFlower),
+                new WaitCommand(250),
+                checkSequenceStepCommand());
+    }
+
+    public Command park() {
+        return new FollowPathCommand(follower, park, false);
+    }
+
+    public Command parkAfterSecondShoot() {
+        return new FollowPathCommand(follower, parkAfterSecondShoot, false);
+    }
+
+    public Command moveForSecondShoot() {
+
+        return Commands.sequence(
+                new FollowPathCommand(follower, moveForSecondShoot, false),
+                checkSequenceStepCommand(),
+                Commands.parallel(
+                        intake.stopIntakeCommand(),
+                        intake.armUpCommand()),
+                new AlignToPoseCommand(drive));
+
+
+    }
+
+
+    private Command shoot() {
+        return Commands.sequence(
+                checkSequenceStepCommand(),
+                acSim.autoShootPollenCommand());
     }
 
 
@@ -237,16 +244,6 @@ public class LowHiveStart extends CommandOpMode {
                 run();
 
                 follower.update();
-
-                distancetoTarget = getDistanceToTarget(GlobalData.getActiveHiveTargetPose(), driveSim.getOdometry().getRobotPose());
-
-                targetRPMFromDistance = grpmpollenfd.getPollenRPMFromDistanceSim(distancetoTarget);
-
-                //   pss.setTargetRPM(targetRPMFromDistance);
-
-                distancetoTarget = getDistanceToTarget(GlobalData.getActiveHiveTargetPose(), driveSim.getOdometry().getRobotPose());
-
-                targetRPMFromDistance = grpmpollenfd.getPollenRPMFromDistanceSim(distancetoTarget);
 
 
                 telemetryM.addData("Auto Timer", autoTimer.seconds());
@@ -266,11 +263,11 @@ public class LowHiveStart extends CommandOpMode {
     }
 
     public void buildPaths() {
-
+        park = buildBezierCurve(startPose, parkControlPointPose, parkPose);
         approachFlower = buildBezierCurve(startPose, controlPointPose, flowerApproachPose);
         pickupFlower = buildBezierLine(flowerApproachPose, flowerPickupPose);
-        score = buildBezierLine(flowerPickupPose, secondShootPose);
-        park = buildBezierLine(secondShootPose, parkPose);
+        moveForSecondShoot = buildBezierLine(flowerPickupPose, secondShootPose);
+        parkAfterSecondShoot = buildBezierLine(secondShootPose, parkPose);
 
     }
 

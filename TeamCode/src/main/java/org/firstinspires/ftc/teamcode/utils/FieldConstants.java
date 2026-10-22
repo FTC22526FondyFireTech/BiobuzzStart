@@ -46,7 +46,7 @@ public class FieldConstants {
     public static Pose redAudienceParkPoseFromStart =
             new Pose(loadZoneXWidth,
                     redLoadZoneYStart,
-                    -Math.PI/2);
+                    -Math.PI / 2);
 
 
     // Flower Poses
@@ -77,13 +77,13 @@ public class FieldConstants {
     public static Pose scoringWallFlowerApproachControlPointPose = new Pose(55, 114);
 
 
-
-//Control Points for path from alliance wall to scoring wall
+    //Control Points for path from alliance wall to scoring wall
     private final Pose point2Control1 = new Pose(28, 65, 0);
     private final Pose point2Control2 = new Pose(29.6127, 107.7505, 0);
     private final Pose point2Control3 = new Pose(60, 112, 0);
 
-    public static final Pose redAllianceParkfromStartControlPointPose=new Pose(17,35,0);
+    public static final Pose redAllianceParkfromStartControlPointPose = new Pose(17, 35);
+    public static final Pose lowHiveStartControlPointPose = new Pose(53, 108, 0);
 
     public static Pose redAllianceWallFlowerApproachPose =
             new Pose(redAllianceWallFlowerPose.getX() + robotArmLengthAdder + flowerApproachClearance,
@@ -93,7 +93,6 @@ public class FieldConstants {
             new Pose(redAllianceWallFlowerPose.getX() + robotLength / 2 + robotArmLengthAdder,
                     redAllianceWallFlowerPose.getY(),
                     Math.PI);
-
 
 
     // Flower pickup poses

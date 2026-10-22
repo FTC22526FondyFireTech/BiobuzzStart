@@ -78,7 +78,7 @@ public class MecanumDriveSubsystemSimulation extends SubsystemBase {
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
         et = new ElapsedTime();
-        Drawing.init();
+       Drawing.init();
 
     }
 
@@ -138,7 +138,7 @@ public class MecanumDriveSubsystemSimulation extends SubsystemBase {
         Drawing.drwaLine(odometry.getRobotPose().getX(), odometry.getRobotPose().getY(),
                 GlobalData.getActiveHiveTargetPose().getX(), GlobalData.getActiveHiveTargetPose().getY());
         Drawing.sendPacket();
-        //Drawing.drawRobot(GlobalData.getActiveHiveTargetPose(), GlobalData.robotLook);
+
     }
 
     public void setActiveHiveTargetPose() {

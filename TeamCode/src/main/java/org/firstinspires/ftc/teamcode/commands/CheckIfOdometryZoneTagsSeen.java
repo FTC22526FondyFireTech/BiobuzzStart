@@ -1,22 +1,21 @@
 package org.firstinspires.ftc.teamcode.commands;
 
-import com.bylazar.telemetry.PanelsTelemetry;
-import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.seattlesolvers.solverslib.command.CommandBase;
 
 import org.firstinspires.ftc.teamcode.subsystems.VisionSubsysytem;
-import org.firstinspires.ftc.teamcode.utils.Configurables;
 import org.firstinspires.ftc.teamcode.utils.GlobalData;
 import org.firstinspires.ftc.teamcode.utils.HiveMotionTracker;
 
 import java.util.Collections;
 import java.util.List;
 
-public class CheckForOdometryZoneTags extends CommandBase {
+public class CheckIfOdometryZoneTagsSeen extends CommandBase {
     private VisionSubsysytem vss;
-    private boolean hiveUp;
+    private boolean lookForHiveUp;
+
+    private boolean lookForHiveDown;
     private HiveMotionTracker hmt;
 
     private int tagsZone;
@@ -25,14 +24,16 @@ public class CheckForOdometryZoneTags extends CommandBase {
     List<Integer> tagsSeen = Collections.emptyList();
     double Y;
     private final double yHiveRisenValue = 0;
+    private boolean zoneTagsSeen;
 
-    public CheckForOdometryZoneTags(VisionSubsysytem vss, boolean hiveUp) {
+    public CheckIfOdometryZoneTagsSeen(VisionSubsysytem vss, boolean lookForHiveUp) {
         this.vss = vss;
-        this.hiveUp = hiveUp;
+        this.lookForHiveUp = lookForHiveUp;
     }
 
     @Override
     public void initialize() {
+        lookForHiveDown = !lookForHiveUp;
         hmt = new HiveMotionTracker();
     }
 
@@ -61,7 +62,7 @@ public class CheckForOdometryZoneTags extends CommandBase {
         tagsZone = vss.findZoneFromTags(tagsSeen);
         Y = vss.getGroupTargetPose(fr)[1];
         vss.setInOdometryZone(tagsZone == GlobalData.getCurrentOdometryZone());
-
+        zoneTagsSeen = vss.getZoneTagsSeen();
 
     }
 
@@ -72,7 +73,7 @@ public class CheckForOdometryZoneTags extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return (vss.isInOdometryZone() && hiveUp) || (!vss.isInOdometryZone() && !hiveUp);
+        return (zoneTagsSeen && lookForHiveUp) || (!zoneTagsSeen && lookForHiveDown);
     }
 
 

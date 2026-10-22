@@ -7,11 +7,7 @@ import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.seattlesolvers.solverslib.command.CommandOpMode;
 import com.seattlesolvers.solverslib.command.SubsystemBase;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
-import org.firstinspires.ftc.robotcore.external.navigation.Position;
-import org.firstinspires.ftc.robotcore.external.navigation.Rotation;
-import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -57,7 +53,7 @@ public class VisionSubsysytem extends SubsystemBase {
 
     private int currentTagZone;
 
-    public boolean isInOdometryZone() {
+    public boolean getZoneTagsSeen() {
         return inOdometryZone;
     }
 
