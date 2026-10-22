@@ -19,7 +19,7 @@ import org.firstinspires.ftc.teamcode.utils.Configurables;
 @Configurable
 public class PollenShooterSubsystem extends SubsystemBase {
 
-    public static double pollenShooterKp = 0.01;
+    public static double pollenShooterKp = 0.001;
     public static double pollenShooterKi = 0;
     public static double pollenShooterKd = 0;
     public static boolean changePollenVelocityCoefficents = false;
@@ -38,19 +38,18 @@ public class PollenShooterSubsystem extends SubsystemBase {
 
     public PIDController pidController;
 
-    private double targetRPM = 200;
+    private double targetRPM = 1000;
 
     private double maxShootRPM;
 
     private double minShootRPM;
 
-    private final double gearRatio = 13.7;
     public double pidout;
 
     public double ff;
     public int tst;
 
-    public double maxMotorRPM;
+    public final double maxMotorRPM = 6000;
 
     InterpLUT pollenSpeeds;
 
@@ -71,14 +70,14 @@ public class PollenShooterSubsystem extends SubsystemBase {
     public PollenShooterSubsystem(HardwareMap hardwareMap) {
         // specifying motor allows top rpm tp be read from motor
         if (!Configurables.doSimulation) {
-            pollenShooterMotor = new MotorEx(hardwareMap, "pollen", Motor.GoBILDA.RPM_1150);
+            pollenShooterMotor = new MotorEx(hardwareMap, "pollen");
+            pollenShooterMotor.setInverted(true);
 
-            maxMotorRPM = pollenShooterMotor.getMaxRPM();
 
             slf = new SlewRateLimiter(1000);
             maxShootRPM = maxMotorRPM * .9;
             minShootRPM = maxShootRPM / 2;
-            cpr = pollenShooterMotor.getCPR();
+            cpr = 28;//pollenShooterMotor.getCPR();
 
             pollenShootServo = hardwareMap.get(Servo.class, "pollenShoot");
             pollenShootServo.setDirection(Servo.Direction.FORWARD);
@@ -132,6 +131,8 @@ public class PollenShooterSubsystem extends SubsystemBase {
         if (!Configurables.doSimulation) {
             pollenShooterMotor.stopMotor();
             pollenShooterMotor.set(0);
+            setRunPollenShooterAtVelocity(false);
+
         } else {
             shooterMotorSim.setPower(0);
         }
@@ -151,9 +152,9 @@ public class PollenShooterSubsystem extends SubsystemBase {
     public void runPollenShooterAtVelocity() {
         if (!Configurables.doSimulation) {
             tst++;
-            pidout = pidController.calculate(getPollenShooterRPM());
-            ff = sff.calculate(targetRPM);
-            pollenShooterMotor.set(ff + pidout);
+            pidout = pidController.calculate(getPollenShooterRPM(), targetRPM);
+           ff= sff.calculate(targetRPM);
+            pollenShooterMotor.set(ff +pidout);
         } else shooterMotorSim.setPower(ff + pidout);
     }
 
@@ -238,6 +239,10 @@ public class PollenShooterSubsystem extends SubsystemBase {
     public void periodic() {
         if (runPollenShooterAtVelocity) {
             runPollenShooterAtVelocity();
+        }
+
+        if(changePollenVelocityCoefficents){
+            pidController.setPID(pollenShooterKp,pollenShooterKi,pollenShooterKd);
         }
     }
 }

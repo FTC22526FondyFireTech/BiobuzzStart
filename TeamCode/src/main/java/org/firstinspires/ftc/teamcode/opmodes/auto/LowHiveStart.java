@@ -177,7 +177,7 @@ public class LowHiveStart extends CommandOpMode {
 
                 Commands.sequence(
                         new ConditionalCommand(
-                                new CheckForOdometryZoneTags(vss).withTimeout(20000),
+                                new CheckForOdometryZoneTags(vss,true).withTimeout(20000),
                                 Commands.waitMillis(500),
                                 () -> !Configurables.doSimulation),
                         new ConditionalCommand(

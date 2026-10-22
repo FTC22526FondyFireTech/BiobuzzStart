@@ -19,6 +19,7 @@ import com.seattlesolvers.solverslib.util.Timing;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.commands.AlignToPoseCommand;
+import org.firstinspires.ftc.teamcode.commands.CheckForOdometryZoneTags;
 import org.firstinspires.ftc.teamcode.simulator.SimulatorConstants;
 import org.firstinspires.ftc.teamcode.simulator.commands.AlignToPoseCommandSim;
 import org.firstinspires.ftc.teamcode.simulator.commands.AutoCommandsSim;
@@ -63,6 +64,7 @@ public class RaisedHiveStartPickupPark extends CommandOpMode {
     private IntakeSubsystem intake;
     private PollenShooterSubsystem pss;
     private NectarShooterSubsystem nss;
+    private VisionSubsysytem vss;
     private Follower follower;
     TelemetryManager telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
     private Pose startPose, flowerApproachPose, controlPointPose, flowerPickupPose, parkPose, parkPoseFromStart;
@@ -97,6 +99,7 @@ public class RaisedHiveStartPickupPark extends CommandOpMode {
         pss = new PollenShooterSubsystem(this.hardwareMap);
 
         nss = new NectarShooterSubsystem(this.hardwareMap);
+        vss = new VisionSubsysytem(this);
 
 //if (!Configurables.doSimulation) {
         ac = new AutoCommands(drive, pss, nss);
@@ -188,29 +191,32 @@ public class RaisedHiveStartPickupPark extends CommandOpMode {
                                         intake.armUpCommand(),
                                         new WaitCommand(500)),
                                 checkSequenceStepCommand(),
-                                Commands.defer(() ->
-                                                new ConditionalCommand(
+
+                                new CheckForOdometryZoneTags(vss, false).withTimeout(5000),
+                                Commands.defer(() -> new ConditionalCommand(
+                                                Commands.sequence(
+                                                        new FollowPathCommand(follower, returnToStart, true),
+
+                                                        checkSequenceStepCommand(),
+                                                        Commands.waitMillis(500),
+                                                        new ConditionalCommand(
+                                                                ac.autoShootCommand(),
+                                                                acSim.autoShootPollenCommand(),
+                                                                () -> !Configurables.doSimulation),
+                                                        checkSequenceStepCommand(),
+                                                        Commands.waitMillis(500),
+                                                        new FollowPathCommand(follower, parkFromStart, true),
+                                                        checkSequenceStepCommand()),
+
+
+                                                Commands.sequence(
+                                                        Commands.waitMillis(500),
                                                         new FollowPathCommand(follower, park, true),
-                                                        Commands.sequence(
-                                                                new FollowPathCommand(follower, returnToStart, true),
-                                                                checkSequenceStepCommand(),
+                                                        checkSequenceStepCommand(),
+                                                        new WaitCommand(250)),
 
-                                                                new AlignToPoseCommandSim(driveSim),
-                                                                //    new AlignToPoseCommand(drive),
+                                                () -> vss.isInOdometryZone()),
 
-                                                                checkSequenceStepCommand(),
-                                                                Commands.waitMillis(500),
-                                                                new ConditionalCommand(
-                                                                        ac.autoShootCommand(),
-                                                                        acSim.autoShootPollenCommand(),
-                                                                        () -> !Configurables.doSimulation),
-                                                                checkSequenceStepCommand(),
-                                                                Commands.waitMillis(500),
-                                                                new FollowPathCommand(follower, parkFromStart, true),
-                                                                checkSequenceStepCommand(),
-                                                                new WaitCommand(250)),
-
-                                                        () -> hiveHasFallen),
                                         Arrays.asList())));
     }
 

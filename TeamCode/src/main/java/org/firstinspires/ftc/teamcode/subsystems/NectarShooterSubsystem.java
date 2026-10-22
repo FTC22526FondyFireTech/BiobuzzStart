@@ -19,7 +19,7 @@ import org.firstinspires.ftc.teamcode.utils.Configurables;
 @Configurable
 public class NectarShooterSubsystem extends SubsystemBase {
 
-    public static double nectarShooterKp = 0.01;
+    public static double nectarShooterKp = 0.001;
     public static double nectarShooterKi = 0;
     public static double nectarShooterKd = 0;
     public static boolean changeNectarVelocityCoefficents = false;
@@ -28,7 +28,7 @@ public class NectarShooterSubsystem extends SubsystemBase {
     public static double holdPosition = 0;
     public static double shootPosition = .5;
 
-    public double cpr;
+    public double cpr=28;
     public MotorEx nectarShooterMotor;
     private MotorSimulator shooterMotorSim;
 
@@ -39,7 +39,7 @@ public class NectarShooterSubsystem extends SubsystemBase {
 
     public PIDController pidController;
 
-    private double targetRPM = 200;
+    private double targetRPM = 1000;
 
     private double maxShootRPM;
 
@@ -51,7 +51,7 @@ public class NectarShooterSubsystem extends SubsystemBase {
     public double ff;
     public int tst;
 
-    public double maxMotorRPM;
+    public double maxMotorRPM =6000;
 
     public InterpLUT nectarSpeeds;
 
@@ -70,14 +70,11 @@ public class NectarShooterSubsystem extends SubsystemBase {
     public NectarShooterSubsystem(HardwareMap hardwareMap) {
         // specifying motor allows top rpm tp be read from motor
         if (!Configurables.doSimulation) {
-            nectarShooterMotor = new MotorEx(hardwareMap, "nectar", Motor.GoBILDA.RPM_1150);
-
-            maxMotorRPM = nectarShooterMotor.getMaxRPM();
+            nectarShooterMotor = new MotorEx(hardwareMap, "nectar");
 
             slf = new SlewRateLimiter(1000);
             maxShootRPM = maxMotorRPM * .9;
             minShootRPM = maxShootRPM / 2;
-            cpr = nectarShooterMotor.getCPR();
             nectarShootServo = hardwareMap.get(Servo.class, "nectarShoot");
             nectarShootServo.setDirection(Servo.Direction.FORWARD);
             nectarShootServo.setPosition(holdPosition);
@@ -130,6 +127,7 @@ public class NectarShooterSubsystem extends SubsystemBase {
         if (!Configurables.doSimulation) {
             nectarShooterMotor.stopMotor();
             nectarShooterMotor.set(0);
+            setRunNectartShooterVelocity(false);
         } else {
             shooterMotorSim.setPower(0);
         }

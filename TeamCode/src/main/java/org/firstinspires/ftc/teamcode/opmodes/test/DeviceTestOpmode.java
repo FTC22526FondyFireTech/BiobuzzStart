@@ -124,7 +124,7 @@ public class DeviceTestOpmode extends CommandOpMode {
                 .whenPressed(intake.armDownCommand());
 
         testGP1.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
-                .whileHeld(pss.jogPollenShooterCommand(.25));
+                .whileHeld(pss.jogPollenShooterCommand(.75));
         testGP1.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
                 .whileHeld(nss.jogNectarShooterCommand(.25));
 
@@ -168,8 +168,6 @@ public class DeviceTestOpmode extends CommandOpMode {
                 .whenPressed(nss.changeNectarTargetRPMCommand(-100));
 
 
-
-
     }
 
 
@@ -195,22 +193,27 @@ public class DeviceTestOpmode extends CommandOpMode {
             dist = getDistanceToTarget(GlobalData.getActiveHiveTargetPose(), drive.getPose());
             angle = getAngleToTarget(GlobalData.getActiveHiveTargetPose(), drive.getPose());
 
+            telemetryM.addData("PSOn", pss.isRunPollenShooterAtVelocity());
+            telemetryM.addData("PSSPID",pss.pidout);
+            telemetryM.addData("PSSSFF",pss.ff);
+            telemetryM.addData("PSTGTRPM",pss.getTargetRPM());
 
-            telemetryM.addData("DistFromOdometry", f3(dist));
-            telemetryM.addData("AngleFromOdometry", f3(angle));
-
-            telemetryM.addData("TX", f3(GlobalData.getActiveHiveTargetPose().getX()));
-            telemetryM.addData("TY", f3(GlobalData.getActiveHiveTargetPose().getY()));
+            telemetryM.addData("POLLENRPM",pss.getPollenShooterRPM());
+//            telemetryM.addData("DistFromOdometry", f3(dist));
+//            telemetryM.addData("AngleFromOdometry", f3(angle));
+//
+//            telemetryM.addData("TX", f3(GlobalData.getActiveHiveTargetPose().getX()));
+//            telemetryM.addData("TY", f3(GlobalData.getActiveHiveTargetPose().getY()));
 
             List<LLResultTypes.FiducialResult> fr = vss.getFiducialResults();
 
             List<Integer> tagsSeen = vss.getTagsSeen(fr);
-            telemetryM.addData("TagsSeen", tagsSeen);
-
-
-            telemetryM.addData("ZoneFromTags", vss.findZoneFromTags(tagsSeen));
-            telemetryM.addData("Current Zone", vss.getCurrentTagZone());
-            telemetryM.addData("Is In Current Zone", vss.isInCurrentZone(fr));
+//            telemetryM.addData("TagsSeen", tagsSeen);
+//
+//
+//            telemetryM.addData("ZoneFromTags", vss.findZoneFromTags(tagsSeen));
+//            telemetryM.addData("Current Zone", vss.getCurrentTagZone());
+//            telemetryM.addData("Is In Current Zone", vss.isInCurrentZone(fr));
 
             if (!fr.isEmpty()) {
                 double[] temp = vss.getGroupTargetPose(fr);
@@ -220,22 +223,22 @@ public class DeviceTestOpmode extends CommandOpMode {
                 double yaw = temp[3];
                 double pitch = temp[4];
 
-                telemetryM.addData("X", f3M2I(x));
-                telemetryM.addData("Y", f3M2I(y));
-                telemetryM.addData("Distance", f3M2I(z));
-                telemetryM.addData("Yaw", f3(yaw));
-                telemetryM.addData("Z", f3(pitch));
-
+//                telemetryM.addData("X", f3M2I(x));
+//                telemetryM.addData("Y", f3M2I(y));
+//                telemetryM.addData("Distance", f3M2I(z));
+//                telemetryM.addData("Yaw", f3(yaw));
+//                telemetryM.addData("Z", f3(pitch));
+//
 
             }
 
             LLResult result = vss.getLLResults();
             if (result.isValid()) {
 
-                telemetryM.addData("tx", f3(result.getTx()));
-                telemetryM.addData("ty", f3(result.getTy()));
-                telemetryM.addData("ta", f3(result.getTa()));
-                telemetryM.addData("Tag Count", vss.getNumberTagsSeen(fr));
+//                telemetryM.addData("tx", f3(result.getTx()));
+//                telemetryM.addData("ty", f3(result.getTy()));
+//                telemetryM.addData("ta", f3(result.getTa()));
+//                telemetryM.addData("Tag Count", vss.getNumberTagsSeen(fr));
 
             }
 

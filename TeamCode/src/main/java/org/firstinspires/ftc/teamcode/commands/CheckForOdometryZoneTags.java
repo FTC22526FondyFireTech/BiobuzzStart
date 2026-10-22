@@ -16,7 +16,7 @@ import java.util.List;
 
 public class CheckForOdometryZoneTags extends CommandBase {
     private VisionSubsysytem vss;
-
+    private boolean hiveUp;
     private HiveMotionTracker hmt;
 
     private int tagsZone;
@@ -26,8 +26,9 @@ public class CheckForOdometryZoneTags extends CommandBase {
     double Y;
     private final double yHiveRisenValue = 0;
 
-    public CheckForOdometryZoneTags(VisionSubsysytem vss) {
+    public CheckForOdometryZoneTags(VisionSubsysytem vss, boolean hiveUp) {
         this.vss = vss;
+        this.hiveUp = hiveUp;
     }
 
     @Override
@@ -71,7 +72,7 @@ public class CheckForOdometryZoneTags extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return vss.isInOdometryZone() && Y > yHiveRisenValue && vss.hiveFalling;
+        return (vss.isInOdometryZone() && hiveUp) || (!vss.isInOdometryZone() && !hiveUp);
     }
 
 
